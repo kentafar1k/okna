@@ -1,0 +1,72 @@
+{% extends 'orders/base.html' %}
+{% block content %}
+
+    <div class="container">
+        <nav>
+            <a href="#orders">Заказы</a>
+            <a href="#clients">Клиенты</a>
+            <a href="#closed_orders">Завершённые заказы</a>
+
+        </nav>
+        <div class="toolbar"
+             style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+            <!-- Search box -->
+            <div class="search-box" style="flex: 1;">
+                <input type="text" placeholder="Поиск по номеру заказа"
+                       style="width: 100%; max-width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+
+            <!-- Create Order button -->
+            <div class="create-order" style="margin-left: 15px;">
+                <a href="#" class="button">+
+                    Создать заказ</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="orders">
+    <h2>Список заказов</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Номер заказа</th>
+                <th>Стадия</th>
+                <th>Клиент</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>2024-12-15</td>
+                <td>18555</td>
+                <td>Сборка</td>
+                <td>Иванов Иван</td>
+                <td><a href="#" class="button">Подробнее</a></td>
+            </tr>
+            <tr>
+                <td>2024-12-14</td>
+                <td>18556</td>
+                <td>Выдан</td>
+                <td>Петров Петр</td>
+                <td><a href="#" class="button">Подробнее</a></td>
+            </tr>
+            <tr>
+                <td>2024-12-16</td>
+                <td>18557</td>
+                <td>Ожидание оплаты</td>
+                <td>Сидоров Алексей</td>
+                <td><a href="#" class="button">Подробнее</a></td>
+            </tr>
+            <tr>
+                <td>2024-12-13</td>
+                <td>18558</td>
+                <td>Доставка</td>
+                <td>Кузнецов Михаил</td>
+                <td><a href="#" class="button">Подробнее</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

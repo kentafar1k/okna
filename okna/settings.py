@@ -37,9 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'proba',
     'clients',
     'orders',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -87,8 +87,8 @@ WSGI_APPLICATION = 'okna.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'my_django_db',
-        'USER': 'andruha',
+        'NAME': 'django_okna_db',
+        'USER': 'postgres',
         'PASSWORD': '6823',
         'HOST': 'localhost',  # Или IP-адрес сервера
         'PORT': '5432',  # Стандартный порт PostgreSQL
@@ -116,6 +116,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'users.User'
+
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -139,3 +142,8 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_REDIRECT_URL = '/'
+
+LOGIN_URL = '/login/'
+

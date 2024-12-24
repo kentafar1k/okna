@@ -37,34 +37,19 @@
             </tr>
         </thead>
         <tbody>
+            {% for order in orders %}
             <tr>
-                <td>2024-12-15</td>
-                <td>18555</td>
-                <td>Сборка</td>
-                <td>Иванов Иван</td>
-                <td><a href="#" class="button">Подробнее</a></td>
+                <td>{{ order.start_date|date:"Y-m-d" }}</td>
+                <td>{{ order.order_number }}</td>
+                <td>{{ order.get_status_display }}</td>
+                <td>{{ order.client.full_name }}</td>
+                <td><a href="#" class="button">детали заказа</a></td>
             </tr>
+            {% empty %}
             <tr>
-                <td>2024-12-14</td>
-                <td>18556</td>
-                <td>Выдан</td>
-                <td>Петров Петр</td>
-                <td><a href="#" class="button">Подробнее</a></td>
+                <td colspan="5">Нет активных заказов</td>
             </tr>
-            <tr>
-                <td>2024-12-16</td>
-                <td>18557</td>
-                <td>Ожидание оплаты</td>
-                <td>Сидоров Алексей</td>
-                <td><a href="#" class="button">Подробнее</a></td>
-            </tr>
-            <tr>
-                <td>2024-12-13</td>
-                <td>18558</td>
-                <td>Доставка</td>
-                <td>Кузнецов Михаил</td>
-                <td><a href="#" class="button">Подробнее</a></td>
-            </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>

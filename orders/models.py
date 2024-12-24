@@ -18,3 +18,19 @@ class Order(models.Model):
     prepayment = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     payment_type = models.CharField(max_length=10, choices=[('cash', 'Cash'), ('transfer', 'Transfer')], default='cash')
     debt = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    name = models.CharField(max_length=255)
+    quantity = models.PositiveIntegerField(default=1)
+    unit_price =models.DecimalField(max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+
+    # переопределение метода save(), который срабатывает при создании или обновлении записи в бд
+    def save(self, *args, **kwargs):
+        self.total_price = self.unit_price * self.quantity
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.name} (x{self.quantity})"
+

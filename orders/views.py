@@ -1,24 +1,18 @@
 from django.shortcuts import render
-from django.views.generic import ListView
 from .models import Order
 
-class OrderListView(ListView):
-    model = Order
-    template_name = 'orders/orders.html'
-    context_object_name = 'orders'
-    
-    def get_queryset(self):
-        # Получаем все заказы, сортируем по дате (новые сверху)
-        # Исключаем заказы со статусом 'delivered'
-        return Order.objects.exclude(status='delivered').order_by('-start_date')
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Здесь можно добавить дополнительные данные в контекст
-        return context
 
-def clients_list_view(request):
+def orders(request):
+    # Получаем все активные заказы, сортируем по дате (новые сверху)
+    active_orders = Order.objects.exclude(status='delivered').order_by('-start_date')
+
+    # Добавляем поиск по номеру заказа, если есть параметр search в запросе
+    search_query = request.GET.get('search', '')
+    if search_query:
+        active_orders = active_orders.filter(order_number__icontains=search_query)
+
     context = {
-        'title': 'Clients',
+        'title': 'Orders',
+        'orders': active_orders,
     }
-    return render(request, 'orders/clients.html', context)
+    return render(request, 'orders/orders.html', context)

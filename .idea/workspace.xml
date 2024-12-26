@@ -5,28 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e6325abf-25fb-49e1-a681-fcae7490d0db" name="Changes" comment="Initial commit">
-      <change afterPath="$PROJECT_DIR$/clients/templates/clients/clients_list.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/users/passwords.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/users/templates/users/login.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/users/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/clients/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/clients/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/okna/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/okna/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/okna/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/okna/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/orders/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/orders/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/orders/templates/orders/clients.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/clients.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/orders/templates/orders/orders.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/orders.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orders/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/orders/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orders/templates/orders/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/base.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/orders/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/orders/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/orders/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/orders/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/proba/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/login.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/proba/admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/proba/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/proba/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/proba/migrations/0002_alter_prob_number.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/proba/migrations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/users/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/proba/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/proba/tests.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/proba/views.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,6 +30,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -79,7 +68,7 @@
     &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR_AND_PREVIEW&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#1 on cursor-test&quot;,
     &quot;last_opened_file_path&quot;: &quot;E:/programming/okna&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -148,6 +137,7 @@
       <workItem from="1734878193573" duration="258000" />
       <workItem from="1734878466454" duration="8798000" />
       <workItem from="1735049672830" duration="7465000" />
+      <workItem from="1735211842581" duration="1161000" />
     </task>
     <servers />
   </component>

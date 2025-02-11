@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Заказ №{{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="order-details">
+        <div class="order-info">
+            <h2>Информация о заказе</h2>
+            <p><strong>Номер заказа:</strong> {{ order.order_number }}</p>
+            <p><strong>Клиент:</strong> {{ order.client.full_name }}</p>
+            <p><strong>Статус:</strong>
+                <form method="post" action="{% url 'orders:worker_update_status' order.id %}" class="status-form" style="display: inline;">
+                    {% csrf_token %}
+                    <select name="status" onchange="this.form.submit()" class="status-select">
+                        {% for value, label in order.STATUS_CHOICES %}
+                        <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </p>
+            <p><strong>Дата создания:</strong> {{ order.start_date|date:"d.m.Y" }}</p>
+        </div>
+
+        <div class="actions">
+            <a href="{% url 'orders:worker_orders' %}" class="button">Вернуться к списку заказов</a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.status-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const select = this.querySelector('select');
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                alert('Ошибка при обновлении статуса');
+                select.value = select.getAttribute('data-previous');
+            } else {
+                select.setAttribute('data-previous', select.value);
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ошибка при обновлении статуса');
+            select.value = select.getAttribute('data-previous');
+        });
+    });
+
+    const select = form.querySelector('select');
+    select.setAttribute('data-previous', select.value);
+});
+</script>
+
+<style>
+.status-select {
+    display: inline-block;
+    padding: 5px;
+    margin-left: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.order-details {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+.order-info {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.no-items {
+    text-align: center;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: #666;
+}
+</style>
+{% endblock %} 

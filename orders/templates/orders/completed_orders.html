@@ -1,0 +1,122 @@
+{% extends 'orders/base.html' %}
+
+{% block title %}Завершённые заказы{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav>
+        <a href="{% url 'orders:orders' %}">Заказы</a>
+        <a href="{% url 'orders:clients' %}">Клиенты</a>
+        <a href="{% url 'orders:completed_orders' %}">Завершённые заказы</a>
+    </nav>
+
+    <div class="toolbar" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+        <!-- Search box -->
+        <div class="search-box" style="flex: 1;">
+            <form method="get" class="search-form" style="display: flex; gap: 10px;">
+                <input type="text" 
+                       name="search" 
+                       placeholder="Поиск по номеру заказа"
+                       value="{{ search_query }}"
+                       style="width: 100%; max-width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <button type="submit" class="button">Поиск</button>
+                {% if search_query %}
+                    <a href="{% url 'orders:completed_orders' %}" class="button">Сбросить</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    
+    <div class="container" id="orders">
+        <h2>Завершённые заказы</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Номер заказа</th>
+                    <th>Стадия</th>
+                    <th>Клиент</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.start_date|date:"Y-m-d" }}</td>
+                    <td>{{ order.order_number }}</td>
+                    <td>{{ order.get_status_display }}</td>
+                    <td>{{ order.client.full_name }}</td>
+                    <td>
+                        <a href="{% url 'orders:order_detail' order.id %}" class="button">детали заказа</a>
+                        <form method="post" action="{% url 'orders:delete_completed_order' order.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-button" 
+                                    onclick="return confirm('Вы уверены, что хотите удалить этот заказ?')">
+                                удалить
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">Нет завершённых заказов</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+// Обновляем обработчик изменения статуса в orders.html
+document.querySelectorAll('.status-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const select = this.querySelector('select');
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                alert('Ошибка при обновлении статуса');
+                select.value = select.getAttribute('data-previous');
+            } else {
+                select.setAttribute('data-previous', select.value);
+                // Если заказ завершен, перенаправляем на список завершенных заказов
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ошибка при обновлении статуса');
+            select.value = select.getAttribute('data-previous');
+        });
+    });
+
+    const select = form.querySelector('select');
+    select.setAttribute('data-previous', select.value);
+});
+</script>
+
+<style>
+/* ... остальные стили ... */
+
+th {
+    background-color: #0073e6;
+    color: white;
+    padding: 12px;
+    font-weight: bold;
+    text-align: left;
+    border-bottom: 2px solid #dee2e6;
+}
+</style>
+{% endblock %} 

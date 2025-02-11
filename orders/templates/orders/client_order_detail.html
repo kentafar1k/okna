@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Заказ №{{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="order-details">
+        <div class="order-info">
+            <h2>Информация о заказе</h2>
+            <p><strong>Номер заказа:</strong> {{ order.order_number }}</p>
+            <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
+            <p><strong>Дата создания:</strong> {{ order.start_date|date:"d.m.Y" }}</p>
+            <p><strong>Общая стоимость:</strong> {{ order.total_price }} ₽</p>
+            {% if order.prepayment %}
+                <p><strong>Предоплата:</strong> {{ order.prepayment }} ₽</p>
+            {% endif %}
+        </div>
+
+{#       #}
+
+        <div class="actions">
+            <a href="{% url 'orders:client_orders' %}" class="button">Вернуться к списку заказов</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.order-details {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+.order-info {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.no-items {
+    text-align: center;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: #666;
+}
+</style>
+{% endblock %} 

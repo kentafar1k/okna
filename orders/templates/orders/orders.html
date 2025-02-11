@@ -1,72 +1,445 @@
-{% extends 'orders/base.html' %}
+{% extends "orders/base.html" %}
+
+{% block title %}Список заказов{% endblock %}
+
 {% block content %}
+<!-- Добавляем CSRF токен в начало контента -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 
-    <div class="container">
-        <nav>
-            <a href="#orders">Заказы</a>
-            <a href="#clients">Клиенты</a>
-            <a href="#closed_orders">Завершённые заказы</a>
+<div class="container">
+    <nav>
+        <a href="{% url 'orders:orders' %}">Заказы</a>
+        <a href="{% url 'orders:clients' %}">Клиенты</a>
+    </nav>
 
-        </nav>
-        <div class="toolbar"
-             style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-            <!-- Search box -->
-            <div class="search-box" style="flex: 1;">
-                <input type="text" placeholder="Поиск по номеру заказа"
+    <div class="toolbar" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+        <!-- Search box -->
+        <div class="search-box" style="flex: 1;">
+            <form method="get" class="search-form" style="display: flex; gap: 10px;">
+                <input type="text" 
+                       name="search" 
+                       placeholder="Поиск по номеру заказа"
+                       value="{{ search_query }}"
                        style="width: 100%; max-width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-            </div>
+                <button type="submit" class="button">Поиск</button>
+                {% if search_query %}
+                    <a href="{% url 'orders:orders' %}" class="button">Сбросить</a>
+                {% endif %}
+            </form>
+        </div>
 
-            <!-- Create Order button -->
-            <div class="create-order" style="margin-left: 15px;">
-                <a href="#" class="button">+
-                    Создать заказ</a>
-            </div>
+        
+
+        <!-- Create Order button -->
+        <div class="create-order" style="margin-left: 15px;">
+            <a href="{% url 'orders:create_order' %}" class="button">+ Создать заказ</a>
         </div>
     </div>
-
+    
     <div class="container" id="orders">
-    <h2>Список заказов</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Дата</th>
-                <th>Номер заказа</th>
-                <th>Стадия</th>
-                <th>Клиент</th>
-                <th>Действия</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>2024-12-15</td>
-                <td>18555</td>
-                <td>Сборка</td>
-                <td>Иванов Иван</td>
-                <td><a href="#" class="button">Подробнее</a></td>
-            </tr>
-            <tr>
-                <td>2024-12-14</td>
-                <td>18556</td>
-                <td>Выдан</td>
-                <td>Петров Петр</td>
-                <td><a href="#" class="button">Подробнее</a></td>
-            </tr>
-            <tr>
-                <td>2024-12-16</td>
-                <td>18557</td>
-                <td>Ожидание оплаты</td>
-                <td>Сидоров Алексей</td>
-                <td><a href="#" class="button">Подробнее</a></td>
-            </tr>
-            <tr>
-                <td>2024-12-13</td>
-                <td>18558</td>
-                <td>Доставка</td>
-                <td>Кузнецов Михаил</td>
-                <td><a href="#" class="button">Подробнее</a></td>
-            </tr>
-        </tbody>
-    </table>
+        <div class="orders-header">
+            <h2>Список заказов</h2>
+            <div class="sort-box">
+                <form method="get" id="sortForm">
+                    <select name="sort" onchange="this.form.submit()" class="sort-select">
+                        <option value="-start_date" {% if current_sort == '-start_date' %}selected{% endif %}>
+                            Сначала новые
+                        </option>
+                        <option value="start_date" {% if current_sort == 'start_date' %}selected{% endif %}>
+                            Сначала старые
+                        </option>
+                    </select>
+                    {% if search_query %}
+                        <input type="hidden" name="search" value="{{ search_query }}">
+                    {% endif %}
+                </form>
+            </div>
+            <div class="total-debt-info">
+                <span>Общая задолженность:</span>
+                <span class="total-amount">{{ total_debt }} ₽</span>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Номер заказа</th>
+                    <th>Стадия</th>
+                    <th>Клиент</th>
+                    <th>Стоимость</th>
+                    <th>Предоплата</th>
+                    <th>Задолженность</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr class="{% if order.status == 'completed' %}completed-order{% endif %}" data-order-id="{{ order.id }}">
+                    <td>{{ order.start_date|date:"Y-m-d" }}</td>
+                    <td>{{ order.order_number }}</td>
+                    <td>
+                        <form method="post" action="{% url 'orders:update_status' order.id %}" class="status-form" data-order-id="{{ order.id }}">
+                            {% csrf_token %}
+                            <select name="status" class="status-select" data-previous="{{ order.status }}">
+                                {% for value, label in order.STATUS_CHOICES %}
+                                <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </td>
+                    <td>{{ order.client.full_name }}</td>
+                    <td>{{ order.total_price }} ₽</td>
+                    <td>{{ order.prepayment|default:0 }} ₽</td>
+                    <td>{{ order.get_debt }} ₽</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'orders:order_detail' order.id %}" class="button">детали</a>
+                            <button onclick="deleteOrder({{ order.id }}, '{{ order.order_number }}')" class="delete-button">✕</button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">Нет заказов</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
+<!-- Добавьте модальное окно перед закрывающим тегом body -->
+<div id="notificationModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h3>Отправка уведомлений</h3>
+        <div class="notification-options">
+            <label>
+                <input type="checkbox" id="sendEmail" checked>
+                Отправить уведомление на email
+            </label>
+            <label>
+                <input type="checkbox" id="sendSMS" checked>
+                Отправить SMS-уведомление
+            </label>
+        </div>
+        <div class="modal-buttons">
+            <button onclick="confirmStatusUpdate()" class="button">Подтвердить</button>
+            <button onclick="cancelStatusUpdate()" class="button cancel">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.status-select {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    width: 100%;
+}
+
+.status-form {
+    margin: 0;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 20px;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    min-width: 1200px;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+td {
+    padding: 8px;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+table {
+    table-layout: auto;
+}
+
+th, td {
+    padding: 12px 8px;  /* Уменьшаем горизонтальные отступы */
+    text-align: left;
+    white-space: nowrap;  /* Запрещаем перенос текста */
+    overflow: hidden;
+    text-overflow: ellipsis;  /* Добавляем многоточие для длинного текста */
+}
+
+/* Задаем ширину для каждого столбца */
+th:nth-child(1), td:nth-child(1) { width: 8%; }   /* Дата */
+th:nth-child(2), td:nth-child(2) { width: 12%; }  /* Номер заказа */
+th:nth-child(3), td:nth-child(3) { width: 15%; }  /* Стадия */
+th:nth-child(4), td:nth-child(4) { width: 20%; }  /* Клиент */
+th:nth-child(5), td:nth-child(5) { width: 12%; }  /* Стоимость */
+th:nth-child(6), td:nth-child(6) { width: 12%; }  /* Предоплата */
+th:nth-child(7), td:nth-child(7) { width: 12%; }  /* Задолженность */
+th:nth-child(8), td:nth-child(8) { width: 9%; }   /* Действия */
+
+/* Стили для контейнера кнопок */
+.action-buttons {
+    display: flex;
+    gap: 4px;  /* Уменьшаем отступ между кнопками */
+    align-items: center;
+    white-space: nowrap;
+}
+
+/* Компактные стили для кнопок */
+.button {
+    padding: 4px 8px;  /* Уменьшаем отступы */
+    font-size: 13px;   /* Немного уменьшаем шрифт */
+    white-space: nowrap;
+    min-width: auto;
+}
+
+.delete-button {
+    background-color: #e0e0e0;  /* Серый цвет */
+    color: #666;  /* Тёмно-серый цвет для текста */
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 13px;
+    min-width: auto;
+}
+
+.delete-button:hover {
+    background-color: #cccccc;  /* Более тёмный серый при наведении */
+}
+
+.completed-order {
+    background-color: #e8f5e9;
+}
+
+.sort-select {
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    font-size: 14px;
+    min-width: 120px;
+}
+
+.sort-select:hover {
+    border-color: #0073e6;
+}
+
+.sort-box {
+    margin-right: auto;
+}
+
+.orders-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.orders-header h2 {
+    margin: 0;
+    min-width: 150px;
+}
+
+.total-debt-info {
+    margin-left: auto;
+    font-size: 14px;
+    color: #666;
+    white-space: nowrap;
+}
+
+.total-debt-info .total-amount {
+    font-weight: bold;
+    color: #0073e6;
+    margin-left: 5px;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 400px;
+}
+
+.notification-options {
+    margin: 20px 0;
+}
+
+.notification-options label {
+    display: block;
+    margin: 10px 0;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.button.cancel {
+    background-color: #6c757d;
+}
+
+.button.cancel:hover {
+    background-color: #5a6268;
+}
+</style>
+
+<script>
+let currentOrderId = null;
+let currentSelect = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const selects = document.querySelectorAll('.status-select');
+    
+    selects.forEach(select => {
+        select.addEventListener('change', function() {
+            const newStatus = this.value;
+            const form = this.closest('form');
+            
+            if (newStatus === 'ready') {
+                // Показываем модальное окно
+                currentOrderId = form.getAttribute('data-order-id');
+                currentSelect = this;
+                document.getElementById('notificationModal').style.display = 'block';
+            } else {
+                // Для других статусов отправляем форму как обычно
+                updateOrderStatus(form, this);
+            }
+        });
+    });
+});
+
+function confirmStatusUpdate() {
+    const form = document.querySelector(`.status-form[data-order-id="${currentOrderId}"]`);
+    const sendEmail = document.getElementById('sendEmail').checked;
+    const sendSMS = document.getElementById('sendSMS').checked;
+    
+    const formData = new FormData(form);
+    formData.append('send_email', sendEmail);
+    formData.append('send_sms', sendSMS);
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            currentSelect.setAttribute('data-previous', currentSelect.value);
+        } else {
+            alert('Ошибка при обновлении статуса');
+            currentSelect.value = currentSelect.getAttribute('data-previous');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ошибка при обновлении статуса');
+        currentSelect.value = currentSelect.getAttribute('data-previous');
+    })
+    .finally(() => {
+        document.getElementById('notificationModal').style.display = 'none';
+        currentOrderId = null;
+        currentSelect = null;
+    });
+}
+
+function cancelStatusUpdate() {
+    if (currentSelect) {
+        currentSelect.value = currentSelect.getAttribute('data-previous');
+    }
+    document.getElementById('notificationModal').style.display = 'none';
+    currentOrderId = null;
+    currentSelect = null;
+}
+
+function updateOrderStatus(form, select) {
+    const formData = new FormData(form);
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            select.setAttribute('data-previous', select.value);
+        } else {
+            alert('Ошибка при обновлении статуса');
+            select.value = select.getAttribute('data-previous');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ошибка при обновлении статуса');
+        select.value = select.getAttribute('data-previous');
+    });
+}
+
+function deleteOrder(orderId, orderNumber) {
+    if (confirm(`Вы уверены, что хотите удалить заказ №${orderNumber}?`)) {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        fetch(`/orders/${orderId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                const row = document.querySelector(`tr[data-order-id="${orderId}"]`);
+                if (row) {
+                    row.remove();
+                }
+            } else {
+                alert('Ошибка при удалении заказа: ' + (data.error || 'Неизвестная ошибка'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ошибка при удалении заказа: ' + error.message);
+        });
+    }
+}
+</script>
 {% endblock %}

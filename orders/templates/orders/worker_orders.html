@@ -1,0 +1,107 @@
+{% extends 'orders/base.html' %}
+
+{% block title %}Список заказов{% endblock %}
+
+{% block content %}
+<div class="container">
+
+
+    <div class="toolbar" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+        <!-- Search box -->
+        <div class="search-box" style="flex: 1;">
+            <form method="get" class="search-form" style="display: flex; gap: 10px;">
+                <input type="text" 
+                       name="search" 
+                       placeholder="Поиск по номеру заказа"
+                       value="{{ search_query }}"
+                       style="width: 100%; max-width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <button type="submit" class="button">Поиск</button>
+                {% if search_query %}
+                    <a href="{% url 'orders:worker_orders' %}" class="button">Сбросить</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    
+    <div class="container" id="orders">
+        <h2>Список заказов</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Номер заказа</th>
+                    <th>Стадия</th>
+                    <th>Клиент</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.start_date|date:"Y-m-d" }}</td>
+                    <td>{{ order.order_number }}</td>
+                    <td>
+                        <form method="post" action="{% url 'orders:worker_update_status' order.id %}" class="status-form">
+                            {% csrf_token %}
+                            <select name="status" onchange="this.form.submit()" class="status-select">
+                                {% for value, label in order.STATUS_CHOICES %}
+                                <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </td>
+                    <td>{{ order.client.full_name }}</td>
+                    <td>
+                        <a href="{% url 'orders:order_detail' order.id %}" class="button">детали заказа</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">Нет активных заказов</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.status-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const select = this.querySelector('select');
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                alert('Ошибка при обновлении статуса');
+                select.value = select.getAttribute('data-previous');
+            } else {
+                select.setAttribute('data-previous', select.value);
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ошибка при обновлении статуса');
+            select.value = select.getAttribute('data-previous');
+        });
+    });
+
+    const select = form.querySelector('select');
+    select.setAttribute('data-previous', select.value);
+});
+</script>
+{% endblock %}

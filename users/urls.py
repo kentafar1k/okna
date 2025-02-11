@@ -1,15 +1,12 @@
 from django.urls import path
-from .views import custom_login_view
+from . import views
+from django.contrib.auth import views as auth_views
 
 app_name = 'users'
 
-# class CustomLoginView(LoginView):
-#     template_name = 'users/login.html'
-#     authentication_form = UserLoginForm
-#
-#     def get_success_url(self):
-#         return '/dashboard/'
-
 urlpatterns = [
-    path('', custom_login_view, name='login'),
+    path('', views.login_view, name='login'),  # корневой URL для логина
+    path('logout/', views.logout_view, name='logout'),
+    path('register/', views.register, name='register'),
+    path('profile/', views.profile, name='profile'),
 ]

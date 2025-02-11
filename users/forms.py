@@ -1,19 +1,36 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm
+from .models import User
 
-class UserLoginForm(AuthenticationForm):
-    username = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'placeholder': 'Введите имя пользователя',
-        })
-    )
-    password = forms.CharField(
-        widget=forms.PasswordInput(attrs={
-            'placeholder': 'Введите пароль',
-        })
-    )
+class UserRegistrationForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+    first_name = forms.CharField(required=True)
+    last_name = forms.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'user_type')
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        if commit:
+            user.save()
+        return user
+
+class UserUpdateForm(forms.ModelForm):
+    email = forms.EmailField(required=True)
+    first_name = forms.CharField(required=True)
+    last_name = forms.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name', 'user_type')
 
     def __init__(self, *args, **kwargs):
-        super(UserLoginForm, self).__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-group'
+        super().__init__(*args, **kwargs)
+        # Делаем поле user_type только для чтения, если пользователь не администратор
+        if not self.instance.is_superuser:
+            self.fields['user_type'].disabled = True

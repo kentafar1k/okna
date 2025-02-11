@@ -1,11 +1,35 @@
 from django.db import models
-from django.contrib.auth.models import User, Group
 from django.conf import settings
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class Client(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    telephone_number = models.CharField(max_length=15, default='88005553535')
-    total_debt = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    full_name = models.CharField(max_length=100, verbose_name='ФИО', default="-")
+    phone = models.CharField(max_length=15, verbose_name='Телефон')
+    email = models.EmailField(blank=True, null=True, verbose_name='Email', default="-")
+    address = models.TextField(blank=True, null=True, verbose_name='Адрес', default="-")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Клиент'
+        verbose_name_plural = 'Клиенты'
+        ordering = ['phone']
 
     def __str__(self):
-        return str(self.user)
+        return self.full_name
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('clients:client_detail', kwargs={'client_id': self.pk})
+
+    def get_total_debt(self):
+        """Возвращает общую сумму задолженности по всем заказам клиента"""
+        total_debt = 0
+        for order in self.order_set.all():
+            debt = order.get_debt()
+            if debt > 0:  # учитываем только положительные задолженности
+                total_debt += debt
+        return total_debt

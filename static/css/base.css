@@ -82,3 +82,326 @@ th {
 .button:hover {
     background: #005bb5;
 }
+
+.login-form {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.error-message {
+    color: #dc3545;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #dc3545;
+    border-radius: 4px;
+    background-color: #f8d7da;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    color: white;
+    background-color: #007bff;
+    border: 1px solid #0056b3;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.form-links {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+/* Стили для таблиц заказов */
+.order-details {
+    margin: 20px 0;
+    display: grid;
+    gap: 20px;
+}
+
+.order-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.order-info h2 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.order-info p {
+    margin: 10px 0;
+}
+
+.order-items {
+    margin-top: 20px;
+}
+
+.no-items {
+    text-align: center;
+    padding: 40px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: #666;
+}
+
+.actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .order-details {
+        grid-template-columns: 1fr;
+    }
+}
+
+.messages {
+    margin: 10px 0;
+    padding: 10px;
+}
+
+.message {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 4px;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.message.success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.message.warning {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+}
+
+/* Стили для формы создания заказа */
+.order-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.form-section h2 {
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.order-item {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+}
+
+.delete-row {
+    margin-top: 0.5rem;
+    color: #dc3545;
+}
+
+.form-actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+}
+
+#add-item {
+    margin: 1rem 0;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* Стили для таблицы клиентов */
+.clients-table th {
+    background-color: #0073e6;
+    color: white;
+    padding: 12px;
+}
+
+.clients-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.clients-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.search-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-form input {
+    flex: 1;
+    max-width: 300px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.search-form button {
+    padding: 8px 15px;
+    background: #0073e6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-form button:hover {
+    background: #005bb5;
+}
+
+.search-form a {
+    padding: 8px 15px;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.search-form a:hover {
+    background: #5a6268;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 100%;
+    padding: 0 20px;
+    position: relative;
+}
+
+.header-content h1 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    width: auto;
+}
+
+.logout-button {
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+    background-color: #004494;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    margin-left: auto;
+}
+
+.logout-button:hover {
+    background-color: #003371;
+}
+
+.delete-button {
+    background-color: #dc3545;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    margin-left: 5px;
+    padding: 10px 15px;
+    display: inline-block;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+}
+
+.completed-order td {
+    background-color: #dee2e6 !important;
+    color: #495057;
+}
+
+.completed-order:hover td {
+    background-color: #dee2e6 !important;
+}
+
+.completed-order td .button {
+    opacity: 0.85;
+}
+
+.client-link {
+    color: #0073e6;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.client-link:hover {
+    color: #005bb5;
+    text-decoration: underline;
+}

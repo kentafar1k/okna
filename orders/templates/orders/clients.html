@@ -1,111 +1,204 @@
 {% extends 'orders/base.html' %}
 
-{% block content %}
-    <div class="container">
-        <nav>
-            <a href="#orders">Заказы</a>
-            <a href="#clients">Клиенты</a>
-            <a href="#closed_orders">Завершённые заказы</a>
+{% block title %}Клиенты{% endblock %}
 
-        </nav>
-        <div class="toolbar"
-             style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-            <!-- Search box -->
-            <div class="search-box" style="flex: 1;">
-                <input type="text" placeholder="Поиск имени"
+{% block content %}
+<!-- Добавляем CSRF токен в начало контента -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+<div class="container">
+    <nav>
+        <a href="{% url 'orders:orders' %}">Заказы</a>
+        <a href="{% url 'orders:clients' %}">Клиенты</a>
+    </nav>
+
+    <div class="toolbar" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+        <!-- Search box -->
+        <div class="search-box" style="flex: 1;">
+            <form method="get" class="search-form" style="display: flex; gap: 10px;">
+                <input type="text"
+                       name="search"
+                       placeholder="Поиск по имени или телефону"
+                       value="{{ search_query }}"
                        style="width: 100%; max-width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <button type="submit" class="button">Поиск</button>
+                {% if search_query %}
+                    <a href="{% url 'orders:clients' %}" class="button">Сбросить</a>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Add Client button -->
+        <div class="create-client" style="margin-left: 15px;">
+            <a href="{% url 'orders:add_client' %}" class="button">+ Добавить клиента</a>
+        </div>
+    </div>
+
+    <div class="container" id="clients">
+        <div class="clients-header">
+            <h2>Список клиентов</h2>
+            <div class="sort-box">
+                <form method="get" id="sortForm">
+                    <select name="sort" onchange="this.form.submit()" class="sort-select">
+                        <option value="-last_order" {% if current_sort == '-last_order' %}selected{% endif %}>
+                            Недавние заказы
+                        </option>
+                        <option value="last_order" {% if current_sort == 'last_order' %}selected{% endif %}>
+                            Старые заказы
+                        </option>
+                    </select>
+                    {% if search_query %}
+                        <input type="hidden" name="search" value="{{ search_query }}">
+                    {% endif %}
+                </form>
             </div>
         </div>
-
-        <div class="container" id="clients">
-            <h2>Список клиентов</h2>
-            <table>
-                <thead>
+        <table>
+            <thead>
                 <tr>
-                    <th>ФИО</th>
                     <th>Телефон</th>
-                    <th>Общая задолженность</th>
+                    <th>ФИО</th>
+                    <th>Email</th>
+                    <th>Кол-во заказов</th>
+                    <th>Последний заказ</th>
                     <th>Действия</th>
                 </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Иванов Иван</td>
-                    <td>+7 123 456 78 90</td>
-                    <td>0 ₽</td>
-                    <td><a href="#" class="button">Кабинет</a></td>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                <tr data-client-id="{{ client.id }}">
+                    <td>
+                        <a href="{% url 'orders:client_detail' client.id %}" class="client-link">
+                            {{ client.phone }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'orders:client_detail' client.id %}" class="client-link">
+                            {{ client.full_name|default:"-" }}
+                        </a>
+                    </td>
+                    <td>{{ client.email|default:"-" }}</td>
+                    <td>{{ client.order_set.count }}</td>
+                    <td>
+                        {% with last_order=client.order_set.first %}
+                        {% if last_order %}
+                            {{ last_order.start_date|date:"d.m.Y" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                        {% endwith %}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'orders:client_detail' client.id %}" class="button">детали</a>
+                            <a href="{% url 'orders:create_order' %}?client={{ client.id }}" class="button">новый заказ</a>
+                            <button onclick="deleteClient({{ client.id }}, '{{ client.full_name|escapejs }}')" class="delete-button">✕</button>
+                        </div>
+                    </td>
                 </tr>
+                {% empty %}
                 <tr>
-                    <td>Петров Петр</td>
-                    <td>+7 987 654 32 10</td>
-                    <td>50,000 ₽</td>
-                    <td><a href="#" class="button">Кабинет</a></td>
+                    <td colspan="6">Нет клиентов</td>
                 </tr>
-                </tbody>
-            </table>
-        </div>
-        <h1>.</h1>
-        <h1>.</h1>
-        <h1>.</h1>
-        <h1>.</h1>
-        <h1>.</h1>
-        <h1>.</h1>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-        <div class="container" id="worker">
-            <h2>Рабочий кабинет</h2>
-            <p>Здесь рабочие видят текущие заказы и стадии их выполнения.</p>
-            <table>
-                <thead>
-                <tr>
-                    <th>Номер заказа</th>
-                    <th>Изделие</th>
-                    <th>Стадия</th>
-                    <th>Дата</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>18555</td>
-                    <td>Окно 1</td>
-                    <td>Сборка завершена</td>
-                    <td>2024-12-14</td>
-                </tr>
-                <tr>
-                    <td>18555</td>
-                    <td>Окно 2</td>
-                    <td>Сборка</td>
-                    <td>2024-12-15</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+<script>
+function deleteClient(clientId, clientName) {
+    if (confirm(`Вы уверены, что хотите удалить клиента ${clientName}?\nВсе заказы этого клиента также будут удалены!`)) {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        fetch(`/orders/clients/delete/${clientId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                const row = document.querySelector(`tr[data-client-id="${clientId}"]`);
+                if (row) {
+                    row.remove();
+                }
+            } else {
+                alert('Ошибка при удалении клиента: ' + (data.error || 'Неизвестная ошибка'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ошибка при удалении клиента: ' + error.message);
+        });
+    }
+}
+</script>
 
-        <div class="container" id="client">
-            <h2>Личный кабинет клиента</h2>
-            <p>Информация по заказам клиента.</p>
-            <table>
-                <thead>
-                <tr>
-                    <th>Номер заказа</th>
-                    <th>Стадия</th>
-                    <th>Дата</th>
-                    <th>Остаток</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>18555</td>
-                    <td>Готово к выдаче</td>
-                    <td>2024-12-14</td>
-                    <td>0 ₽</td>
-                </tr>
-                <tr>
-                    <td>18556</td>
-                    <td>Выдано</td>
-                    <td>2024-12-13</td>
-                    <td>0 ₽</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+<style>
+.clients-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.clients-header h2 {
+    margin: 0;
+}
+
+.sort-select {
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    font-size: 14px;
+    min-width: 120px;
+}
+
+.sort-select:hover {
+    border-color: #0073e6;
+}
+
+.sort-box {
+    display: flex;
+    align-items: center;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.button {
+    padding: 4px 8px;
+    font-size: 13px;
+    white-space: nowrap;
+    min-width: auto;
+}
+
+.delete-button {
+    background-color: #e0e0e0;
+    color: #666;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.delete-button:hover {
+    background-color: #cccccc;
+}
+</style>
 {% endblock %}

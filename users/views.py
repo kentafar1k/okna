@@ -1,49 +1,76 @@
-from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.decorators import login_required
+from .forms import UserRegistrationForm, UserUpdateForm
+from django.contrib import messages
 
-def custom_login_view(request):
+def login_view(request):
+    if request.user.is_authenticated:
+        if request.user.is_manager():
+            return redirect('orders:orders')
+        elif request.user.is_worker():
+            return redirect('orders:worker_orders')
+        elif request.user.is_client():
+            return redirect('orders:client_orders')
+        else:
+            messages.warning(request, 'Тип пользователя не определен')
+            return redirect('users:login')
+    
     if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                # print(f"Authenticated user role: {user.role}")
-                login(request, user)
-                # Редирект в зависимости от роли
-                if hasattr(user, 'role'):  # Проверяем наличие атрибута role
-                    if user.role == 'admin':
-                        return redirect('/admin/')
-                    elif user.role == 'manager':
-                        return redirect('/manager-dashboard/')
-                    elif user.role == 'employee':
-                        return redirect('/employee-dashboard/')
-                return redirect('/default-dashboard/')
-        return render(request, 'users/login.html', {'form': form, 'error': 'Invalid credentials'})
-    else:
-        form = AuthenticationForm()
-    return render(request, 'users/login.html', {'form': form})
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            if user.is_manager():
+                return redirect('orders:orders')
+            elif user.is_worker():
+                return redirect('orders:worker_orders')
+            elif user.is_client():
+                return redirect('orders:client_orders')
+            else:
+                messages.warning(request, 'Тип пользователя не определен')
+                return redirect('users:login')
+        else:
+            messages.error(request, 'Неправильное имя пользователя или пароль')
+    
+    return render(request, 'users/login.html')
 
-# from django.contrib.auth.views import LoginView
-# from .models import CustomUser
-# from django.http import HttpRequest, HttpResponse
-#
-# def some_view(request: HttpRequest) -> HttpResponse:
-#     user: CustomUser = request.user  # Аннотация типа
-#     print(user.role)
-#     return HttpResponse("User role is: " + user.role)
-#
-# class CustomLoginView(LoginView):
-#     def get_success_url(self):
-#         # Проверяем роль пользователя
-#         user: CustomUser = self.request.user
-#         if user.role == 'admin':
-#             return '/admin-dashboard/'
-#         elif user.role == 'manager':
-#             return '/manager-dashboard/'
-#         elif user.role == 'employee':
-#             return '/employee-dashboard/'
-#         return '/default-dashboard/'  # Редирект по умолчанию
+def register(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Регистрация успешна!')
+            return redirect('users:login')
+    else:
+        form = UserRegistrationForm()
+    return render(request, 'users/register.html', {'form': form})
+
+@login_required
+def profile(request):
+    if request.method == 'POST':
+        form = UserUpdateForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('users:profile')
+    else:
+        form = UserUpdateForm(instance=request.user)
+    return render(request, 'users/profile.html', {'form': form})
+
+@login_required
+def home(request):
+    if request.user.is_manager():
+        return redirect('orders:orders')
+    elif request.user.is_worker():
+        return redirect('orders:worker_orders')
+    else:  # клиент
+        return redirect('orders:client_orders')
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'Вы успешно вышли из системы')
+    return redirect('users:login')
 

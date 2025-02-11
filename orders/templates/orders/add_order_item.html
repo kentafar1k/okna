@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Добавление позиции в заказ{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="order-form">
+        <h1>Добавление позиции в заказ №{{ order.order_number }}</h1>
+        
+        <form method="post" class="create-order-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <div class="error-message">
+                        {{ field.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Добавить позицию</button>
+                <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

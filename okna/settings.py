@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,6 +26,7 @@ SECRET_KEY = 'django-insecure-zdgn7&i+g_4cug8d^ss54*d+n!3v$81aooq&h%864d+@jxf(hu
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# ALLOWED_HOSTS = ['your_username.pythonanywhere.com']
 ALLOWED_HOSTS = []
 
 
@@ -40,6 +42,7 @@ INSTALLED_APPS = [
     'clients',
     'orders',
     'users',
+    'bot',
 ]
 
 MIDDLEWARE = [
@@ -57,8 +60,9 @@ ROOT_URLCONF = 'okna.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [
+            BASE_DIR / 'templates',  # общие шаблоны
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -138,12 +142,33 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/orders/'
 
 LOGIN_URL = '/login/'
+LOGOUT_REDIRECT_URL = '/login/'
+
+# Telegram Bot settings
+TELEGRAM_BOT_TOKEN = '7786919783:AAFEzX3vODDmn8WvYp2fvwdrD4r65tVNQaE'
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'cherald13377@yandex.ru'  # Ваш яндекс email
+EMAIL_HOST_PASSWORD = 'lfvpcnksiisuobmu'  # Пароль приложения из настроек Яндекс.Почты
+
+# SMS settings
+SMSRU_API_KEY = '844F5E52-0836-3E80-FEA8-92660E5D0282'
+
+# SMSAero settings
+SMSAERO_EMAIL = 'andreibogd@mail.ru'
+SMSAERO_API_KEY = 'jrzFttmBjhSLvqbQShch1_CeTF1DlF9x'
 

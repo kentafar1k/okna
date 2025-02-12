@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +30,7 @@ SECRET_KEY = os.getenv('django-insecure-zdgn7&i+g_4cug8d^ss54*d+n!3v$81aooq&h%86
 DEBUG = True
 
 # ALLOWED_HOSTS = ['your_username.pythonanywhere.com']
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.onrender.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -102,15 +104,14 @@ WSGI_APPLICATION = 'okna.wsgi.application'
 #     }
 # }
 
+# Database
+DATABASE_URL = os.getenv('DATABASE_URL')
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('PGDATABASE'),      # Оставьте как есть
-        'USER': os.getenv('PGUSER'),          # Оставьте как есть
-        'PASSWORD': os.getenv('PGPASSWORD'),  # Оставьте как есть
-        'HOST': os.getenv('PGHOST'),          # Оставьте как есть
-        'PORT': os.getenv('PGPORT'),          # Оставьте как есть
-    }
+    'default': dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 # Password validation

@@ -23,8 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-zdgn7&i+g_4cug8d^ss54*d+n!3v$81aooq&h%864d+@jxf(hu'
-SECRET_KEY = os.getenv('django-insecure-zdgn7&i+g_4cug8d^ss54*d+n!3v$81aooq&h%864d+@jxf(hu')
+SECRET_KEY = 'django-insecure-zdgn7&i+g_4cug8d^ss54*d+n!3v$81aooq&h%864d+@jxf(hu'
+# SECRET_KEY = os.getenv('django-insecure-zdgn7&i+g_4cug8d^ss54*d+n!3v$81aooq&h%864d+@jxf(hu')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -91,27 +91,17 @@ WSGI_APPLICATION = 'okna.wsgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'django_okna_db',
-#         'USER': 'postgres',
-#         'PASSWORD': '6823',
-#         'HOST': 'localhost',  # Или IP-адрес сервера
-#         'PORT': '5432',  # Стандартный порт PostgreSQL
-#         'OPTIONS': {
-#             'client_encoding': 'UTF8',}
-#     }
-# }
-
-# Database
-DATABASE_URL = os.getenv('DATABASE_URL')
 DATABASES = {
-    'default': dj_database_url.config(
-        default=DATABASE_URL,
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'django_okna_db',
+        'USER': 'postgres',
+        'PASSWORD': '6823',
+        'HOST': 'localhost',  # Или IP-адрес сервера
+        'PORT': '5432',  # Стандартный порт PostgreSQL
+        'OPTIONS': {
+            'client_encoding': 'UTF8',}
+    }
 }
 
 # Password validation
@@ -167,8 +157,8 @@ LOGIN_URL = '/login/'
 LOGOUT_REDIRECT_URL = '/login/'
 
 # Telegram Bot settings
-# TELEGRAM_BOT_TOKEN = '7786919783:AAFEzX3vODDmn8WvYp2fvwdrD4r65tVNQaE'
-TELEGRAM_BOT_TOKEN = os.getenv('7786919783:AAFEzX3vODDmn8WvYp2fvwdrD4r65tVNQaE')
+TELEGRAM_BOT_TOKEN = '7786919783:AAFEzX3vODDmn8WvYp2fvwdrD4r65tVNQaE'
+# TELEGRAM_BOT_TOKEN = os.getenv('7786919783:AAFEzX3vODDmn8WvYp2fvwdrD4r65tVNQaE')
 
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

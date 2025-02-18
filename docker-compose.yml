@@ -1,1 +1,27 @@
- 
+# позволяет управлять сразу несколькими контейнерами и создавать несколько сразу
+
+networks:
+  dev:
+
+
+services:
+#  nginx:
+#    image: nginx:stable-alpine
+#    ports:
+#      - "80:80"
+#    # где хранится у меня: и где хранится на сервере будет
+#    volumes:
+#      - './nginx.conf:/etc/nginx/nginx.conf'
+#    depends_on:
+#      - backend
+#    networks:
+#      - dev
+
+  # любое название
+  backend:
+    build:
+      context: ./okna
+    networks:
+      - dev
+
+

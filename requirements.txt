@@ -14,3 +14,4 @@ typing_extensions==4.12.2
 tzdata==2024.2
 gunicorn==21.2.0
 dj-database-url==2.1.0
+requests==2.0.0

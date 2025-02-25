@@ -94,9 +94,9 @@ WSGI_APPLICATION = 'okna.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'django_okna_db',
-        'USER': 'postgres',
-        'PASSWORD': '6823',
+        'NAME': 'okna',
+        'USER': 'andy',
+        'PASSWORD': 'Bogdan682356',
         'HOST': 'localhost',  # Или IP-адрес сервера
         'PORT': '5432',  # Стандартный порт PostgreSQL
         'OPTIONS': {

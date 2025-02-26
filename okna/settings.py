@@ -30,8 +30,8 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'default_secret_key')
 
-# ALLOWED_HOSTS = ['your_username.pythonanywhere.com']
-ALLOWED_HOSTS = ['.onrender.com', 'localhost', '127.0.0.1']
+# ALLOWED_HOSTS из переменной окружения, поддержка списка через запятую
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
 
 
 # Application definition
@@ -84,20 +84,6 @@ WSGI_APPLICATION = 'okna.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'okna',
-#         'USER': 'andy',
-#         'PASSWORD': 'Bogdan682356',
-#         'HOST': 'localhost',  # Или IP-адрес сервера
-#         'PORT': '5432',  # Стандартный порт PostgreSQL
-#         'OPTIONS': {
-#             'client_encoding': 'UTF8',}
-#     }
-# }
 
 DATABASES = {
     'default': {

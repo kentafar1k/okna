@@ -26,5 +26,4 @@ urlpatterns = [
     path('', redirect_to_login),
     path('login/', include('users.urls', namespace='users')),
     path('orders/', include('orders.urls', namespace='orders')),
-    # path('clients/', include('clients.urls', namespace='clients')),
 ]

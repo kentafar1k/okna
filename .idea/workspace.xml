@@ -6,13 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="e6325abf-25fb-49e1-a681-fcae7490d0db" name="Changes" comment="Initial commit">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clients/templates/clients/clients_list.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/clients/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/clients/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/clients/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/clients/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/orders/templates/base.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orders/templates/orders/add_order_item.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orders/templates/orders/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/orders/templates/orders/create.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orders/templates/orders/create_order.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/create_order.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/orders/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/orders/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/okna/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/okna/urls.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

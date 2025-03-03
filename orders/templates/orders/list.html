@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<style>
+    @media (max-width: 768px) {
+        .order-list {
+            padding: 5px;
+        }
+        .order-item {
+            margin-bottom: 10px;
+        }
+        .table td, .table th {
+            padding: 0.5rem;
+            font-size: 14px;
+        }
+        .order-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .btn {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Список заказов</h1>
+            <div class="table-responsive">
+                <table class="table">
+                    <!-- Содержимое таблицы -->
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -21,19 +21,6 @@
     </div>
 </header>
 
-{#{% if user.is_authenticated %}#}
-{#    {% if user.is_manager %}#}
-{#    {% elif user.is_worker %}#}
-{#        <nav>#}
-{#            <a href="{% url 'orders:worker_orders' %}">Мои задачи</a>#}
-{#        </nav>#}
-{#    {% elif user.is_client %}#}
-{#        <nav>#}
-{#            <a href="{% url 'orders:client_orders' %}">Мои заказы</a>#}
-{#        </nav>#}
-{#    {% endif %}#}
-{#{% endif %}#}
-
 {% block content %} {% endblock %}
 
 </body>

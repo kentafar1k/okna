@@ -293,35 +293,6 @@ def orders_client_detail(request, client_id):
         'form': form
     })
 
-@manager_required
-def completed_orders(request):
-    # Базовый queryset для завершенных заказов
-    orders_queryset = Order.objects.filter(status='completed').order_by('-start_date')
-
-    # Получаем параметр поиска
-    search_query = request.GET.get('search', '').strip()
-    
-    if search_query:
-        # Применяем фильтры поиска
-        orders_queryset = orders_queryset.filter(
-            order_number__icontains=search_query
-        )
-
-    context = {
-        'orders': orders_queryset,
-        'search_query': search_query,
-        'is_completed_list': True  # флаг для шаблона
-    }
-    return render(request, 'orders/completed_orders.html', context)
-
-@manager_required
-def delete_completed_order(request, order_id):
-    if request.method == 'POST':
-        order = get_object_or_404(Order, id=order_id, status='completed')
-        order_number = order.order_number
-        order.delete()
-        messages.success(request, f'Заказ №{order_number} успешно удален')
-    return redirect('orders:completed_orders')
 
 @client_required
 def client_profile(request):

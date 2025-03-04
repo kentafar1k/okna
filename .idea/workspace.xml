@@ -5,7 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e6325abf-25fb-49e1-a681-fcae7490d0db" name="Changes" comment="Initial commit">
-      <change beforePath="$PROJECT_DIR$/users/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/users/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orders/templates/orders/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orders/templates/orders/clients.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/clients.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orders/templates/orders/create_order.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/create_order.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orders/templates/orders/orders.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/orders.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orders/templates/orders/worker_orders.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/worker_orders.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,7 +146,7 @@
       <workItem from="1740891116437" duration="6863000" />
       <workItem from="1740910349074" duration="48000" />
       <workItem from="1740910404409" duration="3205000" />
-      <workItem from="1741063241210" duration="403000" />
+      <workItem from="1741063241210" duration="1443000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />

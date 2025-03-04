@@ -29,19 +29,6 @@
                 {% endfor %}
             </div>
 
-            <div class="form-group">
-                <label for="{{ form.pdf_file.id_for_label }}">PDF файл:</label>
-                {{ form.pdf_file }}
-                {% if form.pdf_file.help_text %}
-                <small class="form-text text-muted">{{ form.pdf_file.help_text }}</small>
-                {% endif %}
-                {% if form.pdf_file.errors %}
-                <div class="invalid-feedback">
-                    {{ form.pdf_file.errors }}
-                </div>
-                {% endif %}
-            </div>
-
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     {% if form.instance.pk %}Сохранить{% else %}Создать{% endif %}

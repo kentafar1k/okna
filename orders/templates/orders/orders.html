@@ -101,7 +101,7 @@
                            target="_blank"
                            title="Открыть PDF"
                            class="pdf-link">
-                            <i class="fas fa-file-pdf"></i>
+                            файл
                         </a>
                         {% endif %}
                     </td>
@@ -324,12 +324,14 @@ th:nth-child(9), td:nth-child(9) { width: 9%; }   /* Действия */
 
 .pdf-link {
     display: inline-block;
-    color: #dc3545;
+    color: #0073e6;  /* Синий цвет для ссылки */
     text-decoration: none;
+    font-size: 14px;
 }
 
 .pdf-link:hover {
-    color: #c82333;
+    color: #005bb5;  /* Темно-синий при наведении */
+    text-decoration: underline;
 }
 </style>
 

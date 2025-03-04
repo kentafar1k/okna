@@ -6,9 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="e6325abf-25fb-49e1-a681-fcae7490d0db" name="Changes" comment="Initial commit">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/orders_pdf/Пример_запросов_для_легенды_kobGIJ8.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orders/templates/orders/add_client.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/add_client.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/orders/templates/orders/create_order.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/create_order.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/orders/templates/orders/order_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/order_detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/orders/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/orders/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/orders/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/orders/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -145,7 +145,7 @@
       <workItem from="1740891116437" duration="6863000" />
       <workItem from="1740910349074" duration="48000" />
       <workItem from="1740910404409" duration="3205000" />
-      <workItem from="1741063241210" duration="6627000" />
+      <workItem from="1741063241210" duration="9185000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />

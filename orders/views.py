@@ -217,12 +217,18 @@ def update_status(request, order_id):
 
 @manager_required
 def add_client(request):
+    # Получаем параметр return_to из GET или сохраняем из реферера при POST
+    return_to = request.GET.get('return_to') or request.POST.get('return_to') or request.META.get('HTTP_REFERER', '')
+    
     if request.method == 'POST':
         form = ClientCreateForm(request.POST)
         if form.is_valid():
             try:
                 client = form.save()
                 messages.success(request, f'Клиент {client.full_name} успешно добавлен')
+                # Если return_to содержит create_order, перенаправляем на создание заказа с client_id
+                if 'create_order' in return_to:
+                    return redirect(f"{reverse('orders:create_order')}?client={client.id}")
                 return redirect('orders:clients')
             except Exception as e:
                 messages.error(request, f'Ошибка при создании клиента: {str(e)}')
@@ -235,7 +241,8 @@ def add_client(request):
         form = ClientCreateForm()
     
     return render(request, 'orders/add_client.html', {
-        'form': form
+        'form': form,
+        'return_to': return_to
     })
 
 @manager_required

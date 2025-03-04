@@ -1,11 +1,14 @@
 {% extends "base.html" %}
-{% load static %}
 
 {% block title %}Добавление клиента{% endblock %}
 
 {% block content %}
 <div class="container">
-    <div class="order-form">
+    <div class="back-button-container" style="margin-bottom: 20px;">
+        <a href="javascript:history.back()" class="button back-button">← Вернуться назад</a>
+    </div>
+
+    <div class="client-form">
         <h1>Добавление нового клиента</h1>
         
         {% if messages %}
@@ -18,8 +21,9 @@
         </div>
         {% endif %}
         
-        <form method="post" class="create-order-form">
+        <form method="post" class="create-client-form">
             {% csrf_token %}
+            <input type="hidden" name="return_to" value="{{ return_to }}">
             
             <div class="form-section">
                 {% for field in form %}
@@ -36,10 +40,100 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Добавить клиента</button>
-                <a href="{% url 'orders:clients' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-primary">Создать</button>
+                <a href="javascript:history.back()" class="btn btn-secondary">Отмена</a>
             </div>
         </form>
     </div>
 </div>
+
+<style>
+.back-button {
+    background-color: #0073e6;
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.back-button:hover {
+    background-color: #005bb5;
+    color: white;
+    text-decoration: none;
+}
+
+.back-button-container {
+    margin-top: 20px;
+}
+
+.client-form {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.form-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+.form-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.btn-primary {
+    background-color: #0073e6;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #005bb5;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+</style>
 {% endblock %} 

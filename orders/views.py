@@ -52,8 +52,11 @@ def orders(request):
 
 @manager_required
 def create_order(request):
+    # Определяем, откуда пришел запрос
+    return_url = 'orders:orders'  # По умолчанию возвращаемся к списку заказов
+    
     if request.method == 'POST':
-        form = OrderForm(request.POST, request.FILES)  # Добавляем request.FILES
+        form = OrderForm(request.POST, request.FILES)
         if form.is_valid():
             order = form.save(commit=False)
             order.status = 'new'
@@ -69,13 +72,15 @@ def create_order(request):
             try:
                 client = Client.objects.get(id=client_id)
                 form = OrderForm(initial={'client': client})
+                return_url = 'orders:clients'  # Если пришли со страницы клиентов
             except Client.DoesNotExist:
                 form = OrderForm()
         else:
             form = OrderForm()
     
     return render(request, 'orders/create_order.html', {
-        'form': form
+        'form': form,
+        'return_url': return_url
     })
 
 @login_required

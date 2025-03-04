@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container">
     <div class="back-button-container" style="margin-bottom: 20px;">
-        <a href="{% url 'orders:orders' %}" class="button back-button">← Вернуться назад</a>
+        <a href="{% url return_url %}" class="button back-button">← Вернуться назад</a>
     </div>
 
     <div class="order-form">
@@ -36,7 +36,7 @@
                 <button type="submit" class="btn btn-primary">
                     {% if form.instance.pk %}Сохранить{% else %}Создать{% endif %}
                 </button>
-                <a href="{% url 'orders:orders' %}" class="btn btn-secondary">Отмена</a>
+                <a href="{% url return_url %}" class="btn btn-secondary">Отмена</a>
             </div>
         </form>
     </div>

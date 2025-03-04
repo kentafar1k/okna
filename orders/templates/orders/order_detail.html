@@ -45,19 +45,44 @@
                 </div>
                 <p><strong>Задолженность:</strong> {{ order.get_debt }} ₽</p>
                 <p><strong>Тип оплаты:</strong> {{ order.get_payment_type_display }}</p>
-                <p>
-                    <strong>PDF документ:</strong>
+                <div class="pdf-section">
+                    <h3>PDF документ</h3>
                     {% if order.pdf_file %}
-                        <a href="{{ order.pdf_file.url }}" 
-                           class="pdf-link" 
-                           target="_blank"
-                           title="Открыть PDF">
-                            <i class="fas fa-file-pdf"></i> Открыть PDF
-                        </a>
+                        <div class="current-pdf">
+                            <a href="{{ order.pdf_file.url }}" 
+                               class="pdf-link" 
+                               target="_blank"
+                               title="Открыть PDF">
+                                <i class="fas fa-file-pdf"></i> Текущий PDF файл
+                            </a>
+                        </div>
                     {% else %}
-                        <span class="text-muted">Файл не прикреплен</span>
+                        <p class="text-muted">Файл не прикреплен</p>
                     {% endif %}
-                </p>
+                    
+                    <form method="post" action="{% url 'orders:update_pdf' order.id %}" enctype="multipart/form-data" class="pdf-form">
+                        {% csrf_token %}
+                        <div class="pdf-upload">
+                            <input type="file" 
+                                   name="pdf_file" 
+                                   accept="application/pdf"
+                                   class="form-control"
+                                   style="display: inline-block; width: auto;">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                {% if order.pdf_file %}Заменить файл{% else %}Добавить файл{% endif %}
+                            </button>
+                            {% if order.pdf_file %}
+                            <button type="submit" 
+                                    name="remove_pdf" 
+                                    value="1" 
+                                    class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Вы уверены, что хотите удалить PDF файл?')">
+                                Удалить файл
+                            </button>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
             </div>
 
         </div>
@@ -183,6 +208,34 @@
             background-color: #e9ecef;
             text-decoration: none;
             color: #c82333;
+        }
+
+        .pdf-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .current-pdf {
+            margin-bottom: 15px;
+        }
+
+        .pdf-upload {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
         }
     </style>
 {% endblock %}

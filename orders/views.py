@@ -52,20 +52,8 @@ def orders(request):
 
 @manager_required
 def create_order(request):
-    if request.method == 'GET':
-        # Получаем ID клиента из GET-параметров
-        client_id = request.GET.get('client')
-        if client_id:
-            try:
-                client = Client.objects.get(id=client_id)
-                # Создаем форму с предзаполненным клиентом
-                form = OrderForm(initial={'client': client})
-            except Client.DoesNotExist:
-                form = OrderForm()
-        else:
-            form = OrderForm()
-    elif request.method == 'POST':
-        form = OrderForm(request.POST)
+    if request.method == 'POST':
+        form = OrderForm(request.POST, request.FILES)  # Добавляем request.FILES
         if form.is_valid():
             order = form.save(commit=False)
             order.status = 'new'
@@ -74,6 +62,17 @@ def create_order(request):
             return redirect('orders:orders')
         else:
             messages.error(request, 'Пожалуйста, проверьте введенные данные')
+    else:
+        # Получаем ID клиента из GET-параметров
+        client_id = request.GET.get('client')
+        if client_id:
+            try:
+                client = Client.objects.get(id=client_id)
+                form = OrderForm(initial={'client': client})
+            except Client.DoesNotExist:
+                form = OrderForm()
+        else:
+            form = OrderForm()
     
     return render(request, 'orders/create_order.html', {
         'form': form
@@ -350,3 +349,24 @@ def delete_client(request, client_id):
         except Client.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Клиент не найден'})
     return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+
+@manager_required
+def update_pdf(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    
+    if request.method == 'POST':
+        if 'remove_pdf' in request.POST:
+            # Удаляем старый файл
+            if order.pdf_file:
+                order.pdf_file.delete()
+            messages.success(request, 'PDF файл удален')
+        elif 'pdf_file' in request.FILES:
+            # Удаляем старый файл перед загрузкой нового
+            if order.pdf_file:
+                order.pdf_file.delete()
+            # Сохраняем новый файл
+            order.pdf_file = request.FILES['pdf_file']
+            order.save()
+            messages.success(request, 'PDF файл обновлен')
+        
+    return redirect('orders:order_detail', order_id=order.id)

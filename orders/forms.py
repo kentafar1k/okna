@@ -5,7 +5,7 @@ from clients.models import Client
 class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['client', 'order_number', 'total_price', 'prepayment', 'payment_type']
+        fields = ['client', 'order_number', 'total_price', 'prepayment', 'payment_type', 'pdf_file']
         widgets = {
             'client': forms.Select(attrs={
                 'class': 'form-control',
@@ -14,6 +14,10 @@ class OrderForm(forms.ModelForm):
             'total_price': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'step': '0.01', 'placeholder': 'Введите стоимость'}),
             'prepayment': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'step': '0.01', 'placeholder': 'Введите предоплату'}),
             'payment_type': forms.Select(attrs={'class': 'form-control'}),
+            'pdf_file': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'application/pdf'
+            }),
         }
 
     def __init__(self, *args, **kwargs):

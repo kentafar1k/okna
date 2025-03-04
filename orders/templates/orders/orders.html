@@ -70,6 +70,7 @@
                     <th>Стоимость</th>
                     <th>Предоплата</th>
                     <th>Задолженность</th>
+                    <th style="width: 40px;">PDF</th>
                     <th>Действия</th>
                 </tr>
             </thead>
@@ -94,6 +95,16 @@
                     <td>{{ order.total_price }} ₽</td>
                     <td>{{ order.prepayment|default:0 }} ₽</td>
                     <td>{{ order.get_debt }} ₽</td>
+                    <td>
+                        {% if order.pdf_file %}
+                        <a href="{{ order.pdf_file.url }}" 
+                           target="_blank"
+                           title="Открыть PDF"
+                           class="pdf-link">
+                            <i class="fas fa-file-pdf"></i>
+                        </a>
+                        {% endif %}
+                    </td>
                     <td>
                         <div class="action-buttons">
                             <a href="{% url 'orders:order_detail' order.id %}" class="button">детали</a>
@@ -187,7 +198,8 @@ th:nth-child(4), td:nth-child(4) { width: 20%; }  /* Клиент */
 th:nth-child(5), td:nth-child(5) { width: 12%; }  /* Стоимость */
 th:nth-child(6), td:nth-child(6) { width: 12%; }  /* Предоплата */
 th:nth-child(7), td:nth-child(7) { width: 12%; }  /* Задолженность */
-th:nth-child(8), td:nth-child(8) { width: 9%; }   /* Действия */
+th:nth-child(8), td:nth-child(8) { width: 40px; }  /* PDF */
+th:nth-child(9), td:nth-child(9) { width: 9%; }   /* Действия */
 
 /* Стили для контейнера кнопок */
 .action-buttons {
@@ -308,6 +320,16 @@ th:nth-child(8), td:nth-child(8) { width: 9%; }   /* Действия */
 
 .button.cancel:hover {
     background-color: #5a6268;
+}
+
+.pdf-link {
+    display: inline-block;
+    color: #dc3545;
+    text-decoration: none;
+}
+
+.pdf-link:hover {
+    color: #c82333;
 }
 </style>
 

@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
+from django.conf import settings
+from django.conf.urls.static import static
 
 def redirect_to_login(request):
     return redirect('users:login')
@@ -27,3 +29,7 @@ urlpatterns = [
     path('login/', include('users.urls', namespace='users')),
     path('orders/', include('orders.urls', namespace='orders')),
 ]
+
+# это для открытия пдф файлов в браузере, которые у меня в media
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

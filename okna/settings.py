@@ -167,3 +167,6 @@ SMSRU_API_KEY = '844F5E52-0836-3E80-FEA8-92660E5D0282'
 SMSAERO_EMAIL = 'andreibogd@mail.ru'
 SMSAERO_API_KEY = 'jrzFttmBjhSLvqbQShch1_CeTF1DlF9x'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+

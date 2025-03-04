@@ -45,6 +45,19 @@
                 </div>
                 <p><strong>Задолженность:</strong> {{ order.get_debt }} ₽</p>
                 <p><strong>Тип оплаты:</strong> {{ order.get_payment_type_display }}</p>
+                <p>
+                    <strong>PDF документ:</strong>
+                    {% if order.pdf_file %}
+                        <a href="{{ order.pdf_file.url }}" 
+                           class="pdf-link" 
+                           target="_blank"
+                           title="Открыть PDF">
+                            <i class="fas fa-file-pdf"></i> Открыть PDF
+                        </a>
+                    {% else %}
+                        <span class="text-muted">Файл не прикреплен</span>
+                    {% endif %}
+                </p>
             </div>
 
         </div>
@@ -154,6 +167,22 @@
 
         .btn-secondary:hover {
             background-color: #5a6268;
+        }
+
+        .pdf-link {
+            display: inline-block;
+            color: #dc3545;
+            text-decoration: none;
+            padding: 5px 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+        
+        .pdf-link:hover {
+            background-color: #e9ecef;
+            text-decoration: none;
+            color: #c82333;
         }
     </style>
 {% endblock %}

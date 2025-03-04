@@ -1,6 +1,7 @@
 from django.db import models
 from clients.models import Client
 from django.utils import timezone
+from django.core.validators import FileExtensionValidator
 
 class Order(models.Model):
     STATUS_CHOICES = (
@@ -24,6 +25,14 @@ class Order(models.Model):
     prepayment = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Предоплата')
     payment_type = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='cash', verbose_name='Тип оплаты')
     completed_date = models.DateTimeField(null=True, blank=True, verbose_name='Дата завершения')
+    pdf_file = models.FileField(
+        upload_to='orders_pdf/',
+        validators=[FileExtensionValidator(['pdf'])],
+        verbose_name='PDF файл',
+        blank=True,
+        null=True,
+        help_text='Загрузите PDF файл (необязательно)'
+    )
 
     class Meta:
         verbose_name = 'Заказ'

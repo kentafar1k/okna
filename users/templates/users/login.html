@@ -22,12 +22,12 @@
     <form method="post">
         {% csrf_token %}
         <div class="form-group">
-            <label for="username">Имя пользователя</label>
+            <label for="username">логин/телефон(без +)</label>
             <input type="text" name="username" id="username" required>
         </div>
         
         <div class="form-group">
-            <label for="password">Пароль</label>
+            <label for="password">Пароль/телефон(без +)</label>
             <input type="password" name="password" id="password" required>
         </div>
         

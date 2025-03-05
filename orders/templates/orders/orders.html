@@ -56,7 +56,9 @@
             </div>
             <div class="total-debt-info">
                 <span>Общая задолженность:</span>
-                <span class="total-amount">{{ total_debt }} ₽</span>
+                <span class="total-amount">
+                    {{ total_debt }} ₽
+                </span>
             </div>
         </div>
 
@@ -94,7 +96,9 @@
                     <td>{{ order.client.full_name }}</td>
                     <td>{{ order.total_price }} ₽</td>
                     <td>{{ order.prepayment|default:0 }} ₽</td>
-                    <td>{{ order.get_debt }} ₽</td>
+                    <td class="debt-cell">
+                        {{ order.get_debt }} ₽
+                    </td>
                     <td>
                         {% if order.pdf_file %}
                         <a href="{{ order.pdf_file.url }}" 

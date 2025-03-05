@@ -39,14 +39,14 @@ def orders(request):
             order_number__icontains=search_query
         )
 
-    # Вычисляем общую задолженность
-    total_debt = sum(order.get_debt() for order in orders_queryset if order.get_debt() > 0)
+    # Вычисляем общую задолженность (убираем проверку на положительное значение)
+    total_debt = sum(order.get_debt() for order in orders_queryset)
     
     context = {
         'orders': orders_queryset,
         'search_query': search_query,
         'current_sort': sort_by,
-        'total_debt': total_debt,  # Добавляем общую задолженность в контекст
+        'total_debt': total_debt,
     }
     return render(request, 'orders/orders.html', context)
 

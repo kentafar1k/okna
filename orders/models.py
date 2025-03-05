@@ -55,15 +55,14 @@ class Order(models.Model):
             self.completed_date = None
         super().save(*args, **kwargs)
 
-class Client(models.Model):
-    # ... существующие поля ...
+def get_total_debt(self):
+    """Возвращает общую сумму задолженности по всем заказам клиента"""
+    total_debt = 0
+    for order in self.order_set.all():
+        debt = order.get_debt()
+        total_debt += debt  # Убираем проверку на положительное значение
+    return total_debt
 
-    def get_total_debt(self):
-        """Возвращает общую сумму задолженности по всем заказам клиента"""
-        total_debt = 0
-        for order in self.order_set.all():
-            debt = order.get_debt()
-            if debt > 0:  # учитываем только положительные задолженности
-                total_debt += debt
-        return total_debt
+# Добавляем метод к модели Client
+Client.get_total_debt = get_total_debt
 

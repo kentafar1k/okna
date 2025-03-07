@@ -2,6 +2,7 @@ from django.db import models
 from clients.models import Client
 from django.utils import timezone
 from django.core.validators import FileExtensionValidator
+import os
 
 class Order(models.Model):
     STATUS_CHOICES = (
@@ -54,6 +55,18 @@ class Order(models.Model):
         elif self.status != 'completed':
             self.completed_date = None
         super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # Удаляем PDF файл, если он существует
+        if self.pdf_file:
+            # Получаем путь к файлу
+            file_path = self.pdf_file.path
+            # Проверяем существование файла
+            if os.path.isfile(file_path):
+                # Удаляем файл
+                os.remove(file_path)
+        # Вызываем родительский метод delete
+        super().delete(*args, **kwargs)
 
 def get_total_debt(self):
     """Возвращает общую сумму задолженности по всем заказам клиента"""

@@ -12,24 +12,26 @@
         <a href="{% url 'orders:clients' %}" class="nav-link {% if request.resolver_match.url_name == 'clients' %}active{% endif %}">Клиенты</a>
     </nav>
 
-    <div class="toolbar" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+    <div class="toolbar">
         <!-- Search box -->
-        <div class="search-box" style="flex: 1;">
-            <form method="get" class="search-form" style="display: flex; gap: 10px;">
+        <div class="search-box">
+            <form method="get" class="search-form">
                 <input type="text"
                        name="search"
                        placeholder="Поиск по имени или телефону"
                        value="{{ search_query }}"
-                       style="width: 100%; max-width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-                <button type="submit" class="button">Поиск</button>
-                {% if search_query %}
-                    <a href="{% url 'orders:clients' %}" class="button">Сбросить</a>
-                {% endif %}
+                       class="search-input">
+                <div class="search-buttons">
+                    <button type="submit" class="button">Поиск</button>
+                    {% if search_query %}
+                        <a href="{% url 'orders:clients' %}" class="button">Сбросить</a>
+                    {% endif %}
+                </div>
             </form>
         </div>
 
         <!-- Add Client button -->
-        <div class="create-client" style="margin-left: 15px;">
+        <div class="create-client">
             <a href="{% url 'orders:add_client' %}" class="button">+ Добавить клиента</a>
         </div>
     </div>
@@ -259,50 +261,59 @@ th {
 
 /* Стили для панели инструментов */
 .toolbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin: 20px 0;
-    gap: 20px;
 }
 
 .search-box {
-    flex: 1;
-    max-width: 500px;
+    width: 100%;
+    margin-bottom: 10px;
 }
 
 .search-form {
     display: flex;
+    flex-direction: column;
     gap: 10px;
 }
 
 .search-input {
-    flex: 1;
+    width: 100%;
     padding: 8px;
     border: 1px solid #dee2e6;
     border-radius: 4px;
 }
 
-.button {
-    padding: 8px 16px;
-    background-color: #0073e6;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    font-size: 14px;
-    white-space: nowrap;
+.search-buttons {
+    display: flex;
+    gap: 10px;
 }
 
-.button:hover {
-    background-color: #005bb5;
+.create-client {
+    margin-top: 10px;
 }
 
-/* Добавляем стиль для выравнивания столбца действий */
-th:last-child, 
-td:last-child {
-    text-align: center;  /* Выравнивание по центру */
+/* Медиа-запрос для десктопов */
+@media (min-width: 768px) {
+    .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .search-box {
+        flex: 1;
+        margin-bottom: 0;
+        max-width: 500px;
+    }
+
+    .search-form {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .create-client {
+        margin-top: 0;
+        margin-left: 15px;
+    }
 }
 </style>
 {% endblock %}

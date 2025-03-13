@@ -65,9 +65,9 @@
         <table>
             <thead>
                 <tr>
-                    <th>Дата</th>
                     <th>Номер заказа</th>
                     <th>Стадия</th>
+                    <th>Дата</th>
                     <th>Клиент</th>
                     <th>Стоимость</th>
                     <th>Предоплата</th>
@@ -79,8 +79,11 @@
             <tbody>
                 {% for order in orders %}
                 <tr class="{% if order.status == 'completed' %}completed-order{% endif %}" data-order-id="{{ order.id }}">
-                    <td>{{ order.start_date|date:"Y-m-d" }}</td>
-                    <td>{{ order.order_number }}</td>
+                    <td>
+                        <a href="{% url 'orders:order_detail' order.id %}" class="order-link">
+                            {{ order.order_number }}
+                        </a>
+                    </td>
                     <td>
                         <form method="post" action="{% url 'orders:update_status' order.id %}" class="status-form" data-order-id="{{ order.id }}">
                             {% csrf_token %}
@@ -93,26 +96,28 @@
                             </select>
                         </form>
                     </td>
-                    <td>{{ order.client.full_name }}</td>
+                    <td>{{ order.start_date|date:"Y-m-d" }}</td>
+                    <td>
+                        <a href="{% url 'orders:client_detail' order.client.id %}" class="client-link">
+                            {{ order.client.full_name }}
+                        </a>
+                    </td>
                     <td>{{ order.total_price }} ₽</td>
                     <td>{{ order.prepayment|default:0 }} ₽</td>
-                    <td class="debt-cell">
-                        {{ order.get_debt }} ₽
-                    </td>
-                    <td>
+                    <td>{{ order.get_debt }} ₽</td>
+                    <td class="pdf-cell">
                         {% if order.pdf_file %}
-                        <a href="{{ order.pdf_file.url }}" 
-                           target="_blank"
-                           title="Открыть PDF"
-                           class="pdf-link">
-                            файл
+                        <a href="{{ order.pdf_file.url }}" class="pdf-link" target="_blank" title="Открыть PDF">
+                            <i class="fas fa-file-pdf"></i>
                         </a>
                         {% endif %}
                     </td>
                     <td>
                         <div class="action-buttons">
                             <a href="{% url 'orders:order_detail' order.id %}" class="button">детали</a>
-                            <button onclick="deleteOrder({{ order.id }}, '{{ order.order_number }}')" class="delete-button">✕</button>
+                            <button onclick="deleteOrder('{{ order.id }}', '{{ order.order_number }}')" class="delete-button">
+                                удалить
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -446,6 +451,29 @@ th {
     .create-order {
         margin-top: 0;
         margin-left: 15px;
+    }
+}
+
+.order-link, .client-link {
+    color: #0073e6;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.order-link:hover, .client-link:hover {
+    color: #005bb5;
+    text-decoration: underline;
+}
+
+/* Обновляем стили для мобильных устройств */
+@media (max-width: 768px) {
+    th, td {
+        padding: 8px 4px;
+        font-size: 14px;
+    }
+
+    .order-link, .client-link {
+        font-size: 14px;
     }
 }
 </style>

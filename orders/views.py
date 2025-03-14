@@ -20,15 +20,16 @@ def orders(request):
     # Базовый QuerySet
     orders_queryset = Order.objects.all()
     
-    # Применяем сортировку
-    if sort_by == 'start_date':
+    # Обновляем логику сортировки
+    sort_param = request.GET.get('sort', '-start_date')
+    if sort_param == 'completed_first':
+        orders_queryset = orders_queryset.order_by('status', '-start_date')  # Сначала незавершенные
+    elif sort_param == 'uncompleted_first':
+        orders_queryset = orders_queryset.order_by('-status', '-start_date')   # Сначала завершенные
+    elif sort_param == 'start_date':
         orders_queryset = orders_queryset.order_by('start_date')
-    elif sort_by == '-start_date':
+    else:  # '-start_date' по умолчанию
         orders_queryset = orders_queryset.order_by('-start_date')
-    elif sort_by == 'status':
-        orders_queryset = orders_queryset.order_by('status')
-    elif sort_by == '-status':
-        orders_queryset = orders_queryset.order_by('-status')
 
     # Получаем параметр поиска
     search_query = request.GET.get('search', '').strip()
@@ -45,7 +46,7 @@ def orders(request):
     context = {
         'orders': orders_queryset,
         'search_query': search_query,
-        'current_sort': sort_by,
+        'current_sort': sort_param,
         'total_debt': total_debt,
     }
     return render(request, 'orders/orders.html', context)

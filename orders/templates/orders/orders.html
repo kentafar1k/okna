@@ -48,6 +48,12 @@
                         <option value="start_date" {% if current_sort == 'start_date' %}selected{% endif %}>
                             Сначала старые
                         </option>
+                        <option value="uncompleted_first" {% if current_sort == 'uncompleted_first' %}selected{% endif %}>
+                            Сначала не завершённые
+                        </option>
+                        <option value="completed_first" {% if current_sort == 'completed_first' %}selected{% endif %}>
+                            Сначала завершённые
+                        </option>
                     </select>
                     {% if search_query %}
                         <input type="hidden" name="search" value="{{ search_query }}">
@@ -247,13 +253,13 @@ th:nth-child(9), td:nth-child(9) { width: 9%; }   /* Действия */
 }
 
 .sort-select {
-    padding: 4px 8px;
+    padding: 6px 12px;
     border: 1px solid #dee2e6;
     border-radius: 4px;
     background-color: white;
     cursor: pointer;
     font-size: 14px;
-    min-width: 120px;
+    min-width: 200px; /* Увеличиваем ширину для новых опций */
 }
 
 .sort-select:hover {
@@ -483,6 +489,11 @@ th {
     .pdf-link {
         padding: 1px 4px;
         font-size: 12px;
+    }
+
+    .sort-select {
+        min-width: 100%;
+        margin-bottom: 10px;
     }
 }
 </style>

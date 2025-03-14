@@ -134,18 +134,16 @@
     </div>
 </div>
 
-<!-- Добавьте модальное окно перед закрывающим тегом body -->
-<div id="notificationModal" class="modal" style="display: none;">
+<!-- Добавим модальное окно для обоих статусов -->
+<div id="notificationModal" class="modal">
     <div class="modal-content">
-        <h3>Отправка уведомлений</h3>
+        <h3 id="modalTitle">Отправить уведомление клиенту?</h3>
         <div class="notification-options">
             <label>
-                <input type="checkbox" id="sendEmail" checked>
-                Отправить уведомление на email
+                <input type="checkbox" id="sendEmail" checked> Отправить email
             </label>
             <label>
-                <input type="checkbox" id="sendSMS" checked>
-                Отправить SMS-уведомление
+                <input type="checkbox" id="sendSMS" checked> Отправить SMS
             </label>
         </div>
         <div class="modal-buttons">
@@ -501,10 +499,19 @@ document.addEventListener('DOMContentLoaded', function() {
             const newStatus = this.value;
             const form = this.closest('form');
             
-            if (newStatus === 'ready') {
-                // Показываем модальное окно
+            // Показываем модальное окно для статусов "ready" и "completed"
+            if (newStatus === 'ready' || newStatus === 'completed') {
                 currentOrderId = form.getAttribute('data-order-id');
                 currentSelect = this;
+                
+                // Меняем заголовок модального окна в зависимости от статуса
+                const modalTitle = document.getElementById('modalTitle');
+                if (newStatus === 'ready') {
+                    modalTitle.textContent = 'Отправить уведомление о готовности заказа?';
+                } else if (newStatus === 'completed') {
+                    modalTitle.textContent = 'Отправить уведомление об отгрузке заказа?';
+                }
+                
                 document.getElementById('notificationModal').style.display = 'block';
             } else {
                 // Для других статусов отправляем форму как обычно

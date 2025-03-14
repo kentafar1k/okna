@@ -21,11 +21,17 @@
         }
         .content {
             padding: 20px;
-            background: #f8f9fa;
+            background-color: #f8f9fa;
+        }
+        .order-details {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
         }
         .footer {
             text-align: center;
-            padding: 20px;
+            margin-top: 20px;
             color: #666;
         }
     </style>
@@ -33,22 +39,22 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Заказ готов</h1>
+            <h1>Уведомление о заказе</h1>
         </div>
         <div class="content">
-            <p>Здравствуйте, {{ client.full_name }}!</p>
+            <p>Здравствуйте!</p>
             
-            <p>Ваш заказ №{{ order.order_number }} готов.</p>
+            <p><strong>{{ message }}</strong></p>
             
-            <h3>Информация о заказе:</h3>
-            <ul>
-                <li>Стоимость заказа: {{ order.total_price }} ₽</li>
-                <li>Внесенная предоплата: {{ order.prepayment|default:0 }} ₽</li>
-                <li>Остаток к оплате: {{ order.get_debt }} ₽</li>
-            </ul>
+            <div class="order-details">
+                <p><strong>Номер заказа:</strong> {{ order_number }}</p>
+                <p><strong>Стоимость заказа:</strong> {{ total_price }} ₽</p>
+                <p><strong>Внесенная предоплата:</strong> {{ prepayment }} ₽</p>
+                <p><strong>Остаток к оплате:</strong> {{ debt }} ₽</p>
+            </div>
         </div>
         <div class="footer">
-            <p>С уважением,<br>Компания</p>
+            <p>С уважением,<br>"Окна в мир"</p>
         </div>
     </div>
 </body>

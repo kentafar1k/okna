@@ -196,29 +196,39 @@ def update_status(request, order_id):
     if request.method == 'POST':
         order = get_object_or_404(Order, id=order_id)
         new_status = request.POST.get('status')
+        send_email = request.POST.get('send_email') == 'true'
+        send_sms = request.POST.get('send_sms') == 'true'
+
+        # Сохраняем предыдущий статус
+        old_status = order.status
         
-        if new_status in dict(Order.STATUS_CHOICES):
-            # Если статус меняется на "готов"
-            if new_status == 'ready' and order.status != 'ready':
-                # Получаем параметры для отправки уведомлений
-                send_email = request.POST.get('send_email') == 'true'
-                send_sms = request.POST.get('send_sms') == 'true'
-                
-                if send_email:
-                    send_order_ready_email(order)
-                if send_sms:
-                    send_order_ready_sms(order)
+        # Обновляем статус
+        order.status = new_status
+        order.save()
+
+        # Отправляем уведомления только если статус изменился на 'ready' или 'completed'
+        if (new_status in ['ready', 'completed']) and (old_status != new_status):
+            # Определяем текст сообщения в зависимости от статуса
+            status_message = "готов" if new_status == 'ready' else "отгружен"
+            message = f"Ваш заказ №{order.order_number} {status_message}"
             
-            order.status = new_status
-            order.save()
-            return JsonResponse({
-                'success': True,
-                'message': 'Статус успешно обновлен'
-            })
-    return JsonResponse({
-        'success': False,
-        'message': 'Ошибка при обновлении статуса'
-    })
+            if send_email:
+                send_order_ready_email(
+                    email=order.client.email,
+                    order_number=order.order_number,
+                    message=message,
+                    total_price=order.total_price,
+                    prepayment=order.prepayment or 0,
+                    debt=order.get_debt()
+                )
+            
+            if send_sms:
+                sms_message = f"{message}. Остаток к оплате: {order.get_debt()} ₽"
+                send_order_ready_sms(order.client.phone, order.order_number, sms_message)
+
+        return JsonResponse({'success': True})
+    
+    return JsonResponse({'success': False})
 
 @manager_required
 def add_client(request):

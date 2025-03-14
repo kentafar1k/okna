@@ -8,29 +8,36 @@ import base64  # библа для рассылки смс SMSAero
 # login: cherald13377@yandex.ru
 # pwd  : lfvpcnksiisuobmu
 
-def send_order_ready_email(order):
+def send_order_ready_email(email, order_number, message, total_price=None, prepayment=None, debt=None):
     """Отправка email о готовности заказа"""
-    if not order.client.email or order.client.email == '-':
-        print(f"Email клиента отсутствует или равен '-': {order.client.email}")
+    if not email or email == '-':
+        print(f"Email клиента отсутствует или равен '-': {email}")
         return False
         
-    subject = f'Заказ №{order.order_number} готов'
+    subject = f'Информация о заказе №{order_number}'
     
-    # Формируем HTML-версию письма
-    html_message = render_to_string('orders/email/order_ready.html', {
-        'order': order,
-        'client': order.client
-    })
+    # Подготавливаем контекст для шаблона
+    context = {
+        'order_number': order_number,
+        'message': message,
+        'total_price': total_price,
+        'prepayment': prepayment,
+        'debt': debt
+    }
+    
+    # Рендерим HTML шаблон
+    html_message = render_to_string('orders/email/order_ready.html', context)
     
     # Формируем текстовую версию письма
     plain_message = f"""
-    Здравствуйте, {order.client.full_name}!
+    Здравствуйте!
     
-    Ваш заказ №{order.order_number} готов.
+    {message}
     
-    Стоимость заказа: {order.total_price} ₽
-    Внесенная предоплата: {order.prepayment or 0} ₽
-    Остаток к оплате: {order.get_debt()} ₽
+    Номер вашего заказа: {order_number}
+    Стоимость заказа: {total_price} ₽
+    Внесенная предоплата: {prepayment} ₽
+    Остаток к оплате: {debt} ₽
     
     С уважением,
     "Окна в мир"
@@ -38,33 +45,32 @@ def send_order_ready_email(order):
     
     try:
         # Добавляем небольшую задержку перед отправкой
-        time.sleep(1)  # Задержка в 1 секунду
+        time.sleep(1)
         
         send_mail(
             subject=subject,
             message=plain_message,
             from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[order.client.email],
+            recipient_list=[email],
             html_message=html_message,
             fail_silently=False,
         )
-        print(f"Письмо успешно отправлено на {order.client.email}")
+        print(f"Письмо успешно отправлено на {email}")
         return True
     except Exception as e:
         print(f"Ошибка отправки email: {str(e)}")
-        return False 
+        return False
 
-def send_order_ready_sms(order):
+def send_order_ready_sms(phone, order_number, message):
     """Отправка SMS о готовности заказа через SMSAero"""
-    if not order.client.phone:
+    if not phone:
         print(f"Телефон клиента отсутствует")
         return False
         
     # Очищаем номер от лишних символов
-    phone = ''.join(filter(str.isdigit, order.client.phone))
+    phone = ''.join(filter(str.isdigit, phone))
     
-    # Формируем текст сообщения
-    message = f"Здравствуйте! Ваш заказ №{order.order_number} готов. Остаток к оплате: {order.get_debt()} ₽"
+    sms_text = f'{message}. Номер заказа: {order_number}'
     
     # Формируем заголовок авторизации
     auth_string = f"{settings.SMSAERO_EMAIL}:{settings.SMSAERO_API_KEY}"
@@ -77,7 +83,7 @@ def send_order_ready_sms(order):
     # Параметры запроса
     params = {
         'number': phone,
-        'text': message,
+        'text': sms_text,
         'sign': 'SMS Aero'  # Подпись отправителя
     }
     

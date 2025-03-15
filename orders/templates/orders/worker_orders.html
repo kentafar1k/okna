@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container">
-    <div class="toolbar" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+    <div class="toolbar" style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0 30px 0;">
         <!-- Search box. -->
         <div class="search-box" style="flex: 1;">
             <form method="get" class="search-form" style="display: flex; gap: 10px;">
@@ -21,7 +21,7 @@
         </div>
     </div>
     
-    <div class="sort-box">
+    <div class="sort-box" style="margin-bottom: 20px;">
         <form method="get" id="sortForm">
             <select name="sort" onchange="this.form.submit()" class="sort-select">
                 <option value="-start_date" {% if current_sort == '-start_date' %}selected{% endif %}>
@@ -54,7 +54,7 @@
             </thead>
             <tbody>
                 {% for order in orders %}
-                <tr>
+                <tr class="{% if order.status == 'completed' %}completed-order{% endif %}">
                     <td>
                         <a href="{% url 'orders:order_detail' order.id %}" class="order-link">
                             {{ order.order_number }}
@@ -211,6 +211,14 @@ th {
         min-width: 100%;
         margin-bottom: 10px;
     }
+}
+
+.completed-order {
+    background-color: #f8f9fa;
+}
+
+.completed-order:hover {
+    background-color: #e9ecef;
 }
 </style>
 

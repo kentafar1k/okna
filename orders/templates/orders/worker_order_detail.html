@@ -10,18 +10,16 @@
             <h2>Информация о заказе</h2>
             <p><strong>Номер заказа:</strong> {{ order.order_number }}</p>
             <p><strong>Клиент:</strong> {{ order.client.full_name }}</p>
-            <p><strong>Статус:</strong>
-                <form method="post" action="{% url 'orders:worker_update_status' order.id %}" class="status-form" style="display: inline;">
-                    {% csrf_token %}
-                    <select name="status" onchange="this.form.submit()" class="status-select">
-                        {% for value, label in order.STATUS_CHOICES %}
-                        <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>
+            <tr>
+                <th>Статус:</th>
+                <td>
+                    {% for value, label in order.STATUS_CHOICES %}
+                        {% if order.status == value %}
                             {{ label }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </form>
-            </p>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
             <p><strong>Дата создания:</strong> {{ order.start_date|date:"d.m.Y" }}</p>
         </div>
 

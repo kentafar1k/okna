@@ -21,6 +21,28 @@
         </div>
     </div>
     
+    <div class="sort-box">
+        <form method="get" id="sortForm">
+            <select name="sort" onchange="this.form.submit()" class="sort-select">
+                <option value="-start_date" {% if current_sort == '-start_date' %}selected{% endif %}>
+                    Сначала новые
+                </option>
+                <option value="start_date" {% if current_sort == 'start_date' %}selected{% endif %}>
+                    Сначала старые
+                </option>
+                <option value="uncompleted_first" {% if current_sort == 'uncompleted_first' %}selected{% endif %}>
+                    Сначала не завершённые
+                </option>
+                <option value="completed_first" {% if current_sort == 'completed_first' %}selected{% endif %}>
+                    Сначала завершённые
+                </option>
+            </select>
+            {% if search_query %}
+                <input type="hidden" name="search" value="{{ search_query }}">
+            {% endif %}
+        </form>
+    </div>
+    
     <div class="container" id="orders">
         <h2>Список заказов</h2>
         <table>
@@ -39,9 +61,9 @@
                         </a>
                     </td>
                     <td>
-                        <form method="post" action="{% url 'orders:worker_update_status' order.id %}" class="status-form">
+                        <form method="post" class="status-form" data-order-id="{{ order.id }}">
                             {% csrf_token %}
-                            <select name="status" onchange="this.form.submit()" class="status-select">
+                            <select name="status" class="status-select" data-previous="{{ order.status }}">
                                 {% for value, label in order.STATUS_CHOICES %}
                                 <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>
                                     {{ label }}
@@ -58,6 +80,24 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+</div>
+
+<div id="notificationModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle">Отправить уведомление клиенту?</h3>
+        <div class="notification-options">
+            <label>
+                <input type="checkbox" id="sendEmail" checked> Отправить email
+            </label>
+            <label>
+                <input type="checkbox" id="sendSMS" checked> Отправить SMS
+            </label>
+        </div>
+        <div class="modal-buttons">
+            <button onclick="confirmStatusUpdate()" class="button">Подтвердить</button>
+            <button onclick="cancelStatusUpdate()" class="button cancel">Отмена</button>
+        </div>
     </div>
 </div>
 
@@ -115,43 +155,173 @@ th {
 .button:hover {
     background-color: #005bb5;
 }
+
+.sort-select {
+    padding: 6px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    font-size: 14px;
+    min-width: 200px;
+}
+
+.sort-select:hover {
+    border-color: #0073e6;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 5px;
+    width: 80%;
+    max-width: 500px;
+}
+
+.notification-options {
+    margin: 20px 0;
+}
+
+.notification-options label {
+    display: block;
+    margin: 10px 0;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+    .sort-select {
+        min-width: 100%;
+        margin-bottom: 10px;
+    }
+}
 </style>
 
 <script>
-document.querySelectorAll('.status-form').forEach(form => {
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const select = this.querySelector('select');
-        
-        fetch(this.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (!data.success) {
-                alert('Ошибка при обновлении статуса');
-                select.value = select.getAttribute('data-previous');
-            } else {
-                select.setAttribute('data-previous', select.value);
-                if (data.redirect) {
-                    window.location.href = data.redirect;
+let currentOrderId = null;
+let currentSelect = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const selects = document.querySelectorAll('.status-select');
+    
+    selects.forEach(select => {
+        select.addEventListener('change', function() {
+            const newStatus = this.value;
+            const form = this.closest('form');
+            
+            if (newStatus === 'ready' || newStatus === 'completed') {
+                currentOrderId = form.getAttribute('data-order-id');
+                currentSelect = this;
+                
+                const modalTitle = document.getElementById('modalTitle');
+                if (newStatus === 'ready') {
+                    modalTitle.textContent = 'Отправить уведомление о готовности заказа?';
+                } else if (newStatus === 'completed') {
+                    modalTitle.textContent = 'Отправить уведомление об отгрузке заказа?';
                 }
+                
+                document.getElementById('notificationModal').style.display = 'block';
+            } else {
+                updateOrderStatus(form, this);
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Ошибка при обновлении статуса');
-            select.value = select.getAttribute('data-previous');
         });
     });
-
-    const select = form.querySelector('select');
-    select.setAttribute('data-previous', select.value);
 });
+
+function confirmStatusUpdate() {
+    const form = document.querySelector(`.status-form[data-order-id="${currentOrderId}"]`);
+    const sendEmail = document.getElementById('sendEmail').checked;
+    const sendSMS = document.getElementById('sendSMS').checked;
+    
+    const formData = new FormData(form);
+    formData.append('send_email', sendEmail);
+    formData.append('send_sms', sendSMS);
+    
+    fetch(`/orders/worker/update-status/${currentOrderId}/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            currentSelect.setAttribute('data-previous', currentSelect.value);
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        } else {
+            alert('Ошибка при обновлении статуса');
+            currentSelect.value = currentSelect.getAttribute('data-previous');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ошибка при обновлении статуса');
+        currentSelect.value = currentSelect.getAttribute('data-previous');
+    })
+    .finally(() => {
+        document.getElementById('notificationModal').style.display = 'none';
+        currentOrderId = null;
+        currentSelect = null;
+    });
+}
+
+function cancelStatusUpdate() {
+    if (currentSelect) {
+        currentSelect.value = currentSelect.getAttribute('data-previous');
+    }
+    document.getElementById('notificationModal').style.display = 'none';
+    currentOrderId = null;
+    currentSelect = null;
+}
+
+function updateOrderStatus(form, select) {
+    const orderId = form.getAttribute('data-order-id');
+    const formData = new FormData(form);
+    
+    fetch(`/orders/worker/update-status/${orderId}/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            select.setAttribute('data-previous', select.value);
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        } else {
+            alert('Ошибка при обновлении статуса');
+            select.value = select.getAttribute('data-previous');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ошибка при обновлении статуса');
+        select.value = select.getAttribute('data-previous');
+    });
+}
 </script>
 {% endblock %}

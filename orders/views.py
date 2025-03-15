@@ -137,8 +137,21 @@ def client_orders(request):
 
 @worker_required
 def worker_orders(request):
-    # Показываем все незавершенные заказы для работника
-    orders_queryset = Order.objects.exclude(status='completed').order_by('-start_date')
+    # Получаем параметры сортировки
+    sort_param = request.GET.get('sort', '-start_date')
+    
+    # Базовый QuerySet
+    orders_queryset = Order.objects.all()
+    
+    # Применяем сортировку
+    if sort_param == 'completed_first':
+        orders_queryset = orders_queryset.order_by('status', '-start_date')
+    elif sort_param == 'uncompleted_first':
+        orders_queryset = orders_queryset.order_by('-status', '-start_date')
+    elif sort_param == 'start_date':
+        orders_queryset = orders_queryset.order_by('start_date')
+    else:  # '-start_date' по умолчанию
+        orders_queryset = orders_queryset.order_by('-start_date')
 
     # Получаем параметр поиска
     search_query = request.GET.get('search', '').strip()
@@ -147,29 +160,56 @@ def worker_orders(request):
         orders_queryset = orders_queryset.filter(
             order_number__icontains=search_query
         )
-
+    
     context = {
         'orders': orders_queryset,
         'search_query': search_query,
-        'is_worker': True  # флаг для шаблона
+        'current_sort': sort_param,
+        'is_worker': True
     }
     return render(request, 'orders/worker_orders.html', context)
 
-@manager_required
+@worker_required
 def worker_update_status(request, order_id):
     if request.method == 'POST':
         order = get_object_or_404(Order, id=order_id)
         new_status = request.POST.get('status')
-        if new_status in dict(Order.STATUS_CHOICES):
-            order.status = new_status
-            order.save()
+        send_email = request.POST.get('send_email') == 'true'
+        send_sms = request.POST.get('send_sms') == 'true'
+
+        # Сохраняем предыдущий статус
+        old_status = order.status
+        
+        # Обновляем статус
+        order.status = new_status
+        order.save()
+
+        # Отправляем уведомления только если статус изменился на 'ready' или 'completed'
+        if (new_status in ['ready', 'completed']) and (old_status != new_status):
+            # Определяем текст сообщения в зависимости от статуса
+            status_message = "готов" if new_status == 'ready' else "отгружен"
+            message = f"Ваш заказ №{order.order_number} {status_message}"
             
-            # Если заказ завершен, показываем сообщение
+            if send_email:
+                send_order_ready_email(
+                    email=order.client.email,
+                    order_number=order.order_number,
+                    message=message,
+                    total_price=order.total_price,
+                    prepayment=order.prepayment or 0,
+                    debt=order.get_debt()
+                )
+            
+            if send_sms:
+                sms_message = f"{message}. Остаток к оплате: {order.get_debt()} ₽"
+                send_order_ready_sms(order.client.phone, order.order_number, sms_message)
+
             if new_status == 'completed':
                 messages.success(request, f'Заказ №{order.order_number} отмечен как завершенный')
                 return JsonResponse({'success': True, 'redirect': reverse('orders:worker_orders')})
-            
-            return JsonResponse({'success': True})
+
+        return JsonResponse({'success': True})
+    
     return JsonResponse({'success': False})
 
 @manager_required

@@ -123,15 +123,36 @@ def client_orders(request):
     try:
         # Получаем клиента, связанного с текущим пользователем
         client = Client.objects.get(user=request.user)
-        # Получаем все заказы клиента, сортируем по дате (новые сверху)
-        orders = Order.objects.filter(client=client).order_by('-start_date')
+        
+        # Получаем параметры сортировки
+        sort_param = request.GET.get('sort', '-start_date')
+        
+        # Базовый QuerySet
+        orders = Order.objects.filter(client=client)
+        
+        # Применяем сортировку
+        if sort_param == 'completed_first':
+            orders = orders.order_by('status', '-start_date')
+        elif sort_param == 'uncompleted_first':
+            orders = orders.order_by('-status', '-start_date')
+        elif sort_param == 'start_date':
+            orders = orders.order_by('start_date')
+        else:  # '-start_date' по умолчанию
+            orders = orders.order_by('-start_date')
+        
+        # Вычисляем общую задолженность
+        total_debt = sum(order.get_debt() for order in orders)
+        
     except Client.DoesNotExist:
         orders = Order.objects.none()
+        total_debt = 0
         messages.warning(request, 'Профиль клиента не найден')
     
     context = {
         'orders': orders,
-        'is_client': True  # флаг для шаблона
+        'is_client': True,
+        'current_sort': sort_param,
+        'total_debt': total_debt
     }
     return render(request, 'orders/client_orders.html', context)
 

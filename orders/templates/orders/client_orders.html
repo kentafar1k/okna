@@ -39,8 +39,6 @@
                 <th style="width: 120px;">Стоимость</th>
                 <th style="width: 120px;">Предоплата</th>
                 <th style="width: 120px;">Задолженность</th>
-                <th style="width: 60px;">PDF</th>
-                <th style="width: 100px;">Действия</th>
             </tr>
         </thead>
         <tbody>
@@ -55,23 +53,8 @@
                 <td>{{ order.start_date|date:"Y-m-d" }}</td>
                 <td>{{ order.total_price }} ₽</td>
                 <td>{{ order.prepayment|default:0 }} ₽</td>
-                <td class="{% if order.get_debt < 0 %}negative-debt{% else %}neutral-debt{% endif %}">
+                <td class="neutral-debt">
                     {{ order.get_debt }} ₽
-                </td>
-                <td class="pdf-cell">
-                    {% if order.pdf_file %}
-                    <a href="{{ order.pdf_file.url }}" 
-                       class="pdf-link" 
-                       target="_blank" 
-                       title="Открыть PDF">
-                        PDF
-                    </a>
-                    {% endif %}
-                </td>
-                <td>
-                    <div class="action-buttons">
-                        <a href="{% url 'orders:order_detail' order.id %}" class="button">детали</a>
-                    </div>
                 </td>
             </tr>
             {% empty %}

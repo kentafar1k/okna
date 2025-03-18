@@ -29,11 +29,12 @@ class OrderBot:
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Отправляет приветственное сообщение и клавиатуру с командами"""
         keyboard = [
-            ['📱 Ввести номер телефона', '📍 Узнать геопозицию']
+            ['📱 Ввести номер телефона', '📍 Узнать геопозицию'],
+            ['🔙 Вернуться назад']
         ]
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
         await update.message.reply_text(
-            'Здравствуйте, мы компания "Окна в мир"!У этого бота вы можете узнать информацию о своих заказах по номеру телефона или посмотреть нашу геопозицию. Выберите действие:',
+            'Здравствуйте, мы компания "Окна в мир"! У этого бота вы можете узнать информацию о своих заказах по номеру телефона или посмотреть нашу геопозицию. Выберите действие:',
             reply_markup=reply_markup
         )
         return PHONE
@@ -70,6 +71,15 @@ class OrderBot:
 
     async def get_orders_by_contact(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Обработка полученного контакта"""
+        keyboard = [
+            ['📱 Ввести номер телефона', '📍 Узнать геопозицию'],
+            ['🔙 Вернуться назад']
+        ]
+        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+        await update.message.reply_text(
+            'Выберите действие:',
+            reply_markup=reply_markup
+        )
         phone = update.message.contact.phone_number
         return await self.process_phone(update, phone)
 
@@ -91,9 +101,10 @@ class OrderBot:
             return PHONE
         elif text == '📱 Ввести номер телефона':
             # Создаем клавиатуру с кнопкой отправки контакта
-            keyboard = [[
-                KeyboardButton("📱 Отправить мой номер", request_contact=True)
-            ]]
+            keyboard = [
+                [KeyboardButton("📱 Отправить мой номер", request_contact=True)],
+                ['🔙 Вернуться назад']
+            ]
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
             
             await update.message.reply_text(
@@ -103,39 +114,134 @@ class OrderBot:
                 reply_markup=reply_markup
             )
             return PHONE
-        else:
-            # Пробуем обработать как номер телефона
-            return await self.process_phone(update, text)
-
-    async def process_phone(self, update: Update, phone: str):
-        """Обработка номера телефона и отправка информации о заказах"""
-        result = await self.get_client_orders(phone)
-        client, orders = result
-        
-        if client is None:
-            await update.message.reply_text(
-                'Клиент с таким номером телефона не найден. Попробуйте еще раз или напишите /cancel для отмены.'
-            )
-            return PHONE
-        
-        message = f'Заказы клиента {client.full_name}:\n\n'
-        
-        if not orders:
-            message += 'У вас пока нет заказов.'
-        else:
-            for order in orders:
-                message += (
-                    f'Заказ №{order.order_number}\n'
+        elif text == '🔙 Вернуться назад':
+            return await self.start(update, context)
+        elif text.startswith('Заказ №'):
+            # Обработка нажатия на кнопку заказа
+            order_number = text.split('№')[1]
+            order = await self.get_order_by_number(order_number)
+            
+            if order:
+                message = (
+                    f'Информация о заказе №{order.order_number}:\n\n'
                     f'Статус: {order.get_status_display()}\n'
                     f'Дата создания: {order.start_date.strftime("%d.%m.%Y")}\n'
                     f'Стоимость: {order.total_price} ₽\n'
                     f'Предоплата: {order.prepayment or 0} ₽\n'
                     f'Задолженность: {order.get_debt()} ₽\n'
-                    '-------------------\n'
                 )
+                
+                # Создаем клавиатуру с кнопкой возврата
+                keyboard = [['🔙 Вернуться назад']]
+                reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+                
+                await update.message.reply_text(
+                    message,
+                    reply_markup=reply_markup
+                )
+                return PHONE
+            else:
+                keyboard = [['🔙 Вернуться назад']]
+                reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+                await update.message.reply_text(
+                    'Заказ не найден.',
+                    reply_markup=reply_markup
+                )
+                return PHONE
+        else:
+            # Пробуем обработать как номер телефона
+            return await self.process_phone(update, text)
+
+    @sync_to_async
+    def get_order_by_number(self, order_number):
+        """Получение заказа по номеру"""
+        try:
+            return Order.objects.get(order_number=order_number)
+        except Order.DoesNotExist:
+            return None
+
+    @sync_to_async
+    def get_client_by_phone(self, phone):
+        """Получение клиента по номеру телефона"""
+        try:
+            clean_phone = ''.join(filter(str.isdigit, phone))
+            
+            if len(clean_phone) == 11:
+                print(f"Ищем клиента с номером: {clean_phone}")
+                
+                try:
+                    return Client.objects.get(phone=clean_phone)
+                except Client.DoesNotExist:
+                    if clean_phone.startswith('7') or clean_phone.startswith('8'):
+                        alt_phone = clean_phone[1:]
+                        print(f"Пробуем альтернативный номер: {alt_phone}")
+                        try:
+                            return Client.objects.get(phone=alt_phone)
+                        except Client.DoesNotExist:
+                            pass
+            
+            print(f"Клиент не найден. Очищенный номер: {clean_phone}")
+            return None
+        except Exception as e:
+            print(f"Ошибка при поиске клиента: {str(e)}")
+            return None
+
+    async def process_phone(self, update: Update, phone: str):
+        """Обработка номера телефона"""
+        # Форматируем номер телефона
+        if phone.startswith('+'):
+            phone = phone[1:]
+        elif phone.startswith('8'):
+            phone = '7' + phone[1:]
+        elif phone.startswith('7'):
+            phone = phone
+        else:
+            phone = '7' + phone
+
+        # Ищем клиента по номеру телефона
+        client = await self.get_client_by_phone(phone)
         
-        await update.message.reply_text(message)
-        return PHONE
+        if client:
+            # Получаем активные заказы клиента
+            orders = await self.get_active_orders(client)
+            
+            if orders:
+                # Создаем клавиатуру с активными заказами
+                keyboard = []
+                for order in orders:
+                    keyboard.append([f'Заказ №{order.order_number}'])
+                keyboard.append(['🔙 Вернуться назад'])
+                
+                reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+                await update.message.reply_text(
+                    f'Найдены активные заказы для клиента {client.full_name}. Выберите заказ для просмотра информации:',
+                    reply_markup=reply_markup
+                )
+                return PHONE
+            else:
+                keyboard = [['🔙 Вернуться назад']]
+                reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+                await update.message.reply_text(
+                    f'У клиента {client.full_name} нет активных заказов.',
+                    reply_markup=reply_markup
+                )
+                return PHONE
+        else:
+            keyboard = [['🔙 Вернуться назад']]
+            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+            await update.message.reply_text(
+                'Клиент с таким номером телефона не найден.',
+                reply_markup=reply_markup
+            )
+            return PHONE
+
+    @sync_to_async
+    def get_active_orders(self, client):
+        """Получение активных заказов клиента"""
+        return list(Order.objects.filter(
+            client=client,
+            status='in_progress'
+        ).order_by('-start_date'))
 
     async def cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Отмена разговора"""

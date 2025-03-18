@@ -223,7 +223,7 @@ class OrderBot:
                 
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
                 await update.message.reply_text(
-                    f'Найдены активные заказы для клиента {client.full_name}. Выберите заказ для просмотра информации:',
+                    f'Найдены ваши активные заказы. Выберите заказ для просмотра информации:',
                     reply_markup=reply_markup
                 )
                 return PHONE
@@ -231,7 +231,7 @@ class OrderBot:
                 keyboard = [['🔙 Вернуться назад']]
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
                 await update.message.reply_text(
-                    f'У клиента {client.full_name} нет активных заказов.',
+                    f'У вас нет активных заказов.',
                     reply_markup=reply_markup
                 )
                 return PHONE

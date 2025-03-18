@@ -122,6 +122,11 @@ class OrderBot:
             order = await self.get_order_by_number(order_number)
             
             if order:
+                # Получаем клиента из заказа
+                client = await self.get_order_client(order)
+                # Получаем общую задолженность клиента
+                total_debt = await self.get_client_total_debt(client)
+                
                 # Показываем информацию о заказе
                 message = (
                     f'Информация о заказе №{order.order_number}:\n\n'
@@ -129,12 +134,12 @@ class OrderBot:
                     f'Дата создания: {order.start_date.strftime("%d.%m.%Y")}\n'
                     f'Стоимость: {order.total_price} ₽\n'
                     f'Предоплата: {order.prepayment or 0} ₽\n'
-                    f'Задолженность: {order.get_debt()} ₽\n'
+                    f'Задолженность: {order.get_debt()} ₽\n\n'
+                    f'Общая задолженность: {total_debt} ₽'
                 )
                 await update.message.reply_text(message)
                 
-                # Получаем клиента и его активные заказы для обновления панели
-                client = order.client
+                # Получаем активные заказы клиента для обновления панели
                 active_orders = await self.get_active_orders(client)
                 
                 # Создаем обновленную клавиатуру с активными заказами
@@ -251,6 +256,19 @@ class OrderBot:
             client=client,
             status='in_progress'
         ).order_by('-start_date'))
+
+    @sync_to_async
+    def get_client_total_debt(self, client):
+        """Получение общей задолженности клиента"""
+        total_debt = 0
+        for order in Order.objects.filter(client=client):
+            total_debt += order.get_debt()
+        return total_debt
+
+    @sync_to_async
+    def get_order_client(self, order):
+        """Получение клиента из заказа"""
+        return order.client
 
     async def cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Отмена разговора"""

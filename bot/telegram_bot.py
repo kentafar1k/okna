@@ -122,6 +122,7 @@ class OrderBot:
             order = await self.get_order_by_number(order_number)
             
             if order:
+                # Показываем информацию о заказе
                 message = (
                     f'Информация о заказе №{order.order_number}:\n\n'
                     f'Статус: {order.get_status_display()}\n'
@@ -130,13 +131,21 @@ class OrderBot:
                     f'Предоплата: {order.prepayment or 0} ₽\n'
                     f'Задолженность: {order.get_debt()} ₽\n'
                 )
+                await update.message.reply_text(message)
                 
-                # Создаем клавиатуру с кнопкой возврата
-                keyboard = [['🔙 Вернуться назад']]
+                # Получаем клиента и его активные заказы для обновления панели
+                client = order.client
+                active_orders = await self.get_active_orders(client)
+                
+                # Создаем обновленную клавиатуру с активными заказами
+                keyboard = []
+                for active_order in active_orders:
+                    keyboard.append([f'Заказ №{active_order.order_number}'])
+                keyboard.append(['🔙 Вернуться назад'])
+                
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-                
                 await update.message.reply_text(
-                    message,
+                    f'Выберите заказ для просмотра информации:',
                     reply_markup=reply_markup
                 )
                 return PHONE

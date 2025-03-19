@@ -29,8 +29,7 @@ class OrderBot:
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Отправляет приветственное сообщение и клавиатуру с командами"""
         keyboard = [
-            ['📱 Ввести номер телефона', '📍 Узнать геопозицию'],
-            ['🔙 Вернуться назад']
+            ['📱 Ввести номер телефона', '📍 Узнать геопозицию']
         ]
         reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
         await update.message.reply_text(
@@ -98,6 +97,23 @@ class OrderBot:
                 'Мы находимся по адресу:\n'
                 'ул. Гагарина, д. 92'
             )
+            
+            # Возвращаем пользователя к предыдущему состоянию с активными заказами
+            if hasattr(context, 'user_data') and 'last_client' in context.user_data:
+                client = context.user_data['last_client']
+                active_orders = await self.get_active_orders(client)
+                keyboard = []
+                for order in active_orders:
+                    keyboard.append([f'Заказ №{order.order_number}'])
+                keyboard.extend([
+                    ['📍 Узнать геопозицию'],
+                    ['🔙 Вернуться назад']
+                ])
+                reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+                await update.message.reply_text(
+                    'Выберите заказ для просмотра информации:',
+                    reply_markup=reply_markup
+                )
             return PHONE
         elif text == '📱 Ввести номер телефона':
             # Создаем клавиатуру с кнопкой отправки контакта
@@ -124,6 +140,8 @@ class OrderBot:
             if order:
                 # Получаем клиента из заказа
                 client = await self.get_order_client(order)
+                # Сохраняем клиента в контексте
+                context.user_data['last_client'] = client
                 # Получаем общую задолженность клиента
                 total_debt = await self.get_client_total_debt(client)
                 
@@ -146,7 +164,10 @@ class OrderBot:
                 keyboard = []
                 for active_order in active_orders:
                     keyboard.append([f'Заказ №{active_order.order_number}'])
-                keyboard.append(['🔙 Вернуться назад'])
+                keyboard.extend([
+                    ['📍 Узнать геопозицию'],
+                    ['🔙 Вернуться назад']
+                ])
                 
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
                 await update.message.reply_text(
@@ -155,7 +176,10 @@ class OrderBot:
                 )
                 return PHONE
             else:
-                keyboard = [['🔙 Вернуться назад']]
+                keyboard = [
+                    ['📍 Узнать геопозицию'],
+                    ['🔙 Вернуться назад']
+                ]
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
                 await update.message.reply_text(
                     'Заказ не найден.',
@@ -224,7 +248,10 @@ class OrderBot:
                 keyboard = []
                 for order in orders:
                     keyboard.append([f'Заказ №{order.order_number}'])
-                keyboard.append(['🔙 Вернуться назад'])
+                keyboard.extend([
+                    ['📍 Узнать геопозицию'],
+                    ['🔙 Вернуться назад']
+                ])
                 
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
                 await update.message.reply_text(
@@ -233,7 +260,10 @@ class OrderBot:
                 )
                 return PHONE
             else:
-                keyboard = [['🔙 Вернуться назад']]
+                keyboard = [
+                    ['📍 Узнать геопозицию'],
+                    ['🔙 Вернуться назад']
+                ]
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
                 await update.message.reply_text(
                     f'У вас нет активных заказов.',
@@ -241,7 +271,10 @@ class OrderBot:
                 )
                 return PHONE
         else:
-            keyboard = [['🔙 Вернуться назад']]
+            keyboard = [
+                ['📍 Узнать геопозицию'],
+                ['🔙 Вернуться назад']
+            ]
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
             await update.message.reply_text(
                 'Клиент с таким номером телефона не найден.',

@@ -33,3 +33,9 @@ class Client(models.Model):
             if debt > 0:  # учитываем только положительные задолженности
                 total_debt += debt
         return total_debt
+
+    def delete(self, *args, **kwargs):
+        """Удаляет клиента и связанного с ним пользователя"""
+        if self.user:
+            self.user.delete()
+        super().delete(*args, **kwargs)

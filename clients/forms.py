@@ -68,12 +68,17 @@ class ClientCreateForm(forms.ModelForm):
     def save(self, commit=True):
         client = super().save(commit=False)
         
-        # Создаем пользователя с номером телефона в качестве пароля
-        user = User.objects.create_user(
-            username=client.phone,
-            password=client.phone,  # Используем номер телефона как пароль
-            user_type='client'
-        )
+        # Проверяем, существует ли уже пользователь с таким username
+        if User.objects.filter(username=client.phone).exists():
+            # Если пользователь существует, используем его
+            user = User.objects.get(username=client.phone)
+        else:
+            # Создаем нового пользователя
+            user = User.objects.create_user(
+                username=client.phone,
+                password=client.phone,  # Используем номер телефона как пароль
+                user_type='client'
+            )
         
         client.user = user
         

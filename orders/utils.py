@@ -70,7 +70,11 @@ def send_order_ready_sms(phone, order_number, message):
     # Очищаем номер от лишних символов
     phone = ''.join(filter(str.isdigit, phone))
     
-    sms_text = f'{message}. Номер заказа: {order_number}'
+    # Формируем текст сообщения
+    sms_text = (
+        f'Здравствуйте! {message}\n'
+        f'С уважением, "Окна в мир"'
+    )
     
     # Формируем заголовок авторизации
     auth_string = f"{settings.SMSAERO_EMAIL}:{settings.SMSAERO_API_KEY}"

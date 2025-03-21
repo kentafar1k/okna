@@ -220,9 +220,14 @@ def worker_update_status(request, order_id):
                     prepayment=order.prepayment or 0,
                     debt=order.get_debt()
                 )
-            
+
             if send_sms:
-                sms_message = f"{message}. Остаток к оплате: {order.get_debt()} ₽"
+                debt = order.get_debt()
+                if debt > 0:
+                    sms_message = f"{message}."
+                else:
+                    sms_message = f"{message}. Остаток к оплате: {debt} ₽"
+
                 send_order_ready_sms(order.client.phone, order.order_number, sms_message)
 
             if new_status == 'completed':
@@ -290,6 +295,7 @@ def update_status(request, order_id):
                     sms_message = f"{message}."
                 else:
                     sms_message = f"{message}. Остаток к оплате: {debt} ₽"
+
                 send_order_ready_sms(order.client.phone, order.order_number, sms_message)
 
         return JsonResponse({'success': True})

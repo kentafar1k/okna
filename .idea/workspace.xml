@@ -7,7 +7,8 @@
     <list default="true" id="e6325abf-25fb-49e1-a681-fcae7490d0db" name="Changes" comment="Initial commit">
       <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/orders/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/orders/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orders/templates/orders/create_order.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/create_order.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orders/templates/orders/order_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/order_detail.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +62,7 @@
   "keyToString": {
     "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
     "DefaultHtmlFileTemplate": "HTML File",
-    "Django Server.okna.executor": "Debug",
+    "Django Server.okna.executor": "Run",
     "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
@@ -146,7 +147,7 @@
       <workItem from="1741063241210" duration="16953000" />
       <workItem from="1741340142996" duration="7379000" />
       <workItem from="1741415652544" duration="2868000" />
-      <workItem from="1742463089795" duration="7128000" />
+      <workItem from="1742463089795" duration="8459000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />

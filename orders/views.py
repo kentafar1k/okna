@@ -285,8 +285,11 @@ def update_status(request, order_id):
                 )
             
             if send_sms:
-                # sms_message = f"{message}. Остаток к оплате: {order.get_debt()} ₽"
-                sms_message = f"{message}."
+                debt = order.get_debt()
+                if debt > 0:
+                    sms_message = f"{message}."
+                else:
+                    sms_message = f"{message}. Остаток к оплате: {debt} ₽"
                 send_order_ready_sms(order.client.phone, order.order_number, sms_message)
 
         return JsonResponse({'success': True})

@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e6325abf-25fb-49e1-a681-fcae7490d0db" name="Changes" comment="Initial commit">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/orders/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/orders/utils.py" afterDir="false" />
-    </list>
+    <list default="true" id="e6325abf-25fb-49e1-a681-fcae7490d0db" name="Changes" comment="Initial commit" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -145,7 +142,7 @@
       <workItem from="1741063241210" duration="16953000" />
       <workItem from="1741340142996" duration="7379000" />
       <workItem from="1741415652544" duration="2868000" />
-      <workItem from="1742463089795" duration="5513000" />
+      <workItem from="1742463089795" duration="5778000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />

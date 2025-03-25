@@ -101,7 +101,7 @@ class OrderBot:
                 
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
                 await update.message.reply_text(
-                    f'Найдены ваши заказы. Выберите заказ для просмотра информации:',
+                    f'Найдены ваши заказы. Выберите заказ для просмотра информации:\n⚙️ - заказы в работе\n✅ - готовые заказы',
                     reply_markup=reply_markup
                 )
                 return PHONE

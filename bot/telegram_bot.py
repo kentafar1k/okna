@@ -70,17 +70,63 @@ class OrderBot:
 
     async def get_orders_by_contact(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Обработка полученного контакта"""
-        keyboard = [
-            ['📱 Ввести номер телефона', '📍 Узнать геопозицию'],
-            ['🔙 Вернуться назад']
-        ]
-        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        await update.message.reply_text(
-            'Выберите действие:',
-            reply_markup=reply_markup
-        )
         phone = update.message.contact.phone_number
-        return await self.process_phone(update, phone)
+        # Форматируем номер телефона
+        if phone.startswith('+'):
+            phone = phone[1:]
+        elif phone.startswith('8'):
+            phone = '7' + phone[1:]
+        elif phone.startswith('7'):
+            phone = phone
+        else:
+            phone = '7' + phone
+
+        # Ищем клиента по номеру телефона
+        client = await self.get_client_by_phone(phone)
+        
+        if client:
+            # Получаем активные заказы клиента
+            orders = await self.get_active_orders(client)
+            
+            if orders:
+                # Создаем клавиатуру с активными заказами
+                keyboard = []
+                for order in orders:
+                    status_emoji = "✅" if order.status == 'ready' else "⚙️"
+                    keyboard.append([f'{status_emoji} Заказ №{order.order_number}'])
+                keyboard.extend([
+                    ['📍 Узнать геопозицию'],
+                    ['🔙 Вернуться назад']
+                ])
+                
+                reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+                await update.message.reply_text(
+                    f'Найдены ваши заказы. Выберите заказ для просмотра информации:',
+                    reply_markup=reply_markup
+                )
+                return PHONE
+            else:
+                keyboard = [
+                    ['📍 Узнать геопозицию'],
+                    ['🔙 Вернуться назад']
+                ]
+                reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+                await update.message.reply_text(
+                    f'У вас нет заказов.',
+                    reply_markup=reply_markup
+                )
+                return PHONE
+        else:
+            keyboard = [
+                ['📍 Узнать геопозицию'],
+                ['🔙 Вернуться назад']
+            ]
+            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+            await update.message.reply_text(
+                'Клиент с таким номером телефона не найден.',
+                reply_markup=reply_markup
+            )
+            return PHONE
 
     async def get_orders_by_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Обработка текстового сообщения"""
@@ -104,7 +150,8 @@ class OrderBot:
                 active_orders = await self.get_active_orders(client)
                 keyboard = []
                 for order in active_orders:
-                    keyboard.append([f'Заказ №{order.order_number}'])
+                    status_emoji = "✅" if order.status == 'ready' else "⚙️"
+                    keyboard.append([f'{status_emoji} Заказ №{order.order_number}'])
                 keyboard.extend([
                     ['📍 Узнать геопозицию'],
                     ['🔙 Вернуться назад']
@@ -132,9 +179,9 @@ class OrderBot:
             return PHONE
         elif text == '🔙 Вернуться назад':
             return await self.start(update, context)
-        elif text.startswith('Заказ №'):
+        elif text.startswith('Заказ №') or text.startswith('✅ Заказ №') or text.startswith('⚙️ Заказ №'):
             # Обработка нажатия на кнопку заказа
-            order_number = text.split('№')[1]
+            order_number = text.split('№')[1].strip()
             order = await self.get_order_by_number(order_number)
             
             if order:
@@ -163,7 +210,8 @@ class OrderBot:
                 # Создаем обновленную клавиатуру с активными заказами
                 keyboard = []
                 for active_order in active_orders:
-                    keyboard.append([f'Заказ №{active_order.order_number}'])
+                    status_emoji = "✅" if active_order.status == 'ready' else "⚙️"
+                    keyboard.append([f'{status_emoji} Заказ №{active_order.order_number}'])
                 keyboard.extend([
                     ['📍 Узнать геопозицию'],
                     ['🔙 Вернуться назад']
@@ -247,7 +295,8 @@ class OrderBot:
                 # Создаем клавиатуру с активными заказами
                 keyboard = []
                 for order in orders:
-                    keyboard.append([f'Заказ №{order.order_number}'])
+                    status_emoji = "✅" if order.status == 'ready' else "⚙️"
+                    keyboard.append([f'{status_emoji} Заказ №{order.order_number}'])
                 keyboard.extend([
                     ['📍 Узнать геопозицию'],
                     ['🔙 Вернуться назад']
@@ -255,7 +304,7 @@ class OrderBot:
                 
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
                 await update.message.reply_text(
-                    f'Найдены ваши активные заказы. Выберите заказ для просмотра информации:',
+                    f'Найдены ваши заказы. Выберите заказ для просмотра информации:',
                     reply_markup=reply_markup
                 )
                 return PHONE
@@ -266,7 +315,7 @@ class OrderBot:
                 ]
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
                 await update.message.reply_text(
-                    f'У вас нет активных заказов.',
+                    f'У вас нет заказов.',
                     reply_markup=reply_markup
                 )
                 return PHONE
@@ -287,7 +336,7 @@ class OrderBot:
         """Получение активных заказов клиента"""
         return list(Order.objects.filter(
             client=client,
-            status='in_progress'
+            status__in=['in_progress', 'ready']
         ).order_by('-start_date'))
 
     @sync_to_async

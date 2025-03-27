@@ -207,15 +207,31 @@ th, td {
 }
 
 /* Задаем ширину для каждого столбца */
-th:nth-child(1), td:nth-child(1) { width: 8%; }   /* Дата */
-th:nth-child(2), td:nth-child(2) { width: 12%; }  /* Номер заказа */
-th:nth-child(3), td:nth-child(3) { width: 15%; }  /* Стадия */
+th:nth-child(1), td:nth-child(1) { width: 15%; }  /* Номер заказа */
+th:nth-child(2), td:nth-child(2) { width: 10%; }  /* Стадия */
+th:nth-child(3), td:nth-child(3) { width: 8%; }   /* Дата */
 th:nth-child(4), td:nth-child(4) { width: 20%; }  /* Клиент */
-th:nth-child(5), td:nth-child(5) { width: 12%; }  /* Стоимость */
-th:nth-child(6), td:nth-child(6) { width: 12%; }  /* Предоплата */
-th:nth-child(7), td:nth-child(7) { width: 12%; }  /* Задолженность */
-th:nth-child(8), td:nth-child(8) { width: 40px; }  /* PDF */
-th:nth-child(9), td:nth-child(9) { width: 9%; }   /* Действия */
+th:nth-child(5), td:nth-child(5) { width: 10%; }  /* Стоимость */
+th:nth-child(6), td:nth-child(6) { width: 10%; }  /* Предоплата */
+th:nth-child(7), td:nth-child(7) { width: 10%; }  /* Задолженность */
+th:nth-child(8), td:nth-child(8) { width: 40px; } /* PDF */
+th:nth-child(9), td:nth-child(9) { width: 7%; }   /* Действия */
+
+/* Стили для ячейки с номером заказа */
+td:nth-child(1) {
+    max-width: 300px;  /* Фиксированная максимальная ширина */
+    white-space: normal;  /* Разрешаем перенос строк */
+    word-wrap: break-word;  /* Разрешаем перенос длинных слов */
+    overflow-wrap: break-word;  /* Современное свойство для переноса слов */
+}
+
+/* Стили для ссылки в ячейке с номером заказа */
+.order-link {
+    display: inline-block;
+    max-width: 100%;  /* Ограничиваем ширину ссылки */
+    word-wrap: break-word;  /* Разрешаем перенос длинных слов */
+    overflow-wrap: break-word;  /* Современное свойство для переноса слов */
+}
 
 /* Стили для контейнера кнопок */
 .action-buttons {

@@ -93,13 +93,21 @@
                     <td>
                         <form method="post" action="{% url 'orders:update_status' order.id %}" class="status-form" data-order-id="{{ order.id }}">
                             {% csrf_token %}
-                            <select name="status" class="status-select" data-previous="{{ order.status }}">
-                                {% for value, label in order.STATUS_CHOICES %}
-                                <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>
-                                    {{ label }}
-                                </option>
-                                {% endfor %}
-                            </select>
+                            <div class="status-controls">
+                                <select name="status" class="status-select" data-previous="{{ order.status }}">
+                                    {% for value, label in order.STATUS_CHOICES %}
+                                    <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <button type="button" 
+                                        class="history-button" 
+                                        onclick="showStatusHistory('{{ order.id }}', '{{ order.order_number }}')"
+                                        title="История статусов">
+                                    <i class="fas fa-history"></i>
+                                </button>
+                            </div>
                         </form>
                     </td>
                     <td>{{ order.start_date|date:"Y-m-d" }}</td>
@@ -155,6 +163,19 @@
         <div class="modal-buttons">
             <button onclick="confirmStatusUpdate()" class="button">Подтвердить</button>
             <button onclick="cancelStatusUpdate()" class="button cancel">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<!-- Добавляем модальное окно для истории статусов -->
+<div id="statusHistoryModal" class="modal">
+    <div class="modal-content">
+        <h3>История статусов заказа <span id="historyOrderNumber"></span></h3>
+        <div id="statusHistoryList" class="status-history-list">
+            <!-- Здесь будет список статусов -->
+        </div>
+        <div class="modal-buttons">
+            <button onclick="closeStatusHistory()" class="button">Закрыть</button>
         </div>
     </div>
 </div>
@@ -520,6 +541,66 @@ th {
         margin-bottom: 10px;
     }
 }
+
+.status-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.history-button {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #0073e6;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.history-button:hover {
+    color: #005bb5;
+    background-color: #e9ecef;
+    border-color: #0073e6;
+}
+
+.history-button i {
+    font-size: 16px;
+}
+
+.status-history-list {
+    margin: 20px 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.status-history-item {
+    padding: 8px;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-history-item:last-child {
+    border-bottom: none;
+}
+
+.status-history-item .status {
+    font-weight: bold;
+    color: #0073e6;
+}
+
+.status-history-item .date {
+    color: #666;
+    font-size: 0.9em;
+}
 </style>
 
 <script>
@@ -660,6 +741,51 @@ function deleteOrder(orderId, orderNumber) {
             alert('Ошибка при удалении заказа: ' + error.message);
         });
     }
+}
+
+function showStatusHistory(orderId, orderNumber) {
+    document.getElementById('historyOrderNumber').textContent = orderNumber;
+    
+    // Получаем историю статусов
+    fetch(`/orders/order/${orderId}/status-history/`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при получении истории статусов');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.error || 'Неизвестная ошибка');
+            }
+            
+            const historyList = document.getElementById('statusHistoryList');
+            historyList.innerHTML = '';
+            
+            if (data.history && data.history.length > 0) {
+                data.history.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'status-history-item';
+                    historyItem.innerHTML = `
+                        <span class="status">${item.status_display}</span>
+                        <span class="date">${item.created_at}</span>
+                    `;
+                    historyList.appendChild(historyItem);
+                });
+            } else {
+                historyList.innerHTML = '<div class="status-history-item">История статусов отсутствует</div>';
+            }
+            
+            document.getElementById('statusHistoryModal').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(error.message || 'Ошибка при загрузке истории статусов');
+        });
+}
+
+function closeStatusHistory() {
+    document.getElementById('statusHistoryModal').style.display = 'none';
 }
 </script>
 {% endblock %}

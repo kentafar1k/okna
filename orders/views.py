@@ -10,6 +10,7 @@ from clients.forms import ClientCreateForm, ClientUpdateForm
 from django.urls import reverse
 from django.db import models
 from .utils import send_order_ready_email, send_order_ready_sms
+from .models import OrderStatusHistory
 
 
 @manager_required
@@ -260,47 +261,40 @@ def clients_view(request):
 
 @manager_required
 def update_status(request, order_id):
+    """Обновление статуса заказа"""
     if request.method == 'POST':
-        order = get_object_or_404(Order, id=order_id)
-        new_status = request.POST.get('status')
-        send_email = request.POST.get('send_email') == 'true'
-        send_sms = request.POST.get('send_sms') == 'true'
-
-        # Сохраняем предыдущий статус
-        old_status = order.status
-        
-        # Обновляем статус
-        order.status = new_status
-        order.save()
-
-        # Отправляем уведомления только если статус изменился на 'ready' или 'completed'
-        if (new_status in ['ready', 'completed']) and (old_status != new_status):
-            # Определяем текст сообщения в зависимости от статуса
-            status_message = "готов" if new_status == 'ready' else "отгружен"
-            message = f"Ваш заказ №{order.order_number} {status_message}"
+        try:
+            order = Order.objects.get(id=order_id)
+            new_status = request.POST.get('status')
             
-            if send_email:
-                send_order_ready_email(
-                    email=order.client.email,
-                    order_number=order.order_number,
-                    message=message,
-                    total_price=order.total_price,
-                    prepayment=order.prepayment or 0,
-                    debt=order.get_debt()
+            if new_status != order.status:
+                # Сохраняем старый статус в историю
+                OrderStatusHistory.objects.create(
+                    order=order,
+                    status=order.status
                 )
-            
-            if send_sms:
-                debt = order.get_debt()
-                if debt > 0:
-                    sms_message = f"{message}."
-                else:
-                    sms_message = f"{message}. Остаток к оплате: {debt} ₽"
-
-                send_order_ready_sms(order.client.phone, order.order_number, sms_message)
-
-        return JsonResponse({'success': True})
-    
-    return JsonResponse({'success': False})
+                
+                # Обновляем статус заказа
+                order.status = new_status
+                order.save()
+                
+                # Отправляем уведомления если нужно
+                send_email = request.POST.get('send_email') == 'true'
+                send_sms = request.POST.get('send_sms') == 'true'
+                
+                if new_status == 'ready' and (send_email or send_sms):
+                    if send_email:
+                        send_order_ready_email(order)
+                    if send_sms:
+                        send_order_ready_sms(order)
+                
+                return JsonResponse({'success': True})
+            return JsonResponse({'success': True})
+        except Order.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Заказ не найден'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
 
 @manager_required
 def add_client(request):
@@ -464,3 +458,30 @@ def update_pdf(request, order_id):
             messages.success(request, 'PDF файл обновлен')
         
     return redirect('orders:order_detail', order_id=order.id)
+
+def get_order_status_history(request, order_id):
+    """Получение истории статусов заказа"""
+    try:
+        order = Order.objects.get(id=order_id)
+        history = OrderStatusHistory.objects.filter(order=order).order_by('-created_at')
+        
+        history_data = [{
+            'status': item.status,
+            'status_display': item.get_status_display(),
+            'created_at': item.created_at.strftime('%d.%m.%Y %H:%M')
+        } for item in history]
+        
+        return JsonResponse({
+            'success': True,
+            'history': history_data
+        })
+    except Order.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Заказ не найден'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)

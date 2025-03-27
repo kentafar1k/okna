@@ -79,3 +79,14 @@ def get_total_debt(self):
 # Добавляем метод к модели Client
 Client.get_total_debt = get_total_debt
 
+class OrderStatusHistory(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='status_history')
+    status = models.CharField(max_length=20, choices=Order.STATUS_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.order.order_number} - {self.get_status_display()} ({self.created_at})"
+

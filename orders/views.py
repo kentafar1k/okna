@@ -11,6 +11,8 @@ from django.urls import reverse
 from django.db import models
 from .utils import send_order_ready_email, send_order_ready_sms
 from .models import OrderStatusHistory
+from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 
 @manager_required
@@ -259,42 +261,78 @@ def clients_view(request):
     }
     return render(request, 'orders/clients.html', context)
 
-@manager_required
+@require_POST
 def update_status(request, order_id):
     """Обновление статуса заказа"""
-    if request.method == 'POST':
-        try:
-            order = Order.objects.get(id=order_id)
-            new_status = request.POST.get('status')
+    try:
+        order = Order.objects.get(id=order_id)
+        new_status = request.POST.get('status')
+        
+        if new_status in dict(Order.STATUS_CHOICES):
+            # Сначала обновляем статус заказа
+            order.status = new_status
+            order.save()
             
-            if new_status != order.status:
-                # Сохраняем старый статус в историю
-                OrderStatusHistory.objects.create(
-                    order=order,
-                    status=order.status
-                )
-                
-                # Обновляем статус заказа
-                order.status = new_status
-                order.save()
-                
-                # Отправляем уведомления если нужно
-                send_email = request.POST.get('send_email') == 'true'
-                send_sms = request.POST.get('send_sms') == 'true'
-                
-                if new_status == 'ready' and (send_email or send_sms):
+            # Затем создаем запись в истории
+            OrderStatusHistory.objects.create(
+                order=order,
+                status=new_status,
+                created_at=timezone.now()
+            )
+            
+            # Отправляем уведомления если нужно
+            send_email = request.POST.get('send_email') == 'true'
+            send_sms = request.POST.get('send_sms') == 'true'
+            
+            if new_status in ['ready', 'completed'] and (send_email or send_sms):
+                try:
+                    # Определяем текст сообщения в зависимости от статуса
+                    status_message = "готов" if new_status == 'ready' else "отгружен"
+                    message = f"Ваш заказ №{order.order_number} {status_message}"
+                    
                     if send_email:
-                        send_order_ready_email(order)
+                        send_order_ready_email(
+                            email=order.client.email,
+                            order_number=order.order_number,
+                            message=message,
+                            total_price=order.total_price,
+                            prepayment=order.prepayment or 0,
+                            debt=order.get_debt()
+                        )
+
                     if send_sms:
-                        send_order_ready_sms(order)
-                
-                return JsonResponse({'success': True})
-            return JsonResponse({'success': True})
-        except Order.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Заказ не найден'})
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+                        debt = order.get_debt()
+                        if debt > 0:
+                            sms_message = f"{message}."
+                        else:
+                            sms_message = f"{message}. Остаток к оплате: {debt} ₽"
+
+                        send_order_ready_sms(order.client.phone, order.order_number, sms_message)
+                except Exception as e:
+                    # Логируем ошибку отправки уведомлений, но не прерываем обновление статуса
+                    print(f"Ошибка отправки уведомлений: {str(e)}")
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Статус успешно обновлен',
+                'new_status': new_status,
+                'new_status_display': order.get_status_display()
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': 'Недопустимый статус'
+            }, status=400)
+    except Order.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Заказ не найден'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
 
 @manager_required
 def add_client(request):

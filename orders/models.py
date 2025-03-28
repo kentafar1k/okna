@@ -48,13 +48,25 @@ class Order(models.Model):
         return self.total_price - (self.prepayment or 0)
 
     def save(self, *args, **kwargs):
-        # Если статус меняется на "completed", устанавливаем дату завершения
-        if self.status == 'completed' and not self.completed_date:
-            self.completed_date = timezone.now()
-        # Если статус меняется с "completed" на другой, очищаем дату завершения
-        elif self.status != 'completed':
-            self.completed_date = None
-        super().save(*args, **kwargs)
+        # Если это новый заказ (нет id)
+        if not self.id:
+            # Сначала сохраняем заказ, чтобы получить id
+            super().save(*args, **kwargs)
+            
+            # Создаем запись в истории статусов
+            OrderStatusHistory.objects.create(
+                order=self,
+                status='new',
+                created_at=timezone.now()
+            )
+        else:
+            # Если статус меняется на "completed", устанавливаем дату завершения
+            if self.status == 'completed' and not self.completed_date:
+                self.completed_date = timezone.now()
+            # Если статус меняется с "completed" на другой, очищаем дату завершения
+            elif self.status != 'completed':
+                self.completed_date = None
+            super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         # Удаляем PDF файл, если он существует

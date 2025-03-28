@@ -229,9 +229,9 @@ th, td {
 
 /* Задаем ширину для каждого столбца */
 th:nth-child(1), td:nth-child(1) { width: 20%; }  /* Номер заказа */
-th:nth-child(2), td:nth-child(2) { width: 10%; }  /* Стадия */
+th:nth-child(2), td:nth-child(2) { width: 15%; }  /* Стадия - увеличиваем */
 th:nth-child(3), td:nth-child(3) { width: 8%; }   /* Дата */
-th:nth-child(4), td:nth-child(4) { width: 20%; }  /* Клиент */
+th:nth-child(4), td:nth-child(4) { width: 15%; }  /* Клиент - уменьшаем */
 th:nth-child(5), td:nth-child(5) { width: 10%; }  /* Стоимость */
 th:nth-child(6), td:nth-child(6) { width: 10%; }  /* Предоплата */
 th:nth-child(7), td:nth-child(7) { width: 10%; }  /* Задолженность */
@@ -248,10 +248,16 @@ td:nth-child(1) {
 
 /* Стили для ячейки с клиентом */
 td:nth-child(4) {
-    max-width: 400px;  /* Такая же максимальная ширина как у номера заказа */
+    max-width: 300px;  /* Уменьшаем максимальную ширину */
     white-space: normal;  /* Разрешаем перенос строк */
     word-wrap: break-word;  /* Разрешаем перенос длинных слов */
     overflow-wrap: break-word;  /* Современное свойство для переноса слов */
+}
+
+/* Стили для ячейки со стадией */
+td:nth-child(2) {
+    min-width: 150px;  /* Минимальная ширина для стадии */
+    white-space: nowrap;  /* Запрещаем перенос строк */
 }
 
 /* Стили для ссылок в ячейках */
@@ -546,6 +552,7 @@ th {
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 140px;  /* Минимальная ширина для контейнера статуса */
 }
 
 .history-button {
@@ -558,7 +565,7 @@ th {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
+    width: 50px;  /* Увеличиваем ширину кнопки */
     height: 32px;
     border-radius: 4px;
     transition: all 0.2s ease;
@@ -571,7 +578,7 @@ th {
 }
 
 .history-button i {
-    font-size: 16px;
+    font-size: 18px;  /* Увеличиваем размер иконки */
 }
 
 .status-history-list {
@@ -600,6 +607,14 @@ th {
 .status-history-item .date {
     color: #666;
     font-size: 0.9em;
+}
+
+/* Стили для селекта статуса */
+.status-select {
+    min-width: 80px;  /* Уменьшаем минимальную ширину для селекта */
+    max-width: 65%;  /* Ограничиваем максимальную ширину */
+    padding: 4px 8px;  /* Уменьшаем отступы */
+    font-size: 13px;  /* Уменьшаем размер шрифта */
 }
 </style>
 

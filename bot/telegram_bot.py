@@ -92,7 +92,11 @@ class OrderBot:
                 # Создаем клавиатуру с активными заказами
                 keyboard = []
                 for order in orders:
-                    status_emoji = "✅" if order.status == 'ready' else "⚙️"
+                    status_emoji = {
+                        'new': '📝',
+                        'in_progress': '⚙️',
+                        'ready': '✅'
+                    }.get(order.status, '')
                     keyboard.append([f'{status_emoji} Заказ №{order.order_number}'])
                 keyboard.extend([
                     ['📍 Узнать геопозицию'],
@@ -101,7 +105,10 @@ class OrderBot:
                 
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
                 await update.message.reply_text(
-                    f'Найдены ваши заказы. Выберите заказ для просмотра информации:\n⚙️ - заказы в работе\n✅ - готовые заказы',
+                    f'Найдены ваши заказы. Выберите заказ для просмотра информации:\n'
+                    f'📝 - новые заказы\n'
+                    f'⚙️ - заказы в работе\n'
+                    f'✅ - готовые заказы',
                     reply_markup=reply_markup
                 )
                 return PHONE
@@ -150,7 +157,11 @@ class OrderBot:
                 active_orders = await self.get_active_orders(client)
                 keyboard = []
                 for order in active_orders:
-                    status_emoji = "✅" if order.status == 'ready' else "⚙️"
+                    status_emoji = {
+                        'new': '📝',
+                        'in_progress': '⚙️',
+                        'ready': '✅'
+                    }.get(order.status, '')
                     keyboard.append([f'{status_emoji} Заказ №{order.order_number}'])
                 keyboard.extend([
                     ['📍 Узнать геопозицию'],
@@ -179,7 +190,7 @@ class OrderBot:
             return PHONE
         elif text == '🔙 Вернуться назад':
             return await self.start(update, context)
-        elif text.startswith('Заказ №') or text.startswith('✅ Заказ №') or text.startswith('⚙️ Заказ №'):
+        elif text.startswith('Заказ №') or text.startswith('✅ Заказ №') or text.startswith('⚙️ Заказ №') or text.startswith('📝 Заказ №'):
             # Обработка нажатия на кнопку заказа
             order_number = text.split('№')[1].strip()
             order = await self.get_order_by_number(order_number)
@@ -210,7 +221,11 @@ class OrderBot:
                 # Создаем обновленную клавиатуру с активными заказами
                 keyboard = []
                 for active_order in active_orders:
-                    status_emoji = "✅" if active_order.status == 'ready' else "⚙️"
+                    status_emoji = {
+                        'new': '📝',
+                        'in_progress': '⚙️',
+                        'ready': '✅'
+                    }.get(active_order.status, '')
                     keyboard.append([f'{status_emoji} Заказ №{active_order.order_number}'])
                 keyboard.extend([
                     ['📍 Узнать геопозицию'],
@@ -295,7 +310,11 @@ class OrderBot:
                 # Создаем клавиатуру с активными заказами
                 keyboard = []
                 for order in orders:
-                    status_emoji = "✅" if order.status == 'ready' else "⚙️"
+                    status_emoji = {
+                        'new': '📝',
+                        'in_progress': '⚙️',
+                        'ready': '✅'
+                    }.get(order.status, '')
                     keyboard.append([f'{status_emoji} Заказ №{order.order_number}'])
                 keyboard.extend([
                     ['📍 Узнать геопозицию'],
@@ -304,7 +323,10 @@ class OrderBot:
                 
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
                 await update.message.reply_text(
-                    f'Найдены ваши заказы. Выберите заказ для просмотра информации:',
+                    f'Найдены ваши заказы. Выберите заказ для просмотра информации:\n'
+                    f'📝 - новые заказы\n'
+                    f'⚙️ - заказы в работе\n'
+                    f'✅ - готовые заказы',
                     reply_markup=reply_markup
                 )
                 return PHONE

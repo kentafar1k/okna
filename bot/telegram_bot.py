@@ -14,7 +14,10 @@ class OrderBot:
         
         # Добавляем обработчики
         conv_handler = ConversationHandler(
-            entry_points=[CommandHandler('start', self.start)],
+            entry_points=[
+                CommandHandler('start', self.start),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_text)
+            ],
             states={
                 PHONE: [
                     MessageHandler(filters.CONTACT, self.get_orders_by_contact),
@@ -26,8 +29,29 @@ class OrderBot:
         
         self.application.add_handler(conv_handler)
 
+    async def handle_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Обработчик для всех текстовых сообщений"""
+        # Проверяем, находится ли пользователь в активном диалоге
+        if not context.user_data.get('active_conversation'):
+            # Если нет, предлагаем кнопки
+            keyboard = [
+                ['📱 Ввести номер телефона', '📍 Узнать геопозицию']
+            ]
+            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+            await update.message.reply_text(
+                'Здравствуйте, мы компания "Окна в мир"! У этого бота вы можете узнать информацию о своих заказах по номеру телефона или посмотреть нашу геопозицию. Выберите действие:',
+                reply_markup=reply_markup
+            )
+            # Устанавливаем флаг активного диалога
+            context.user_data['active_conversation'] = True
+            return PHONE
+        return None
+
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Отправляет приветственное сообщение и клавиатуру с командами"""
+        # Устанавливаем флаг активного диалога
+        context.user_data['active_conversation'] = True
+        
         keyboard = [
             ['📱 Ввести номер телефона', '📍 Узнать геопозицию']
         ]
@@ -97,10 +121,10 @@ class OrderBot:
                         'in_progress': '⚙️',
                         'ready': '✅'
                     }.get(order.status, '')
-                    keyboard.append([f'{status_emoji} Заказ №{order.order_number}'])
+                    keyboard.append([f'{status_emoji} Заказ: {order.order_number}'])
                 keyboard.extend([
                     ['📍 Узнать геопозицию'],
-                    ['🔙 Вернуться назад']
+                    ['🔄 Вернуться назад/Обновить']
                 ])
                 
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
@@ -114,8 +138,8 @@ class OrderBot:
                 return PHONE
             else:
                 keyboard = [
-                    ['📍 Узнать геопозицию'],
-                    ['🔙 Вернуться назад']
+                    ['📍️ Узнать геопозицию'],
+                    ['🔄 Вернуться назад/Обновить']
                 ]
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
                 await update.message.reply_text(
@@ -126,7 +150,7 @@ class OrderBot:
         else:
             keyboard = [
                 ['📍 Узнать геопозицию'],
-                ['🔙 Вернуться назад']
+                ['🔄 Вернуться назад/Обновить']
             ]
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
             await update.message.reply_text(
@@ -162,10 +186,10 @@ class OrderBot:
                         'in_progress': '⚙️',
                         'ready': '✅'
                     }.get(order.status, '')
-                    keyboard.append([f'{status_emoji} Заказ №{order.order_number}'])
+                    keyboard.append([f'{status_emoji} Заказ: {order.order_number}'])
                 keyboard.extend([
                     ['📍 Узнать геопозицию'],
-                    ['🔙 Вернуться назад']
+                    ['🔄 Вернуться назад/Обновить']
                 ])
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
                 await update.message.reply_text(
@@ -177,7 +201,7 @@ class OrderBot:
             # Создаем клавиатуру с кнопкой отправки контакта
             keyboard = [
                 [KeyboardButton("📱 Отправить мой номер", request_contact=True)],
-                ['🔙 Вернуться назад']
+                ['🔄 Вернуться назад/Обновить']
             ]
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
             
@@ -188,11 +212,11 @@ class OrderBot:
                 reply_markup=reply_markup
             )
             return PHONE
-        elif text == '🔙 Вернуться назад':
+        elif text == '🔄 Вернуться назад/Обновить':
             return await self.start(update, context)
-        elif text.startswith('Заказ №') or text.startswith('✅ Заказ №') or text.startswith('⚙️ Заказ №') or text.startswith('📝 Заказ №'):
+        elif text.startswith('Заказ: ') or text.startswith('✅ Заказ: ') or text.startswith('⚙️ Заказ: ') or text.startswith('📝 Заказ: '):
             # Обработка нажатия на кнопку заказа
-            order_number = text.split('№')[1].strip()
+            order_number = text.split(': ')[1].strip()
             order = await self.get_order_by_number(order_number)
             
             if order:
@@ -205,7 +229,7 @@ class OrderBot:
                 
                 # Показываем информацию о заказе
                 message = (
-                    f'Информация о заказе №{order.order_number}:\n\n'
+                    f'Информация о заказе {order.order_number}:\n\n'
                     f'Статус: {order.get_status_display()}\n'
                     f'Дата создания: {order.start_date.strftime("%d.%m.%Y")}\n'
                     f'Стоимость: {order.total_price} ₽\n'
@@ -226,10 +250,10 @@ class OrderBot:
                         'in_progress': '⚙️',
                         'ready': '✅'
                     }.get(active_order.status, '')
-                    keyboard.append([f'{status_emoji} Заказ №{active_order.order_number}'])
+                    keyboard.append([f'{status_emoji} Заказ: {active_order.order_number}'])
                 keyboard.extend([
                     ['📍 Узнать геопозицию'],
-                    ['🔙 Вернуться назад']
+                    ['🔄 Вернуться назад/Обновить']
                 ])
                 
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
@@ -241,7 +265,7 @@ class OrderBot:
             else:
                 keyboard = [
                     ['📍 Узнать геопозицию'],
-                    ['🔙 Вернуться назад']
+                    ['🔄 Вернуться назад/Обновить']
                 ]
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
                 await update.message.reply_text(
@@ -315,10 +339,10 @@ class OrderBot:
                         'in_progress': '⚙️',
                         'ready': '✅'
                     }.get(order.status, '')
-                    keyboard.append([f'{status_emoji} Заказ №{order.order_number}'])
+                    keyboard.append([f'{status_emoji} Заказ: {order.order_number}'])
                 keyboard.extend([
                     ['📍 Узнать геопозицию'],
-                    ['🔙 Вернуться назад']
+                    ['🔄 Вернуться назад/Обновить']
                 ])
                 
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
@@ -333,7 +357,7 @@ class OrderBot:
             else:
                 keyboard = [
                     ['📍 Узнать геопозицию'],
-                    ['🔙 Вернуться назад']
+                    ['🔄 Вернуться назад/Обновить']
                 ]
                 reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
                 await update.message.reply_text(
@@ -344,7 +368,7 @@ class OrderBot:
         else:
             keyboard = [
                 ['📍 Узнать геопозицию'],
-                ['🔙 Вернуться назад']
+                ['🔄 Вернуться назад/Обновить']
             ]
             reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
             await update.message.reply_text(
@@ -376,6 +400,9 @@ class OrderBot:
 
     async def cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Отмена разговора"""
+        # Сбрасываем флаг активного диалога
+        context.user_data['active_conversation'] = False
+        
         await update.message.reply_text(
             'До свидания! Для новой проверки используйте команду /start',
             reply_markup=ReplyKeyboardRemove()
@@ -386,14 +413,14 @@ class OrderBot:
         """Запуск бота"""
         self.application.run_polling()
 
-def create_order_form():
-    form = {
-        'customer_name': '',
-        'phone': '',
-        'order_description': '',
-        'order_cost': '',
-        'prepayment': '',
-        'deadline': '',
-        'status': 'new'
-    }
-    return form 
+# def create_order_form():
+#     form = {
+#         'customer_name': '',
+#         'phone': '',
+#         'order_description': '',
+#         'order_cost': '',
+#         'prepayment': '',
+#         'deadline': '',
+#         'status': 'new'
+#     }
+#     return form

@@ -170,3 +170,7 @@ SMSAERO_API_KEY = 'jrzFttmBjhSLvqbQShch1_CeTF1DlF9x'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Настройки для SMSC
+SMSC_LOGIN = 'cherald13377@yandex.ru'
+SMSC_PASSWORD = 'lfvpcnksiisuobmu'
+

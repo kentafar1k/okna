@@ -193,54 +193,6 @@ def worker_orders(request):
     }
     return render(request, 'orders/worker_orders.html', context)
 
-@worker_required
-def worker_update_status(request, order_id):
-    if request.method == 'POST':
-        order = get_object_or_404(Order, id=order_id)
-        new_status = request.POST.get('status')
-        send_email = request.POST.get('send_email') == 'true'
-        send_sms = request.POST.get('send_sms') == 'true'
-
-        # Сохраняем предыдущий статус
-        old_status = order.status
-        
-        # Обновляем статус
-        order.status = new_status
-        order.save()
-
-        # Отправляем уведомления только если статус изменился на 'ready' или 'completed'
-        if (new_status in ['ready', 'completed']) and (old_status != new_status):
-            # Определяем текст сообщения в зависимости от статуса
-            status_message = "готов" if new_status == 'ready' else "отгружен"
-            message = f"Ваш заказ №{order.order_number} {status_message}"
-            
-            if send_email:
-                send_order_ready_email(
-                    email=order.client.email,
-                    order_number=order.order_number,
-                    message=message,
-                    total_price=order.total_price,
-                    prepayment=order.prepayment or 0,
-                    debt=order.get_debt()
-                )
-
-            if send_sms:
-                debt = order.get_debt()
-                if debt > 0:
-                    sms_message = f"{message}."
-                else:
-                    sms_message = f"{message}. Остаток к оплате: {debt} ₽"
-
-                send_order_ready_sms(order.client.phone, order.order_number, sms_message)
-
-            if new_status == 'completed':
-                messages.success(request, f'Заказ №{order.order_number} отмечен как завершенный')
-                return JsonResponse({'success': True, 'redirect': reverse('orders:worker_orders')})
-
-        return JsonResponse({'success': True})
-    
-    return JsonResponse({'success': False})
-
 @manager_required
 def clients_view(request):
     # Базовый queryset
@@ -301,16 +253,19 @@ def update_status(request, order_id):
                         )
 
                     if send_sms:
-                        debt = order.get_debt()
-                        if debt > 0:
-                            sms_message = f"{message}."
-                        else:
-                            sms_message = f"{message}. Остаток к оплате: {debt} ₽"
+                        send_order_ready_sms(order.client.phone, order, message)
 
-                        send_order_ready_sms(order.client.phone, order.order_number, sms_message)
                 except Exception as e:
                     # Логируем ошибку отправки уведомлений, но не прерываем обновление статуса
                     print(f"Ошибка отправки уведомлений: {str(e)}")
+            
+            # Если это запрос от работника и статус "completed", перенаправляем на страницу заказов
+            if request.user.is_worker() and new_status == 'completed':
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Заказ №{order.order_number} отмечен как завершенный',
+                    'redirect': reverse('orders:worker_orders')
+                })
             
             return JsonResponse({
                 'success': True,

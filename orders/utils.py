@@ -73,6 +73,8 @@ def send_order_ready_sms(phone, order_number, message):
     # Формируем текст сообщения
     sms_text = (
         f'Здравствуйте! {message}\n'
+        f'Стоимость заказа: {order_number.total_price} ₽\n'
+        f'Остаток к оплате: {order_number.get_debt()} ₽\n'
         f'С уважением, "Окна в мир"'
     )
     
@@ -107,7 +109,7 @@ def send_order_ready_sms(phone, order_number, message):
                 print(f"Ошибка отправки SMS: {result.get('message', 'Неизвестная ошибка')}")
         else:
             print(f"Ошибка HTTP: {response.status_code}")
-        return False
+            return False
             
     except Exception as e:
         print(f"Ошибка отправки SMS: {str(e)}")

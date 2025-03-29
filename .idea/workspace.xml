@@ -7,7 +7,10 @@
     <list default="true" id="e6325abf-25fb-49e1-a681-fcae7490d0db" name="Changes" comment="Initial commit">
       <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/orders/templates/orders/orders.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/orders.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/okna/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/okna/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orders/templates/orders/worker_orders.html" beforeDir="false" afterPath="$PROJECT_DIR$/orders/templates/orders/worker_orders.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orders/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/orders/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orders/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/orders/utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/orders/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/orders/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -149,6 +152,7 @@
       <workItem from="1741415652544" duration="2868000" />
       <workItem from="1742463089795" duration="8459000" />
       <workItem from="1743059459480" duration="813000" />
+      <workItem from="1743230315762" duration="12000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />

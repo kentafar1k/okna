@@ -262,7 +262,7 @@ function confirmStatusUpdate() {
     formData.append('send_email', sendEmail);
     formData.append('send_sms', sendSMS);
     
-    fetch(`/orders/worker/update-status/${currentOrderId}/`, {
+    fetch(`/orders/${currentOrderId}/update-status/`, {
         method: 'POST',
         body: formData,
         headers: {
@@ -306,7 +306,7 @@ function updateOrderStatus(form, select) {
     const orderId = form.getAttribute('data-order-id');
     const formData = new FormData(form);
     
-    fetch(`/orders/worker/update-status/${orderId}/`, {
+    fetch(`/orders/${orderId}/update-status/`, {
         method: 'POST',
         body: formData,
         headers: {

@@ -397,6 +397,42 @@ def client_profile(request):
     })
 
 @manager_required
+def update_order_number(request, order_id):
+    if request.method == 'POST':
+        order = get_object_or_404(Order, id=order_id)
+        new_number = request.POST.get('order_number', '').strip()
+        
+        if new_number:
+            # Проверяем, не существует ли уже заказ с таким номером
+            if Order.objects.filter(order_number=new_number).exclude(id=order_id).exists():
+                messages.error(request, 'Заказ с таким номером уже существует')
+            else:
+                order.order_number = new_number
+                order.save()
+                messages.success(request, 'Номер заказа успешно обновлен')
+        else:
+            messages.error(request, 'Номер заказа не может быть пустым')
+            
+    return redirect('orders:order_detail', order_id=order_id)
+
+@manager_required
+def update_total_price(request, order_id):
+    if request.method == 'POST':
+        order = get_object_or_404(Order, id=order_id)
+        try:
+            new_price = float(request.POST.get('total_price', 0))
+            if new_price >= 0:
+                order.total_price = new_price
+                order.save()
+                messages.success(request, 'Стоимость успешно обновлена')
+            else:
+                messages.error(request, 'Стоимость не может быть отрицательной')
+        except ValueError:
+            messages.error(request, 'Некорректное значение стоимости')
+            
+    return redirect('orders:order_detail', order_id=order_id)
+
+@manager_required
 def update_prepayment(request, order_id):
     if request.method == 'POST':
         order = get_object_or_404(Order, id=order_id)

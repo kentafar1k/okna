@@ -336,7 +336,7 @@ class OrderBot:
         """Получение активных заказов клиента"""
         return list(Order.objects.filter(
             client=client,
-            status__in=['in_progress', 'ready']
+            status__in=['new', 'in_progress', 'ready']
         ).order_by('-start_date'))
 
     @sync_to_async

@@ -26,12 +26,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'default_secret_key')
 
 # ALLOWED_HOSTS из переменной окружения, поддержка списка через запятую
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -123,11 +124,11 @@ AUTH_USER_MODEL = 'users.User'
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# Настройки часового пояса
+USE_TZ = False  # Отключаем использование UTC
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
-
-USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)

@@ -72,10 +72,10 @@ def send_order_ready_sms(phone, order_number, message):
     
     # Формируем текст сообщения
     sms_text = (
-        f'Здравствуйте! {message}\n'
-        f'Стоимость заказа: {order_number.total_price} ₽\n'
-        f'Остаток к оплате: {order_number.get_debt()} ₽\n'
-        f'С уважением, "Окна в мир"'
+        f'{message}\n'  # + "Здравствуйте!"
+        # f'Стоимость заказа: {order_number.total_price} ₽\n'
+        # f'Остаток к оплате: {order_number.get_debt()} ₽\n'
+        # f'С уважением, "Окна в мир"'
     )
     
     # Формируем заголовок авторизации

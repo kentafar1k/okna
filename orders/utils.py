@@ -69,13 +69,14 @@ def send_order_ready_sms(phone, order_number, message):
         
     # Очищаем номер от лишних символов
     phone = ''.join(filter(str.isdigit, phone))
+
+    debt = 0
     
     # Формируем текст сообщения
     sms_text = (
-        f'{message}\n'  # + "Здравствуйте!"
-        # f'Стоимость заказа: {order_number.total_price} ₽\n'
-        # f'Остаток к оплате: {order_number.get_debt()} ₽\n'
-        # f'С уважением, "Окна в мир"'
+        f'{message}\n'
+        f'Остаток к оплате: {order_number.get_debt()}₽'
+        f'"Окна в мир"'
     )
     
     # Формируем заголовок авторизации

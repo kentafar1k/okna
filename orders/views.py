@@ -256,7 +256,10 @@ def update_status(request, order_id):
                         order_number = order.order_number
                         if len(order_number) > 5:
                             order_number = order_number[:5] + '..'
-                        message = f"Ваш заказ №{order_number} {status_message}"
+                        if not order_number[0].isdigit():
+                            message = f"Ваш заказ \"{order_number}\" {status_message}"
+                        else:
+                            message = f"Ваш заказ №{order_number} {status_message}"
                         send_order_ready_sms(order.client.phone, order, message)
 
                 except Exception as e:

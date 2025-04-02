@@ -18,13 +18,13 @@ from django.views.decorators.http import require_POST
 @manager_required
 def orders(request):
     # Получаем параметры сортировки
-    sort_by = request.GET.get('sort', '-start_date')  # По умолчанию сортируем по дате (новые сверху)
+    sort_by = request.GET.get('sort', 'uncompleted_first')  # По умолчанию сортируем по статусу (сначала новые)
     
     # Базовый QuerySet
     orders_queryset = Order.objects.all()
     
     # Обновляем логику сортировки
-    sort_param = request.GET.get('sort', '-start_date')
+    sort_param = request.GET.get('sort', 'uncompleted_first')
     if sort_param == 'completed_first':
         # Кастомная сортировка: завершён -> готов -> в работе -> новый (и по дате)
         status_order = {'completed': 1, 'ready': 2, 'in_progress': 3, 'new': 4}
@@ -132,7 +132,7 @@ def client_orders(request):
         client = Client.objects.get(user=request.user)
         
         # Получаем параметры сортировки
-        sort_param = request.GET.get('sort', '-start_date')
+        sort_param = request.GET.get('sort', 'uncompleted_first')
         
         # Базовый QuerySet
         orders = Order.objects.filter(client=client)
@@ -170,7 +170,7 @@ def client_orders(request):
 @worker_required
 def worker_orders(request):
     # Получаем параметры сортировки
-    sort_param = request.GET.get('sort', '-start_date')
+    sort_param = request.GET.get('sort', 'uncompleted_first')
     
     # Базовый QuerySet
     orders_queryset = Order.objects.all()

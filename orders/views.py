@@ -26,9 +26,13 @@ def orders(request):
     # Обновляем логику сортировки
     sort_param = request.GET.get('sort', '-start_date')
     if sort_param == 'completed_first':
-        orders_queryset = orders_queryset.order_by('status', '-start_date')  # Сначала незавершенные
+        # Кастомная сортировка: завершён -> готов -> в работе -> новый (и по дате)
+        status_order = {'completed': 1, 'ready': 2, 'in_progress': 3, 'new': 4}
+        orders_queryset = sorted(orders_queryset, key=lambda x: (status_order.get(x.status, 0), -x.start_date.timestamp()))
     elif sort_param == 'uncompleted_first':
-        orders_queryset = orders_queryset.order_by('-status', '-start_date')   # Сначала завершенные
+        # Кастомная сортировка: новый -> в работе -> готов -> завершён (и по дате)
+        status_order = {'new': 1, 'in_progress': 2, 'ready': 3, 'completed': 4}
+        orders_queryset = sorted(orders_queryset, key=lambda x: (status_order.get(x.status, 0), -x.start_date.timestamp()))
     elif sort_param == 'start_date':
         orders_queryset = orders_queryset.order_by('start_date')
     else:  # '-start_date' по умолчанию
@@ -135,9 +139,13 @@ def client_orders(request):
         
         # Применяем сортировку
         if sort_param == 'completed_first':
-            orders = orders.order_by('status', '-start_date')
+            # Кастомная сортировка: завершён -> готов -> в работе -> новый (и по дате)
+            status_order = {'completed': 1, 'ready': 2, 'in_progress': 3, 'new': 4}
+            orders = sorted(orders, key=lambda x: (status_order.get(x.status, 0), -x.start_date.timestamp()))
         elif sort_param == 'uncompleted_first':
-            orders = orders.order_by('-status', '-start_date')
+            # Кастомная сортировка: новый -> в работе -> готов -> завершён (и по дате)
+            status_order = {'new': 1, 'in_progress': 2, 'ready': 3, 'completed': 4}
+            orders = sorted(orders, key=lambda x: (status_order.get(x.status, 0), -x.start_date.timestamp()))
         elif sort_param == 'start_date':
             orders = orders.order_by('start_date')
         else:  # '-start_date' по умолчанию
@@ -169,9 +177,13 @@ def worker_orders(request):
     
     # Применяем сортировку
     if sort_param == 'completed_first':
-        orders_queryset = orders_queryset.order_by('status', '-start_date')
+        # Кастомная сортировка: завершён -> готов -> в работе -> новый (и по дате)
+        status_order = {'completed': 1, 'ready': 2, 'in_progress': 3, 'new': 4}
+        orders_queryset = sorted(orders_queryset, key=lambda x: (status_order.get(x.status, 0), -x.start_date.timestamp()))
     elif sort_param == 'uncompleted_first':
-        orders_queryset = orders_queryset.order_by('-status', '-start_date')
+        # Кастомная сортировка: новый -> в работе -> готов -> завершён (и по дате)
+        status_order = {'new': 1, 'in_progress': 2, 'ready': 3, 'completed': 4}
+        orders_queryset = sorted(orders_queryset, key=lambda x: (status_order.get(x.status, 0), -x.start_date.timestamp()))
     elif sort_param == 'start_date':
         orders_queryset = orders_queryset.order_by('start_date')
     else:  # '-start_date' по умолчанию

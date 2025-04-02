@@ -70,12 +70,14 @@ def send_order_ready_sms(phone, order_number, message):
     # Очищаем номер от лишних символов
     phone = ''.join(filter(str.isdigit, phone))
 
-    debt = 0
+    debt = order_number.get_debt()
+    if debt:
+        debt = str(int(float(debt)))  # Remove decimal point and trailing zeros
     
     # Формируем текст сообщения
     sms_text = (
         f'{message}\n'
-        f'Остаток к оплате: {order_number.get_debt()}₽'
+        f'Остаток к оплате: {debt}₽'  # Use the modified debt variable
         f'"Окна в мир"'
     )
     

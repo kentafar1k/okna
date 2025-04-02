@@ -43,16 +43,16 @@
                 <form method="get" id="sortForm">
                     <select name="sort" onchange="this.form.submit()" class="sort-select">
                         <option value="-start_date" {% if current_sort == '-start_date' %}selected{% endif %}>
-                            Сначала новые
+                            (по дате) сначала новые
                         </option>
                         <option value="start_date" {% if current_sort == 'start_date' %}selected{% endif %}>
-                            Сначала старые
+                            (по дате) сначала старые
                         </option>
                         <option value="uncompleted_first" {% if current_sort == 'uncompleted_first' %}selected{% endif %}>
-                            Сначала не завершённые
+                            (по статусу) сначала новые
                         </option>
                         <option value="completed_first" {% if current_sort == 'completed_first' %}selected{% endif %}>
-                            Сначала завершённые
+                            (по статусу) сначала завершённые
                         </option>
                     </select>
                     {% if search_query %}

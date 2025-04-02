@@ -255,7 +255,7 @@ def update_status(request, order_id):
                     if send_sms:
                         order_number = order.order_number
                         if len(order_number) > 5:
-                            ...
+                            order_number = order_number[:5] + '..'
                         message = f"Ваш заказ №{order_number} {status_message}"
                         send_order_ready_sms(order.client.phone, order, message)
 

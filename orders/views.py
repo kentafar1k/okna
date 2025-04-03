@@ -23,6 +23,15 @@ def orders(request):
     # Базовый QuerySet
     orders_queryset = Order.objects.all()
     
+    # Получаем параметр поиска
+    search_query = request.GET.get('search', '').strip()
+    
+    # Применяем фильтры поиска до сортировки
+    if search_query:
+        orders_queryset = orders_queryset.filter(
+            order_number__icontains=search_query
+        )
+    
     # Обновляем логику сортировки
     sort_param = request.GET.get('sort', 'uncompleted_first')
     if sort_param == 'completed_first':
@@ -37,15 +46,6 @@ def orders(request):
         orders_queryset = orders_queryset.order_by('start_date')
     else:  # '-start_date' по умолчанию
         orders_queryset = orders_queryset.order_by('-start_date')
-
-    # Получаем параметр поиска
-    search_query = request.GET.get('search', '').strip()
-    
-    if search_query:
-        # Применяем фильтры поиска
-        orders_queryset = orders_queryset.filter(
-            order_number__icontains=search_query
-        )
 
     # Вычисляем общую задолженность (убираем проверку на положительное значение)
     total_debt = sum(order.get_debt() for order in orders_queryset)
@@ -137,6 +137,15 @@ def client_orders(request):
         # Базовый QuerySet
         orders = Order.objects.filter(client=client)
         
+        # Получаем параметр поиска
+        search_query = request.GET.get('search', '').strip()
+        
+        # Применяем фильтры поиска до сортировки
+        if search_query:
+            orders = orders.filter(
+                order_number__icontains=search_query
+            )
+        
         # Применяем сортировку
         if sort_param == 'completed_first':
             # Кастомная сортировка: завершён -> готов -> в работе -> новый (и по дате)
@@ -163,7 +172,8 @@ def client_orders(request):
         'orders': orders,
         'is_client': True,
         'current_sort': sort_param,
-        'total_debt': total_debt
+        'total_debt': total_debt,
+        'search_query': search_query
     }
     return render(request, 'orders/client_orders.html', context)
 
@@ -174,6 +184,15 @@ def worker_orders(request):
     
     # Базовый QuerySet
     orders_queryset = Order.objects.all()
+    
+    # Получаем параметр поиска
+    search_query = request.GET.get('search', '').strip()
+    
+    # Применяем фильтры поиска до сортировки
+    if search_query:
+        orders_queryset = orders_queryset.filter(
+            order_number__icontains=search_query
+        )
     
     # Применяем сортировку
     if sort_param == 'completed_first':
@@ -189,14 +208,6 @@ def worker_orders(request):
     else:  # '-start_date' по умолчанию
         orders_queryset = orders_queryset.order_by('-start_date')
 
-    # Получаем параметр поиска
-    search_query = request.GET.get('search', '').strip()
-    
-    if search_query:
-        orders_queryset = orders_queryset.filter(
-            order_number__icontains=search_query
-        )
-    
     context = {
         'orders': orders_queryset,
         'search_query': search_query,

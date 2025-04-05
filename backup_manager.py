@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent
 sys.path.append(str(BASE_DIR))
 
 # Инициализируем Django для доступа к настройкам
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'okna.settings')
 django.setup()
 
 # Импортируем настройки бэкапов
@@ -93,7 +93,7 @@ def create_db_backup():
         if db_settings['ENGINE'] == 'django.db.backends.postgresql':
             # Создаем резервную копию PostgreSQL
             cmd = [
-                'pg_dump',
+                'pg_dump',  #  r'C:\Program Files\PostgreSQL\16\bin\pg_dump.exe'
                 '-h', db_settings['HOST'],
                 '-p', str(db_settings.get('PORT', 5432)),
                 '-U', db_settings['USER'],

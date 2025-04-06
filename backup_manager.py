@@ -109,7 +109,7 @@ def create_db_backup():
         if db_settings['ENGINE'] == 'django.db.backends.postgresql':
             # Создаем резервную копию PostgreSQL
             cmd = [
-                'pg_dump',
+                'pg_dump', # 'C:\\Program Files\\PostgreSQL\\16\\bin\\pg_dump.exe'
                 '-h', db_settings['HOST'],
                 '-p', str(db_settings.get('PORT', 5432)),
                 '-U', db_settings['USER'],

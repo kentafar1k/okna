@@ -84,6 +84,129 @@ chmod +x cron_setup.sh
 
 Перед использованием убедитесь, что у вас создан бакет в облачном хранилище S3 или скрипт автоматически создаст его при первом запуске (если у вашего аккаунта есть необходимые разрешения).
 
+## Настройка и запуск на Ubuntu
+
+### 1. Установка системных зависимостей
+
+Для работы системы резервного копирования на Ubuntu необходимо установить следующие пакеты:
+
+```bash
+# Установка базовых инструментов
+sudo apt update
+sudo apt install -y python3 python3-pip python3-venv
+
+# Для сжатия/распаковки архивов
+sudo apt install -y gzip tar
+
+# Если используется PostgreSQL
+sudo apt install -y postgresql-client
+
+# Если вы используете SQLite, он обычно уже установлен
+```
+
+### 2. Настройка проекта
+
+Создайте виртуальное окружение Python и установите зависимости:
+
+```bash
+# Перейдите в директорию проекта
+cd /path/to/your/project
+
+# Создайте виртуальное окружение (если его ещё нет)
+python3 -m venv venv
+
+# Активируйте виртуальное окружение
+source venv/bin/activate
+
+# Установите boto3
+pip install boto3
+```
+
+### 3. Настройка файлов системы резервного копирования
+
+Скопируйте файлы резервного копирования в директорию проекта:
+
+```bash
+# Создайте директорию для бэкапов
+mkdir -p backups
+
+# Сделайте скрипты исполняемыми
+chmod +x backup_manager.py cron_setup.sh
+```
+
+### 4. Настройка cron на Ubuntu
+
+Вы можете использовать скрипт `cron_setup.sh` или настроить cron вручную:
+
+```bash
+# Ручная настройка cron
+crontab -e
+
+# Добавьте строку для запуска бэкапа каждый день в 2:00
+0 2 * * * cd /path/to/your/project && /path/to/your/project/venv/bin/python backup_manager.py >> /path/to/your/project/backup.log 2>&1
+```
+
+### 5. Проверка работы системы
+
+Убедитесь, что cron-служба активна:
+
+```bash
+sudo systemctl status cron
+```
+
+Если служба не запущена, запустите её:
+
+```bash
+sudo systemctl start cron
+sudo systemctl enable cron
+```
+
+Выполните ручной запуск для проверки:
+
+```bash
+# Активируйте виртуальное окружение
+source venv/bin/activate
+
+# Запустите скрипт резервного копирования
+python backup_manager.py
+```
+
+### 6. Решение проблем на Ubuntu
+
+#### Проблемы с доступом к файлам
+
+Если возникают проблемы с правами доступа:
+
+```bash
+# Убедитесь, что пользователь имеет доступ к директории проекта
+sudo chown -R your_user:your_user /path/to/your/project
+
+# Убедитесь, что скрипты имеют права на выполнение
+chmod +x backup_manager.py cron_setup.sh
+```
+
+#### Отладка cron-заданий
+
+Если задание cron не выполняется:
+
+```bash
+# Проверьте логи cron
+grep CRON /var/log/syslog
+
+# Проверьте журнал резервного копирования
+tail -n 50 /path/to/your/project/backup.log
+```
+
+#### Проблемы с postgresql-client
+
+Если pg_dump не может подключиться к базе данных:
+
+```bash
+# Установите переменную окружения для пароля PostgreSQL в ~/.profile
+echo 'export PGPASSWORD="your_database_password"' >> ~/.profile
+source ~/.profile
+```
+
 ## Ручной запуск
 
 Для ручного создания резервной копии выполните:

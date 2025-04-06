@@ -3,6 +3,7 @@ import sys
 import datetime
 import subprocess
 import logging
+from logging.handlers import RotatingFileHandler
 import boto3
 from botocore.exceptions import ClientError
 from pathlib import Path
@@ -11,12 +12,16 @@ from django.conf import settings
 import shutil
 import tarfile
 
-# Настройка логирования
+# Настройка логирования с ротацией файлов
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("backup.log"),
+        RotatingFileHandler(
+            "backup.log", 
+            maxBytes=1000000,  # Максимальный размер файла - 1MB
+            backupCount=3      # Хранить до 3 файлов ротации
+        ),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -39,12 +44,12 @@ try:
 except ImportError:
     logger.error("Файл backup_settings.py не найден! Используются значения по умолчанию.")
     # Настройки по умолчанию
-    S3_ENDPOINT_URL = 'https://storage.yandexcloud.net'
+    S3_ENDPOINT_URL = 'https://s3.ru-7.storage.selcloud.ru'
     S3_ACCESS_KEY = ''
     S3_SECRET_KEY = ''
     S3_BUCKET_NAME = 'backups'
-    S3_REGION = 'ru-central1'
-    MAX_BACKUPS = 2
+    S3_REGION = 'ru-7'
+    MAX_BACKUPS = 3
     BACKUP_MEDIA = False
     MEDIA_DIR = 'media'
 

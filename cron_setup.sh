@@ -19,6 +19,17 @@ if [ -z "$PYTHON_PATH" ]; then
     exit 1
 fi
 
+# Проверяем установку boto3
+echo "Проверка наличия boto3..."
+if ! $PYTHON_PATH -c "import boto3" &> /dev/null; then
+    echo "boto3 не установлен. Устанавливаем..."
+    if ! $PYTHON_PATH -m pip install boto3; then
+        echo "Ошибка: Не удалось установить boto3. Установите его вручную: pip install boto3"
+        exit 1
+    fi
+    echo "boto3 успешно установлен"
+fi
+
 # Время запуска задания по умолчанию
 DEFAULT_HOUR=2
 DEFAULT_MINUTE=0
@@ -51,7 +62,7 @@ crontab -l > "$TEMP_CRON" 2>/dev/null
 if grep -q "backup_manager.py" "$TEMP_CRON"; then
     echo "Задание для резервного копирования уже существует в crontab."
     read -p "Хотите обновить его? (y/n): " UPDATE
-
+    
     if [[ "$UPDATE" =~ ^[Yy]$ ]]; then
         # Удаляем существующее задание
         sed -i '/backup_manager.py/d' "$TEMP_CRON"
@@ -60,6 +71,22 @@ if grep -q "backup_manager.py" "$TEMP_CRON"; then
         rm "$TEMP_CRON"
         exit 0
     fi
+fi
+
+# Предупреждение о необходимости настройки S3
+echo
+echo "ВНИМАНИЕ: Убедитесь, что вы настроили параметры S3 в файле backup_settings.py:"
+echo "- S3_ENDPOINT_URL - URL вашего S3-провайдера"
+echo "- S3_ACCESS_KEY - Ключ доступа"
+echo "- S3_SECRET_KEY - Секретный ключ"
+echo "- S3_BUCKET_NAME - Имя бакета для резервных копий"
+echo "- S3_REGION - Регион хранилища"
+echo
+read -p "Продолжить настройку cron? (y/n): " CONTINUE
+if [[ ! "$CONTINUE" =~ ^[Yy]$ ]]; then
+    echo "Операция отменена."
+    rm "$TEMP_CRON"
+    exit 0
 fi
 
 # Добавляем новое задание

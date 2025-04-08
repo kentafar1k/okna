@@ -275,6 +275,14 @@ def cleanup_local_backups():
     except Exception as e:
         logger.error(f'Ошибка удаления локальных резервных копий: {str(e)}')
 
+def cleanup_old_backups(s3_client):
+    """Очистка старых бэкапов перед созданием новых"""
+    # Очищаем старые бэкапы БД
+    manage_backups(s3_client, 'db_backup_')
+    # Очищаем старые бэкапы медиа
+    if BACKUP_MEDIA:
+        manage_backups(s3_client, 'media_backup_')
+
 def main():
     """Основная функция создания и управления резервными копиями"""
     logger.info('Запуск процесса резервного копирования')
@@ -289,6 +297,9 @@ def main():
     if not ensure_bucket_exists(s3_client):
         logger.error(f'Бакет {S3_BUCKET_NAME} недоступен')
         return
+    
+    # Очищаем старые бэкапы перед созданием новых
+    cleanup_old_backups(s3_client)
     
     # Создаем резервную копию базы данных
     db_backup_file = create_db_backup()

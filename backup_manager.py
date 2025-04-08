@@ -305,10 +305,7 @@ def main():
     db_backup_file = create_db_backup()
     if db_backup_file:
         # Загружаем в S3
-        if upload_to_s3(s3_client, db_backup_file):
-            # Управляем резервными копиями БД
-            manage_backups(s3_client, 'db_backup_')
-        else:
+        if not upload_to_s3(s3_client, db_backup_file):
             logger.error('Не удалось загрузить резервную копию БД в S3')
     
     # Создаем резервную копию медиа-файлов (если включено)
@@ -316,10 +313,7 @@ def main():
         media_backup_file = create_media_backup()
         if media_backup_file:
             # Загружаем в S3
-            if upload_to_s3(s3_client, media_backup_file):
-                # Управляем резервными копиями медиа
-                manage_backups(s3_client, 'media_backup_')
-            else:
+            if not upload_to_s3(s3_client, media_backup_file):
                 logger.error('Не удалось загрузить резервную копию медиа в S3')
     
     # Удаляем локальные копии

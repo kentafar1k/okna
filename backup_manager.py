@@ -298,9 +298,6 @@ def main():
         logger.error(f'Бакет {S3_BUCKET_NAME} недоступен')
         return
     
-    # Очищаем старые бэкапы перед созданием новых
-    cleanup_old_backups(s3_client)
-    
     # Создаем резервную копию базы данных
     db_backup_file = create_db_backup()
     if db_backup_file:
@@ -315,6 +312,9 @@ def main():
             # Загружаем в S3
             if not upload_to_s3(s3_client, media_backup_file):
                 logger.error('Не удалось загрузить резервную копию медиа в S3')
+    
+    # Очищаем старые бэкапы после создания новых
+    cleanup_old_backups(s3_client)
     
     # Удаляем локальные копии
     cleanup_local_backups()

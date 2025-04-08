@@ -251,17 +251,21 @@ def delete_s3_backup(s3_client, filename):
         logger.error(f'Ошибка удаления файла из S3: {str(e)}')
         return False
 
-def manage_backups(s3_client, prefix='db_backup_'):
+def manage_backups(s3_client):
     """Управление резервными копиями: сохраняем только MAX_BACKUPS последних"""
-    backups = list_s3_backups(s3_client, prefix)
+    # Получаем все бэкапы (и БД, и медиа)
+    db_backups = list_s3_backups(s3_client, 'db_backup_')
+    media_backups = list_s3_backups(s3_client, 'media_backup_')
+    all_backups = db_backups + media_backups
     
-    # Всегда оставляем только MAX_BACKUPS последних копий
-    if len(backups) > MAX_BACKUPS:
-        # Сколько копий нужно удалить
-        to_delete = len(backups) - MAX_BACKUPS
-        
+    # Сортируем все бэкапы по дате
+    all_backups.sort(key=lambda x: x['last_modified'])
+    
+    # Если общее количество превышает лимит, удаляем самые старые
+    if len(all_backups) > MAX_BACKUPS:
+        to_delete = len(all_backups) - MAX_BACKUPS
         for i in range(to_delete):
-            oldest_backup = backups[i]
+            oldest_backup = all_backups[i]
             logger.info(f'Удаление старого бекапа: {oldest_backup["name"]}')
             delete_s3_backup(s3_client, oldest_backup['name'])
 
@@ -277,11 +281,7 @@ def cleanup_local_backups():
 
 def cleanup_old_backups(s3_client):
     """Очистка старых бэкапов перед созданием новых"""
-    # Очищаем старые бэкапы БД
-    manage_backups(s3_client, 'db_backup_')
-    # Очищаем старые бэкапы медиа
-    if BACKUP_MEDIA:
-        manage_backups(s3_client, 'media_backup_')
+    manage_backups(s3_client)
 
 def main():
     """Основная функция создания и управления резервными копиями"""

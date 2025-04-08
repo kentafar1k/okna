@@ -136,7 +136,7 @@ chmod +x backup_manager.py cron_setup.sh
 
 ### 4. Настройка cron на Ubuntu
 
-Вы можете использовать скрипт `cron_setup.sh` или настроить cron вручную:
+Вы можете использовать скрипт `./cron_setup.sh` или настроить cron вручную:
 
 ```bash
 # Ручная настройка cron

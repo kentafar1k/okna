@@ -20,7 +20,7 @@ logging.basicConfig(
         RotatingFileHandler(
             "backup.log", 
             maxBytes=1000000,  # Максимальный размер файла - 1MB
-            backupCount=3      # Хранить до 3 файлов ротации
+            backupCount=14      # Хранить до 14 файлов ротации
         ),
         logging.StreamHandler(sys.stdout)
     ]
@@ -49,7 +49,7 @@ except ImportError:
     S3_SECRET_KEY = ''
     S3_BUCKET_NAME = 'backups'
     S3_REGION = 'ru-7'
-    MAX_BACKUPS = 3
+    MAX_BACKUPS = 14
     BACKUP_MEDIA = False
     MEDIA_DIR = 'media'
 
@@ -259,7 +259,7 @@ def manage_backups(s3_client, prefix='db_backup_'):
     # Если у нас больше резервных копий, чем нужно, удаляем самые старые
     if len(backups) >= MAX_BACKUPS:
         # Сколько копий нужно удалить
-        to_delete = len(backups) - MAX_BACKUPS + 1  # +1 для новой копии
+        to_delete = len(backups) - MAX_BACKUPS
         
         for i in range(to_delete):
             oldest_backup = backups[i]

@@ -20,7 +20,7 @@ logging.basicConfig(
         RotatingFileHandler(
             "backup.log", 
             maxBytes=1000000,  # Максимальный размер файла - 1MB
-            backupCount=14      # Хранить до 14 файлов ротации
+            backupCount=3      # Хранить до 3 файлов ротации (типа 3 файла backup.log)
         ),
         logging.StreamHandler(sys.stdout)
     ]

@@ -255,8 +255,8 @@ def manage_backups(s3_client, prefix='db_backup_'):
     """Управление резервными копиями: сохраняем только MAX_BACKUPS последних"""
     backups = list_s3_backups(s3_client, prefix)
     
-    # Если у нас больше резервных копий, чем нужно, удаляем самые старые
-    if len(backups) >= MAX_BACKUPS:
+    # Всегда оставляем только MAX_BACKUPS последних копий
+    if len(backups) > MAX_BACKUPS:
         # Сколько копий нужно удалить
         to_delete = len(backups) - MAX_BACKUPS
         

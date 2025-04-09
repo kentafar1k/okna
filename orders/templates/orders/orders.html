@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load orders_extras %}
 
 {% block title %}Список заказов{% endblock %}
 
@@ -40,7 +41,7 @@
                 </select>
                 <select name="month" class="month-select">
                     {% for m in months %}
-                        <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ m }}</option>
+                        <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ month_names|get_item:m }}</option>
                     {% endfor %}
                 </select>
                 {% if search_query %}
@@ -96,7 +97,7 @@
                 </span>
             </div>
             <div class="monthly-total-info">
-                <span>Сумма заказов за {{ selected_month }}/{{ selected_year }}:</span>
+                <span>Сумма заказов за {{ month_names|get_item:selected_month }}/{{ selected_year }}:</span>
                 <span class="total-amount">
                     {{ monthly_total }} ₽
                 </span>

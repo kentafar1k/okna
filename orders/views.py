@@ -70,6 +70,22 @@ def orders(request):
     # Вычисляем общую задолженность (убираем проверку на положительное значение)
     total_debt = sum(order.get_debt() for order in orders_queryset)
     
+    # Создаем словарь с русскими названиями месяцев
+    month_names = {
+        1: "Январь",
+        2: "Февраль",
+        3: "Март",
+        4: "Апрель",
+        5: "Май",
+        6: "Июнь",
+        7: "Июль",
+        8: "Август",
+        9: "Сентябрь",
+        10: "Октябрь",
+        11: "Ноябрь",
+        12: "Декабрь"
+    }
+    
     context = {
         'orders': orders_queryset,
         'search_query': search_query,
@@ -80,6 +96,7 @@ def orders(request):
         'selected_month': month,
         'years': range(timezone.now().year - 5, timezone.now().year + 1),
         'months': range(1, 13),
+        'month_names': month_names,
     }
     return render(request, 'orders/orders.html', context)
 

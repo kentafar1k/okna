@@ -34,16 +34,22 @@
         <!-- Month and Year Selection -->
         <div class="month-year-selector">
             <form method="get" class="month-year-form">
-                <select name="year" class="year-select">
-                    {% for y in years %}
-                        <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
-                    {% endfor %}
-                </select>
-                <select name="month" class="month-select">
-                    {% for m in months %}
-                        <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ month_names|get_item:m }}</option>
-                    {% endfor %}
-                </select>
+                <div class="select-group">
+                    <label class="select-label">Год:</label>
+                    <select name="year" class="year-select">
+                        {% for y in years %}
+                            <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="select-group">
+                    <label class="select-label">Месяц:</label>
+                    <select name="month" class="month-select">
+                        {% for m in months %}
+                            <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
                 {% if search_query %}
                     <input type="hidden" name="search" value="{{ search_query }}">
                 {% endif %}
@@ -670,22 +676,40 @@ th {
     margin: 10px 0;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .month-year-form {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+}
+
+.select-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.select-label {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
 }
 
 .year-select,
 .month-select {
-    padding: 5px 10px;
+    padding: 2px 4px;
     border: 1px solid #ddd;
     border-radius: 4px;
     background-color: white;
-    font-size: 14px;
+    font-size: 12px;
+    min-width: 60px;
+    height: 24px;
+}
+
+.month-select {
+    min-width: 80px;
 }
 </style>
 

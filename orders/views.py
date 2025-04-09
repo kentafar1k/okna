@@ -20,8 +20,28 @@ def orders(request):
     # Получаем параметры сортировки
     sort_by = request.GET.get('sort', 'uncompleted_first')  # По умолчанию сортируем по статусу (сначала новые)
     
+    # Получаем год и месяц из GET-параметров или используем текущие
+    year = request.GET.get('year', timezone.now().year)
+    month = request.GET.get('month', timezone.now().month)
+    
+    try:
+        year = int(year)
+        month = int(month)
+    except (ValueError, TypeError):
+        year = timezone.now().year
+        month = timezone.now().month
+    
     # Базовый QuerySet
     orders_queryset = Order.objects.all()
+    
+    # Фильтруем заказы по году и месяцу
+    monthly_orders = orders_queryset.filter(
+        start_date__year=year,
+        start_date__month=month
+    )
+    
+    # Вычисляем сумму заказов за месяц
+    monthly_total = sum(order.total_price for order in monthly_orders)
     
     # Получаем параметр поиска
     search_query = request.GET.get('search', '').strip()
@@ -55,6 +75,11 @@ def orders(request):
         'search_query': search_query,
         'current_sort': sort_param,
         'total_debt': total_debt,
+        'monthly_total': monthly_total,
+        'selected_year': year,
+        'selected_month': month,
+        'years': range(timezone.now().year - 5, timezone.now().year + 1),
+        'months': range(1, 13),
     }
     return render(request, 'orders/orders.html', context)
 

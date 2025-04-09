@@ -30,6 +30,29 @@
             </form>
         </div>
 
+        <!-- Month and Year Selection -->
+        <div class="month-year-selector">
+            <form method="get" class="month-year-form">
+                <select name="year" class="year-select">
+                    {% for y in years %}
+                        <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+                <select name="month" class="month-select">
+                    {% for m in months %}
+                        <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ m }}</option>
+                    {% endfor %}
+                </select>
+                {% if search_query %}
+                    <input type="hidden" name="search" value="{{ search_query }}">
+                {% endif %}
+                {% if current_sort %}
+                    <input type="hidden" name="sort" value="{{ current_sort }}">
+                {% endif %}
+                <button type="submit" class="button">Показать</button>
+            </form>
+        </div>
+
         <!-- Create Order button -->
         <div class="create-order">
             <a href="{% url 'orders:create_order' %}" class="button">+ Создать заказ</a>
@@ -58,12 +81,24 @@
                     {% if search_query %}
                         <input type="hidden" name="search" value="{{ search_query }}">
                     {% endif %}
+                    {% if selected_year %}
+                        <input type="hidden" name="year" value="{{ selected_year }}">
+                    {% endif %}
+                    {% if selected_month %}
+                        <input type="hidden" name="month" value="{{ selected_month }}">
+                    {% endif %}
                 </form>
             </div>
             <div class="total-debt-info">
                 <span>Общая задолженность:</span>
                 <span class="total-amount">
                     {{ total_debt }} ₽
+                </span>
+            </div>
+            <div class="monthly-total-info">
+                <span>Сумма заказов за {{ selected_month }}/{{ selected_year }}:</span>
+                <span class="total-amount">
+                    {{ monthly_total }} ₽
                 </span>
             </div>
         </div>
@@ -346,6 +381,19 @@ td:nth-child(2) {
     margin-left: 5px;
 }
 
+.monthly-total-info {
+    margin-left: auto;
+    font-size: 14px;
+    color: #666;
+    white-space: nowrap;
+}
+
+.monthly-total-info .total-amount {
+    font-weight: bold;
+    color: #0073e6;
+    margin-left: 5px;
+}
+
 .modal {
     display: none;
     position: fixed;
@@ -615,6 +663,28 @@ th {
     max-width: 65%;  /* Ограничиваем максимальную ширину */
     padding: 4px 8px;  /* Уменьшаем отступы */
     font-size: 13px;  /* Уменьшаем размер шрифта */
+}
+
+.month-year-selector {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.month-year-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.year-select,
+.month-select {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 14px;
 }
 </style>
 

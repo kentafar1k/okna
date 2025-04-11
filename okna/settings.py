@@ -160,17 +160,17 @@ EMAIL_USE_SSL = True
 EMAIL_HOST_USER = 'OknaVMirR35@yandex.ru'  # Ваш яндекс email
 EMAIL_HOST_PASSWORD = 'loowyyhtcerbpjtj'  # Пароль приложения из настроек Яндекс.Почты
 
-# SMS settings
-SMSRU_API_KEY = '844F5E52-0836-3E80-FEA8-92660E5D0282'
+# # SMS settings
+# SMSRU_API_KEY = '844F5E52-0836-3E80-FEA8-92660E5D0282'
 
 # SMSAero settings
-SMSAERO_EMAIL = 'andreibogd@mail.ru'
-SMSAERO_API_KEY = 'jrzFttmBjhSLvqbQShch1_CeTF1DlF9x'
+SMSAERO_EMAIL = 'oknavmirr35@yandex.ru'
+SMSAERO_API_KEY = 'lcIES1CmL-pTD0EteXNLkBiBPkScRk-E'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Настройки для SMSC
-SMSC_LOGIN = 'cherald13377@yandex.ru'
-SMSC_PASSWORD = 'lfvpcnksiisuobmu'
+# # Настройки для SMSC
+# SMSC_LOGIN = 'cherald13377@yandex.ru'
+# SMSC_PASSWORD = 'lfvpcnksiisuobmu'
 

@@ -157,8 +157,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
-EMAIL_HOST_USER = 'cherald13377@yandex.ru'  # Ваш яндекс email
-EMAIL_HOST_PASSWORD = 'lfvpcnksiisuobmu'  # Пароль приложения из настроек Яндекс.Почты
+EMAIL_HOST_USER = 'OknaVMirR35@yandex.ru'  # Ваш яндекс email
+EMAIL_HOST_PASSWORD = 'loowyyhtcerbpjtj'  # Пароль приложения из настроек Яндекс.Почты
 
 # SMS settings
 SMSRU_API_KEY = '844F5E52-0836-3E80-FEA8-92660E5D0282'

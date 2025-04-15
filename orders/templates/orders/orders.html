@@ -126,7 +126,7 @@
             </thead>
             <tbody>
                 {% for order in orders %}
-                <tr class="{% if order.status == 'completed' %}completed-order{% endif %}" data-order-id="{{ order.id }}">
+                <tr class="order-row {% if order.status == 'completed' %}completed{% elif order.status == 'ready' %}ready{% elif order.status == 'in_progress' %}in-progress{% endif %}" data-order-id="{{ order.id }}">
                     <td>
                         <a href="{% url 'orders:order_detail' order.id %}" class="order-link">
                             {{ order.order_number }}
@@ -223,509 +223,520 @@
 </div>
 
 <style>
-.status-select {
-    padding: 5px;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    background-color: white;
-    width: 100%;
-}
+    /* Стили для строк заказов по статусам - помещаем в начало стилей для большего приоритета */
+    tr.order-row.completed {
+        background-color: rgba(211, 211, 211, 0.5) !important;
+    }
+    tr.order-row.ready {
+        background-color: rgba(144, 238, 144, 0.3) !important;
+    }
+    tr.order-row.in-progress {
+        background-color: rgba(255, 255, 0, 0.2) !important;
+    }
 
-.status-form {
-    margin: 0;
-}
+    .status-select {
+        padding: 5px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        background-color: white;
+        width: 100%;
+    }
 
-.container {
-    max-width: 1400px;
-    margin: 20px auto;
-    padding: 20px;
-    overflow-x: auto;
-}
+    .status-form {
+        margin: 0;
+    }
 
-table {
-    width: 100%;
-    min-width: 1200px;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
+    .container {
+        max-width: 1400px;
+        margin: 20px auto;
+        padding: 20px;
+        overflow-x: auto;
+    }
 
-td {
-    padding: 8px;
-    vertical-align: middle;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+    table {
+        width: 100%;
+        min-width: 1200px;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
 
-table {
-    table-layout: auto;
-}
+    td {
+        padding: 8px;
+        vertical-align: middle;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-th, td {
-    padding: 12px 8px;  /* Уменьшаем горизонтальные отступы */
-    text-align: left;
-    white-space: nowrap;  /* Запрещаем перенос текста */
-    overflow: hidden;
-    text-overflow: ellipsis;  /* Добавляем многоточие для длинного текста */
-}
+    table {
+        table-layout: auto;
+    }
 
-/* Задаем ширину для каждого столбца */
-th:nth-child(1), td:nth-child(1) { width: 20%; }  /* Номер заказа */
-th:nth-child(2), td:nth-child(2) { width: 15%; }  /* Стадия - увеличиваем */
-th:nth-child(3), td:nth-child(3) { width: 8%; }   /* Дата */
-th:nth-child(4), td:nth-child(4) { width: 25%; }  /* Клиент - уменьшаем */
-th:nth-child(5), td:nth-child(5) { width: 10%; }  /* Стоимость */
-th:nth-child(6), td:nth-child(6) { width: 10%; }  /* Предоплата */
-th:nth-child(7), td:nth-child(7) { width: 10%; }  /* Задолженность */
-th:nth-child(8), td:nth-child(8) { width: 40px; } /* PDF */
-th:nth-child(9), td:nth-child(9) { width: 7%; }   /* Действия */
+    th, td {
+        padding: 12px 8px;  /* Уменьшаем горизонтальные отступы */
+        text-align: left;
+        white-space: nowrap;  /* Запрещаем перенос текста */
+        overflow: hidden;
+        text-overflow: ellipsis;  /* Добавляем многоточие для длинного текста */
+    }
 
-/* Стили для ячейки с номером заказа */
-td:nth-child(1) {
-    max-width: 400px;  /* Увеличиваем максимальную ширину */
-    white-space: normal;  /* Разрешаем перенос строк */
-    word-wrap: break-word;  /* Разрешаем перенос длинных слов */
-    overflow-wrap: break-word;  /* Современное свойство для переноса слов */
-}
+    /* Задаем ширину для каждого столбца */
+    th:nth-child(1), td:nth-child(1) { width: 20%; }  /* Номер заказа */
+    th:nth-child(2), td:nth-child(2) { width: 15%; }  /* Стадия - увеличиваем */
+    th:nth-child(3), td:nth-child(3) { width: 8%; }   /* Дата */
+    th:nth-child(4), td:nth-child(4) { width: 25%; }  /* Клиент - уменьшаем */
+    th:nth-child(5), td:nth-child(5) { width: 10%; }  /* Стоимость */
+    th:nth-child(6), td:nth-child(6) { width: 10%; }  /* Предоплата */
+    th:nth-child(7), td:nth-child(7) { width: 10%; }  /* Задолженность */
+    th:nth-child(8), td:nth-child(8) { width: 40px; } /* PDF */
+    th:nth-child(9), td:nth-child(9) { width: 7%; }   /* Действия */
 
-/* Стили для ячейки с клиентом */
-td:nth-child(4) {
-    max-width: 300px;  /* Уменьшаем максимальную ширину */
-    white-space: normal;  /* Разрешаем перенос строк */
-    word-wrap: break-word;  /* Разрешаем перенос длинных слов */
-    overflow-wrap: break-word;  /* Современное свойство для переноса слов */
-}
+    /* Стили для ячейки с номером заказа */
+    td:nth-child(1) {
+        max-width: 400px;  /* Увеличиваем максимальную ширину */
+        white-space: normal;  /* Разрешаем перенос строк */
+        word-wrap: break-word;  /* Разрешаем перенос длинных слов */
+        overflow-wrap: break-word;  /* Современное свойство для переноса слов */
+    }
 
-/* Стили для ячейки со стадией */
-td:nth-child(2) {
-    min-width: 150px;  /* Минимальная ширина для стадии */
-    white-space: nowrap;  /* Запрещаем перенос строк */
-}
+    /* Стили для ячейки с клиентом */
+    td:nth-child(4) {
+        max-width: 300px;  /* Уменьшаем максимальную ширину */
+        white-space: normal;  /* Разрешаем перенос строк */
+        word-wrap: break-word;  /* Разрешаем перенос длинных слов */
+        overflow-wrap: break-word;  /* Современное свойство для переноса слов */
+    }
 
-/* Стили для ссылок в ячейках */
-.order-link, .client-link {
-    display: inline-block;
-    max-width: 100%;  /* Ограничиваем ширину ссылки */
-    word-wrap: break-word;  /* Разрешаем перенос длинных слов */
-    overflow-wrap: break-word;  /* Современное свойство для переноса слов */
-}
+    /* Стили для ячейки со стадией */
+    td:nth-child(2) {
+        min-width: 150px;  /* Минимальная ширина для стадии */
+        white-space: nowrap;  /* Запрещаем перенос строк */
+    }
 
-/* Стили для контейнера кнопок */
-.action-buttons {
-    display: flex;
-    gap: 4px;  /* Уменьшаем отступ между кнопками */
-    align-items: center;
-    white-space: nowrap;
-}
+    /* Стили для ссылок в ячейках */
+    .order-link, .client-link {
+        display: inline-block;
+        max-width: 100%;  /* Ограничиваем ширину ссылки */
+        word-wrap: break-word;  /* Разрешаем перенос длинных слов */
+        overflow-wrap: break-word;  /* Современное свойство для переноса слов */
+    }
 
-/* Компактные стили для кнопок */
-.button {
-    padding: 4px 8px;  /* Уменьшаем отступы */
-    font-size: 13px;   /* Немного уменьшаем шрифт */
-    white-space: nowrap;
-    min-width: auto;
-}
+    /* Стили для контейнера кнопок */
+    .action-buttons {
+        display: flex;
+        gap: 4px;  /* Уменьшаем отступ между кнопками */
+        align-items: center;
+        white-space: nowrap;
+    }
 
-.delete-button {
-    background-color: #e0e0e0;  /* Серый цвет */
-    color: #666;  /* Тёмно-серый цвет для текста */
-    border: none;
-    border-radius: 4px;
-    padding: 4px 8px;
-    cursor: pointer;
-    font-size: 13px;
-    min-width: auto;
-}
+    /* Компактные стили для кнопок */
+    .button {
+        padding: 4px 8px;  /* Уменьшаем отступы */
+        font-size: 13px;   /* Немного уменьшаем шрифт */
+        white-space: nowrap;
+        min-width: auto;
+    }
 
-.delete-button:hover {
-    background-color: #cccccc;  /* Более тёмный серый при наведении */
-}
+    .delete-button {
+        background-color: #e0e0e0;  /* Серый цвет */
+        color: #666;  /* Тёмно-серый цвет для текста */
+        border: none;
+        border-radius: 4px;
+        padding: 4px 8px;
+        cursor: pointer;
+        font-size: 13px;
+        min-width: auto;
+    }
 
-.completed-order {
-    background-color: #e8f5e9;
-}
+    .delete-button:hover {
+        background-color: #cccccc;  /* Более тёмный серый при наведении */
+    }
 
-.sort-select {
-    padding: 6px 12px;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    background-color: white;
-    cursor: pointer;
-    font-size: 14px;
-    min-width: 200px; /* Увеличиваем ширину для новых опций */
-}
+    .completed-order {
+        background-color: #e8f5e9;
+    }
 
-.sort-select:hover {
-    border-color: #0073e6;
-}
+    .sort-select {
+        padding: 6px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        background-color: white;
+        cursor: pointer;
+        font-size: 14px;
+        min-width: 200px; /* Увеличиваем ширину для новых опций */
+    }
 
-.sort-box {
-    margin-right: auto;
-}
+    .sort-select:hover {
+        border-color: #0073e6;
+    }
 
-.orders-header {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 20px;
-}
+    .sort-box {
+        margin-right: auto;
+    }
 
-.orders-header h2 {
-    margin: 0;
-    min-width: 150px;
-}
+    .orders-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
 
-.total-debt-info {
-    margin-left: auto;
-    font-size: 14px;
-    color: #666;
-    white-space: nowrap;
-}
+    .orders-header h2 {
+        margin: 0;
+        min-width: 150px;
+    }
 
-.total-debt-info .total-amount {
-    font-weight: bold;
-    color: #0073e6;
-    margin-left: 5px;
-}
+    .total-debt-info {
+        margin-left: auto;
+        font-size: 14px;
+        color: #666;
+        white-space: nowrap;
+    }
 
-.monthly-info-container {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-left: auto;
-}
+    .total-debt-info .total-amount {
+        font-weight: bold;
+        color: #0073e6;
+        margin-left: 5px;
+    }
 
-.month-year-selector {
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
+    .monthly-info-container {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-left: auto;
+    }
 
-.month-year-form {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
+    .month-year-selector {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
 
-.select-group {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
+    .month-year-form {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
 
-.select-label {
-    font-size: 12px;
-    color: #666;
-    white-space: nowrap;
-}
+    .select-group {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
 
-.year-select,
-.month-select {
-    padding: 2px 4px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: white;
-    font-size: 12px;
-    min-width: 60px;
-    height: 24px;
-}
+    .select-label {
+        font-size: 12px;
+        color: #666;
+        white-space: nowrap;
+    }
 
-.month-select {
-    min-width: 80px;
-}
+    .year-select,
+    .month-select {
+        padding: 2px 4px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: white;
+        font-size: 12px;
+        min-width: 60px;
+        height: 24px;
+    }
 
-.month-year-form .button {
-    padding: 4px 8px;
-    font-size: 13px;
-    height: auto;
-    margin-left: 8px;
-    border: none;
-}
+    .month-select {
+        min-width: 80px;
+    }
 
-.monthly-total-info {
-    font-size: 13px;
-    color: #666;
-    white-space: nowrap;
-    margin-left: 10px;
-}
+    .month-year-form .button {
+        padding: 4px 8px;
+        font-size: 13px;
+        height: auto;
+        margin-left: 8px;
+        border: none;
+    }
 
-.monthly-total-info .total-amount {
-    font-weight: bold;
-    color: #0073e6;
-    margin-left: 5px;
-}
+    .monthly-total-info {
+        font-size: 13px;
+        color: #666;
+        white-space: nowrap;
+        margin-left: 10px;
+    }
 
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 1000;
-}
+    .monthly-total-info .total-amount {
+        font-weight: bold;
+        color: #0073e6;
+        margin-left: 5px;
+    }
 
-.modal-content {
-    background-color: white;
-    margin: 15% auto;
-    padding: 20px;
-    border-radius: 8px;
-    width: 80%;
-    max-width: 400px;
-}
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 1000;
+    }
 
-.notification-options {
-    margin: 20px 0;
-}
+    .modal-content {
+        background-color: white;
+        margin: 15% auto;
+        padding: 20px;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 400px;
+    }
 
-.notification-options label {
-    display: block;
-    margin: 10px 0;
-}
+    .notification-options {
+        margin: 20px 0;
+    }
 
-.modal-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
+    .notification-options label {
+        display: block;
+        margin: 10px 0;
+    }
 
-.button.cancel {
-    background-color: #6c757d;
-}
+    .modal-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
 
-.button.cancel:hover {
-    background-color: #5a6268;
-}
+    .button.cancel {
+        background-color: #6c757d;
+    }
 
-.pdf-link {
-    color: #dc3545;
-    text-decoration: none;
-    padding: 2px 6px;
-    border-radius: 3px;
-    background-color: rgba(220, 53, 69, 0.1);
-    transition: background-color 0.3s;
-}
+    .button.cancel:hover {
+        background-color: #5a6268;
+    }
 
-.pdf-link:hover {
-    background-color: rgba(220, 53, 69, 0.2);
-    color: #dc3545;
-    text-decoration: none;
-}
+    .pdf-link {
+        color: #dc3545;
+        text-decoration: none;
+        padding: 2px 6px;
+        border-radius: 3px;
+        background-color: rgba(220, 53, 69, 0.1);
+        transition: background-color 0.3s;
+    }
 
-.main-nav {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-    background-color: #0073e6;
-    padding: 10px 20px;
-    border-radius: 4px;
-}
+    .pdf-link:hover {
+        background-color: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        text-decoration: none;
+    }
 
-.nav-link {
-    text-decoration: none;
-    color: rgba(255, 255, 255, 0.7);  /* Полупрозрачный белый для неактивных ссылок */
-    font-size: 16px;
-    padding: 8px 16px;
-    border-radius: 4px;
-    transition: color 0.3s, background-color 0.3s;
-}
+    .main-nav {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        background-color: #0073e6;
+        padding: 10px 20px;
+        border-radius: 4px;
+    }
 
-.nav-link:hover {
-    color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.1);  /* Легкая подсветка при наведении */
-}
+    .nav-link {
+        text-decoration: none;
+        color: rgba(255, 255, 255, 0.7);  /* Полупрозрачный белый для неактивных ссылок */
+        font-size: 16px;
+        padding: 8px 16px;
+        border-radius: 4px;
+        transition: color 0.3s, background-color 0.3s;
+    }
 
-.nav-link.active {
-    color: #ffffff;  /* Чисто белый для активной ссылки */
-    font-weight: bold;
-    background-color: rgba(255, 255, 255, 0.15);  /* Более заметная подсветка для активной ссылки */
-}
+    .nav-link:hover {
+        color: #ffffff;
+        background-color: rgba(255, 255, 255, 0.1);  /* Легкая подсветка при наведении */
+    }
 
-/* Унифицированные стили для таблиц */
-.container {
-    max-width: 1400px;
-    margin: 20px auto;
-    padding: 20px;
-}
+    .nav-link.active {
+        color: #ffffff;  /* Чисто белый для активной ссылки */
+        font-weight: bold;
+        background-color: rgba(255, 255, 255, 0.15);  /* Более заметная подсветка для активной ссылки */
+    }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background-color: white;
-}
+    /* Унифицированные стили для таблиц */
+    .container {
+        max-width: 1400px;
+        margin: 20px auto;
+        padding: 20px;
+    }
 
-th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #dee2e6;
-}
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background-color: white;
+    }
 
-th {
-    background-color: #0073e6;
-    color: white;
-    font-weight: normal;
-}
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+    }
 
-/* Стили для панели инструментов */
-.toolbar {
-    margin: 20px 0;
-}
+    th {
+        background-color: #0073e6;
+        color: white;
+        font-weight: normal;
+    }
 
-.search-box {
-    width: 100%;
-    margin-bottom: 10px;
-}
-
-.search-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.search-input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-}
-
-.search-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.create-order {
-    margin-top: 10px;
-}
-
-@media (min-width: 768px) {
+    /* Стили для панели инструментов */
     .toolbar {
+        margin: 20px 0;
+    }
+
+    .search-box {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .search-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+    }
+
+    .search-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .create-order {
+        margin-top: 10px;
+    }
+
+    @media (min-width: 768px) {
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            margin-bottom: 0;
+            max-width: 500px;
+        }
+
+        .search-form {
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .create-order {
+            margin-top: 0;
+            margin-left: 15px;
+        }
+    }
+
+    .order-link, .client-link {
+        color: #0073e6;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .order-link:hover, .client-link:hover {
+        color: #005bb5;
+        text-decoration: underline;
+    }
+
+    /* Обновляем стили для мобильных устройств */
+    @media (max-width: 768px) {
+        th, td {
+            padding: 8px 4px;
+            font-size: 14px;
+        }
+
+        .order-link, .client-link {
+            font-size: 14px;
+        }
+
+        .pdf-link {
+            padding: 1px 4px;
+            font-size: 12px;
+        }
+
+        .sort-select {
+            min-width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+
+    .status-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 140px;  /* Минимальная ширина для контейнера статуса */
+    }
+
+    .history-button {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        color: #0073e6;
+        cursor: pointer;
+        padding: 4px 8px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;  /* Увеличиваем ширину кнопки */
+        height: 32px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .history-button:hover {
+        color: #005bb5;
+        background-color: #e9ecef;
+        border-color: #0073e6;
+    }
+
+    .history-button i {
+        font-size: 18px;  /* Увеличиваем размер иконки */
+    }
+
+    .status-history-list {
+        margin: 20px 0;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .status-history-item {
+        padding: 8px;
+        border-bottom: 1px solid #dee2e6;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 
-    .search-box {
-        flex: 1;
-        margin-bottom: 0;
-        max-width: 500px;
+    .status-history-item:last-child {
+        border-bottom: none;
     }
 
-    .search-form {
-        flex-direction: row;
-        align-items: center;
+    .status-history-item .status {
+        font-weight: bold;
+        color: #0073e6;
     }
 
-    .create-order {
-        margin-top: 0;
-        margin-left: 15px;
-    }
-}
-
-.order-link, .client-link {
-    color: #0073e6;
-    text-decoration: none;
-    transition: color 0.3s;
-}
-
-.order-link:hover, .client-link:hover {
-    color: #005bb5;
-    text-decoration: underline;
-}
-
-/* Обновляем стили для мобильных устройств */
-@media (max-width: 768px) {
-    th, td {
-        padding: 8px 4px;
-        font-size: 14px;
+    .status-history-item .date {
+        color: #666;
+        font-size: 0.9em;
     }
 
-    .order-link, .client-link {
-        font-size: 14px;
+    /* Стили для селекта статуса */
+    .status-select {
+        min-width: 80px;  /* Уменьшаем минимальную ширину для селекта */
+        max-width: 65%;  /* Ограничиваем максимальную ширину */
+        padding: 4px 8px;  /* Уменьшаем отступы */
+        font-size: 13px;  /* Уменьшаем размер шрифта */
     }
-
-    .pdf-link {
-        padding: 1px 4px;
-        font-size: 12px;
-    }
-
-    .sort-select {
-        min-width: 100%;
-        margin-bottom: 10px;
-    }
-}
-
-.status-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 140px;  /* Минимальная ширина для контейнера статуса */
-}
-
-.history-button {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    color: #0073e6;
-    cursor: pointer;
-    padding: 4px 8px;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 50px;  /* Увеличиваем ширину кнопки */
-    height: 32px;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-}
-
-.history-button:hover {
-    color: #005bb5;
-    background-color: #e9ecef;
-    border-color: #0073e6;
-}
-
-.history-button i {
-    font-size: 18px;  /* Увеличиваем размер иконки */
-}
-
-.status-history-list {
-    margin: 20px 0;
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.status-history-item {
-    padding: 8px;
-    border-bottom: 1px solid #dee2e6;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.status-history-item:last-child {
-    border-bottom: none;
-}
-
-.status-history-item .status {
-    font-weight: bold;
-    color: #0073e6;
-}
-
-.status-history-item .date {
-    color: #666;
-    font-size: 0.9em;
-}
-
-/* Стили для селекта статуса */
-.status-select {
-    min-width: 80px;  /* Уменьшаем минимальную ширину для селекта */
-    max-width: 65%;  /* Ограничиваем максимальную ширину */
-    padding: 4px 8px;  /* Уменьшаем отступы */
-    font-size: 13px;  /* Уменьшаем размер шрифта */
-}
 </style>
 
 <script>

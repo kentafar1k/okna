@@ -19,21 +19,21 @@
                 {% for field in form %}
                 <div class="form-group">
                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {% if field.name == 'pdf_file' %}
-                        <div class="pdf-upload-container">
-                            <div class="pdf-drop-zone" id="pdfDropZone">
+                    {% if field.name == 'order_file' %}
+                        <div class="file-upload-container">
+                            <div class="file-drop-zone" id="fileDropZone">
                                 <div class="drop-zone-content">
-                                    <i class="fas fa-file-pdf"></i>
-                                    <p>Перетащите PDF файл сюда или нажмите для выбора</p>
+                                    <i class="fas fa-file"></i>
+                                    <p>Перетащите файл заказа (PDF, Excel, Word) сюда или нажмите для выбора</p>
                                 </div>
                                 <input type="file" 
-                                       name="pdf_file" 
+                                       name="order_file" 
                                        id="{{ field.id_for_label }}"
-                                       accept="application/pdf"
-                                       class="pdf-file-input"
+                                       accept=".pdf,.xlsx,.xls,.doc,.docx"
+                                       class="file-input"
                                        style="display: none;">
                             </div>
-                            <div id="pdfFileName" class="pdf-file-name"></div>
+                            <div id="fileName" class="file-name"></div>
                         </div>
                     {% else %}
                         {{ field }}
@@ -151,11 +151,11 @@
     background-color: #5a6268;
 }
 
-.pdf-upload-container {
+.file-upload-container {
     margin-top: 10px;
 }
 
-.pdf-drop-zone {
+.file-drop-zone {
     border: 2px dashed #0073e6;
     border-radius: 8px;
     padding: 20px;
@@ -163,14 +163,15 @@
     cursor: pointer;
     transition: all 0.3s ease;
     background-color: #f8f9fa;
+    margin-bottom: 10px;
 }
 
-.pdf-drop-zone:hover {
+.file-drop-zone:hover {
     background-color: #e9ecef;
     border-color: #005bb5;
 }
 
-.pdf-drop-zone.dragover {
+.file-drop-zone.dragover {
     background-color: #e3f2fd;
     border-color: #005bb5;
 }
@@ -181,12 +182,12 @@
 
 .drop-zone-content i {
     font-size: 2em;
-    color: #dc3545;
+    color: #0073e6;
     margin-bottom: 10px;
 }
 
-.pdf-file-name {
-    margin-top: 10px;
+.file-name {
+    margin: 10px 0;
     font-size: 0.9em;
     color: #28a745;
     display: none;
@@ -195,70 +196,60 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const dropZone = document.getElementById('pdfDropZone');
-    const fileInput = document.querySelector('.pdf-file-input');
-    const fileNameDisplay = document.getElementById('pdfFileName');
-
-    // Обработка клика по зоне
-    dropZone.addEventListener('click', function() {
-        fileInput.click();
-    });
-
-    // Обработка выбора файла
-    fileInput.addEventListener('change', function() {
-        if (this.files.length > 0) {
-            const file = this.files[0];
-            if (file.type === 'application/pdf') {
-                fileNameDisplay.textContent = `Выбран файл: ${file.name}`;
-                fileNameDisplay.style.display = 'block';
-            } else {
-                alert('Пожалуйста, выберите PDF файл');
-                this.value = '';
-                fileNameDisplay.style.display = 'none';
+    const dropZone = document.getElementById('fileDropZone');
+    if (dropZone) {
+        const fileInput = dropZone.querySelector('.file-input');
+        const fileNameDisplay = document.getElementById('fileName');
+        
+        // Клик по зоне загрузки
+        dropZone.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        // Обработка перетаскивания
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', function() {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                updateFileName(e.dataTransfer.files[0]);
             }
-        }
-    });
-
-    // Предотвращаем стандартное поведение браузера при перетаскивании
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, preventDefaults, false);
-    });
-
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    // Обработка перетаскивания файла
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropZone.addEventListener(eventName, highlight, false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, unhighlight, false);
-    });
-
-    function highlight(e) {
-        dropZone.classList.add('dragover');
-    }
-
-    function unhighlight(e) {
-        dropZone.classList.remove('dragover');
-    }
-
-    // Обработка отпускания файла
-    dropZone.addEventListener('drop', handleDrop, false);
-
-    function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const file = dt.files[0];
-
-        if (file && file.type === 'application/pdf') {
-            fileInput.files = dt.files;
-            fileNameDisplay.textContent = `Выбран файл: ${file.name}`;
+        });
+        
+        // Обработка выбора файла через диалог
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files.length) {
+                updateFileName(fileInput.files[0]);
+            }
+        });
+        
+        function updateFileName(file) {
+            fileNameDisplay.textContent = file.name;
             fileNameDisplay.style.display = 'block';
-        } else {
-            alert('Пожалуйста, перетащите PDF файл');
+            
+            // Меняем иконку в зависимости от типа файла
+            const icon = dropZone.querySelector('i');
+            const extension = file.name.split('.').pop().toLowerCase();
+            
+            if (extension === 'pdf') {
+                icon.className = 'fas fa-file-pdf';
+            } else if (['xlsx', 'xls'].includes(extension)) {
+                icon.className = 'fas fa-file-excel';
+            } else if (['doc', 'docx'].includes(extension)) {
+                icon.className = 'fas fa-file-word';
+            } else {
+                icon.className = 'fas fa-file';
+            }
         }
     }
 });

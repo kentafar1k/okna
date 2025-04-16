@@ -20,6 +20,6 @@ urlpatterns = [
     path('profile/', views.client_profile, name='client_profile'),
     path('<int:order_id>/delete/', views.delete_order, name='delete_order'),
     path('clients/delete/<int:client_id>/', views.delete_client, name='delete_client'),
-    path('order/<int:order_id>/update-pdf/', views.update_pdf, name='update_pdf'),
+    path('order/<int:order_id>/update-pdf/', views.update_file, name='update_file'),
     path('order/<int:order_id>/status-history/', views.get_order_status_history, name='order_status_history'),
 ]

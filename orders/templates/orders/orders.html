@@ -120,7 +120,7 @@
                     <th>Стоимость</th>
                     <th>Предоплата</th>
                     <th>Задолженность</th>
-                    <th style="width: 40px;">PDF</th>
+                    <th style="width: 40px;">Файл</th>
                     <th>Действия</th>
                 </tr>
             </thead>
@@ -161,13 +161,23 @@
                     <td>{{ order.total_price }} ₽</td>
                     <td>{{ order.prepayment|default:0 }} ₽</td>
                     <td>{{ order.get_debt }} ₽</td>
-                    <td class="pdf-cell">
-                        {% if order.pdf_file %}
-                        <a href="{{ order.pdf_file.url }}" 
-                           class="pdf-link" 
+                    <td class="file-cell">
+                        {% if order.order_file %}
+                        <a href="{{ order.order_file.url }}" 
+                           class="file-link" 
                            target="_blank" 
-                           title="Открыть PDF">
-                            PDF
+                           title="Открыть файл">
+                            {% with filename=order.order_file.name|lower %}
+                                {% if '.pdf' in filename %}
+                                    <i class="fas fa-file-pdf"></i>
+                                {% elif '.xlsx' in filename or '.xls' in filename %}
+                                    <i class="fas fa-file-excel"></i>
+                                {% elif '.doc' in filename or '.docx' in filename %}
+                                    <i class="fas fa-file-word"></i>
+                                {% else %}
+                                    <i class="fas fa-file"></i>
+                                {% endif %}
+                            {% endwith %}
                         </a>
                         {% endif %}
                     </td>
@@ -288,7 +298,7 @@
     th:nth-child(5), td:nth-child(5) { width: 10%; }  /* Стоимость */
     th:nth-child(6), td:nth-child(6) { width: 10%; }  /* Предоплата */
     th:nth-child(7), td:nth-child(7) { width: 10%; }  /* Задолженность */
-    th:nth-child(8), td:nth-child(8) { width: 40px; } /* PDF */
+    th:nth-child(8), td:nth-child(8) { width: 40px; } /* Файл */
     th:nth-child(9), td:nth-child(9) { width: 7%; }   /* Действия */
 
     /* Стили для ячейки с номером заказа */
@@ -510,7 +520,7 @@
         background-color: #5a6268;
     }
 
-    .pdf-link {
+    .file-link {
         color: #dc3545;
         text-decoration: none;
         padding: 2px 6px;
@@ -519,7 +529,7 @@
         transition: background-color 0.3s;
     }
 
-    .pdf-link:hover {
+    .file-link:hover {
         background-color: rgba(220, 53, 69, 0.2);
         color: #dc3545;
         text-decoration: none;
@@ -658,7 +668,7 @@
             font-size: 14px;
         }
 
-        .pdf-link {
+        .file-link {
             padding: 1px 4px;
             font-size: 12px;
         }

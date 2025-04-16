@@ -26,13 +26,13 @@ class Order(models.Model):
     prepayment = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Предоплата')
     payment_type = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='cash', verbose_name='Тип оплаты')
     completed_date = models.DateTimeField(null=True, blank=True, verbose_name='Дата завершения')
-    pdf_file = models.FileField(
-        upload_to='orders_pdf/',
-        validators=[FileExtensionValidator(['pdf'])],
-        verbose_name='PDF файл',
+    order_file = models.FileField(
+        upload_to='orders_files/',
+        validators=[FileExtensionValidator(['pdf', 'xlsx', 'xls', 'doc', 'docx'])],
+        verbose_name='Файл заказа',
         blank=True,
         null=True,
-        help_text='Загрузите PDF файл (необязательно)'
+        help_text='Загрузите файл заказа (PDF, Excel, Word)'
     )
 
     class Meta:
@@ -69,10 +69,10 @@ class Order(models.Model):
             super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        # Удаляем PDF файл, если он существует
-        if self.pdf_file:
+        # Удаляем файл заказа, если он существует
+        if self.order_file:
             # Получаем путь к файлу
-            file_path = self.pdf_file.path
+            file_path = self.order_file.path
             # Проверяем существование файла
             if os.path.isfile(file_path):
                 # Удаляем файл

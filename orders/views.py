@@ -540,23 +540,23 @@ def delete_client(request, client_id):
     return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
 
 @manager_required
-def update_pdf(request, order_id):
+def update_file(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     
     if request.method == 'POST':
-        if 'remove_pdf' in request.POST:
+        if 'remove_file' in request.POST:
             # Удаляем старый файл
-            if order.pdf_file:
-                order.pdf_file.delete()
-            messages.success(request, 'PDF файл удален')
-        elif 'pdf_file' in request.FILES:
+            if order.order_file:
+                order.order_file.delete()
+            messages.success(request, 'Файл заказа удален')
+        elif 'order_file' in request.FILES:
             # Удаляем старый файл перед загрузкой нового
-            if order.pdf_file:
-                order.pdf_file.delete()
+            if order.order_file:
+                order.order_file.delete()
             # Сохраняем новый файл
-            order.pdf_file = request.FILES['pdf_file']
+            order.order_file = request.FILES['order_file']
             order.save()
-            messages.success(request, 'PDF файл обновлен')
+            messages.success(request, 'Файл заказа обновлен')
         
     return redirect('orders:order_detail', order_id=order.id)
 

@@ -14,6 +14,7 @@ from .models import OrderStatusHistory
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Sum, Q
 
 
 @manager_required
@@ -447,7 +448,35 @@ def orders_client_list(request):
 def orders_client_detail(request, client_id):
     """Детали клиента в контексте заказов"""
     client = get_object_or_404(Client, id=client_id)
-    orders = Order.objects.filter(client=client).order_by('-start_date')
+    
+    # Получаем параметр сортировки
+    sort_param = request.GET.get('sort', 'uncompleted_first')
+    
+    # Получаем параметр поиска
+    search_query = request.GET.get('search', '').strip()
+    
+    # Базовый QuerySet
+    orders = Order.objects.filter(client=client)
+    
+    # Применяем фильтры поиска до сортировки
+    if search_query:
+        orders = orders.filter(
+            order_number__icontains=search_query
+        )
+    
+    # Применяем сортировку
+    if sort_param == 'completed_first':
+        # Кастомная сортировка: завершён -> готов -> в работе -> новый (и по дате)
+        status_order = {'completed': 1, 'ready': 2, 'in_progress': 3, 'new': 4}
+        orders = sorted(orders, key=lambda x: (status_order.get(x.status, 0), -x.start_date.timestamp()))
+    elif sort_param == 'uncompleted_first':
+        # Кастомная сортировка: новый -> в работе -> готов -> завершён (и по дате)
+        status_order = {'new': 1, 'in_progress': 2, 'ready': 3, 'completed': 4}
+        orders = sorted(orders, key=lambda x: (status_order.get(x.status, 0), -x.start_date.timestamp()))
+    elif sort_param == 'start_date':
+        orders = orders.order_by('start_date')
+    else:  # '-start_date' по умолчанию
+        orders = orders.order_by('-start_date')
     
     if request.method == 'POST':
         form = ClientUpdateForm(request.POST, instance=client)
@@ -461,7 +490,9 @@ def orders_client_detail(request, client_id):
     return render(request, 'orders/client_detail.html', {
         'client': client,
         'orders': orders,
-        'form': form
+        'form': form,
+        'current_sort': sort_param,
+        'search_query': search_query
     })
 
 

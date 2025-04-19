@@ -91,6 +91,26 @@
             </div>
         </div>
 
+        {% if show_completed %}
+        <div class="pagination">
+            <span class="step-links">
+                {% if orders.has_previous %}
+                    <a href="?show_completed=true&page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">« В начало</a>
+                    <a href="?show_completed=true&page={{ orders.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">‹ Предыдущая</a>
+                {% endif %}
+
+                <span class="current">
+                    Страница {{ orders.number }} из {{ orders.paginator.num_pages }}.
+                </span>
+
+                {% if orders.has_next %}
+                    <a href="?show_completed=true&page={{ orders.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">Следующая ›</a>
+                    <a href="?show_completed=true&page={{ orders.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">В конец »</a>
+                {% endif %}
+            </span>
+        </div>
+        {% endif %}
+
         <table>
             <thead>
                 <tr>

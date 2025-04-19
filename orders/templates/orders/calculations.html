@@ -6,10 +6,13 @@
 
 {% block content %}
 <div class="container">
-    <h2 class="page-title">Расчёт суммы заказов</h2>
+    <div class="header-section">
+        <a href="{% url 'orders:orders' %}" class="back-button">← Назад к заказам</a>
+        <h2 class="page-title">Расчёт суммы заказов</h2>
+    </div>
     
     <div class="calculations-panel">
-        <div class="month-year-selector-enhanced">
+        <div class="filter-section">
             <form method="get" class="month-year-form">
                 <div class="select-group">
                     <label class="select-label">Год:</label>
@@ -29,10 +32,13 @@
                 </div>
                 <button type="submit" class="button">Показать</button>
             </form>
+        </div>
+        
+        <div class="results-section">
             <div class="monthly-total-info-enhanced">
                 {% for m, name in months %}
                     {% if m == selected_month %}
-                        <span>Сумма заказов за {{ name }}/{{ selected_year }}:</span>
+                        <span class="period-label">Сумма заказов за {{ name }}/{{ selected_year }}:</span>
                     {% endif %}
                 {% endfor %}
                 <span class="total-amount-enhanced">
@@ -41,57 +47,43 @@
             </div>
         </div>
     </div>
-    
-    <!-- Заказы за выбранный период -->
-    <div class="orders-table-container">
-        <h3 class="section-title">Заказы за выбранный период</h3>
-        
-        {% if orders %}
-        <table class="orders-table">
-            <thead>
-                <tr>
-                    <th>№</th>
-                    <th>Клиент</th>
-                    <th>Сумма</th>
-                    <th>Статус</th>
-                    <th>Дата создания</th>
-                    <th>Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in orders %}
-                <tr class="order-row {% if order.status == 'completed' %}completed{% elif order.status == 'ready' %}ready{% elif order.status == 'in_progress' %}in-progress{% endif %}">
-                    <td>{{ order.order_number|default:"—" }}</td>
-                    <td>{{ order.client.full_name }}</td>
-                    <td>{{ order.total_price }} ₽</td>
-                    <td>
-                        <span class="status-badge">
-                            {{ order.get_status_display }}
-                        </span>
-                    </td>
-                    <td>{{ order.created_at|date:"d.m.Y" }}</td>
-                    <td>
-                        <a href="{% url 'orders:order_detail' order.id %}" class="view-button">
-                            <i class="bi bi-eye"></i> Просмотр
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p class="no-orders-message">Нет заказов за выбранный период.</p>
-        {% endif %}
-    </div>
 </div>
 
 <style>
+    .header-section {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    
+    .back-button {
+        background-color: #0073e6;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+    }
+    
+    .back-button:hover {
+        background-color: #005bb5;
+        color: white;
+    }
+    
     .page-title {
         color: #333;
-        margin-bottom: 20px;
+        margin: 0;
         font-size: 28px;
         border-bottom: 2px solid #0073e6;
         padding-bottom: 10px;
+        width: 100%;
     }
     
     .calculations-panel {
@@ -103,13 +95,14 @@
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
     
-    .month-year-selector-enhanced {
-        width: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
+    .filter-section {
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px dashed #ccc;
+    }
+    
+    .results-section {
+        padding-top: 10px;
     }
     
     .month-year-form {
@@ -156,117 +149,61 @@
     }
     
     .monthly-total-info-enhanced {
-        font-size: 18px;
+        font-size: 22px;
         color: #333;
         font-weight: 500;
         background-color: rgba(0, 115, 230, 0.1);
-        padding: 10px 15px;
+        padding: 15px 20px;
         border-radius: 6px;
         border-left: 4px solid #0073e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .period-label {
+        font-weight: 500;
     }
     
     .total-amount-enhanced {
         font-weight: bold;
         color: #0073e6;
-        font-size: 20px;
-        margin-left: 10px;
-    }
-    
-    .section-title {
-        color: #333;
-        margin: 20px 0;
-        font-size: 20px;
-        border-left: 4px solid #0073e6;
-        padding-left: 10px;
-    }
-    
-    .orders-table-container {
-        margin-top: 20px;
-    }
-    
-    .orders-table {
-        width: 100%;
-        border-collapse: collapse;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-    
-    .orders-table th {
-        background-color: #0073e6;
-        color: white;
-        padding: 12px;
-        text-align: left;
-        font-weight: normal;
-    }
-    
-    .orders-table td {
-        padding: 12px;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .order-row:hover {
-        background-color: #f5f5f5;
-    }
-    
-    .order-row.completed {
-        background-color: rgba(211, 211, 211, 0.4);
-    }
-    
-    .order-row.ready {
-        background-color: rgba(144, 238, 144, 0.3);
-    }
-    
-    .order-row.in-progress {
-        background-color: rgba(135, 206, 250, 0.3);
-    }
-    
-    .status-badge {
-        display: inline-block;
-        padding: 4px 8px;
-        border-radius: 4px;
-        background-color: #eee;
-        font-size: 12px;
-        color: #555;
-    }
-    
-    .view-button {
-        display: inline-block;
-        padding: 5px 10px;
-        background-color: #0073e6;
-        color: white;
-        text-decoration: none;
-        border-radius: 4px;
-        font-size: 13px;
-    }
-    
-    .view-button:hover {
-        background-color: #005bb5;
-        color: white;
-    }
-    
-    .no-orders-message {
-        padding: 20px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        color: #666;
-        text-align: center;
-        font-size: 16px;
-        border: 1px solid #ddd;
+        font-size: 26px;
     }
     
     @media (max-width: 768px) {
-        .month-year-selector-enhanced {
-            flex-direction: column;
-            align-items: flex-start;
+        .header-section {
+            margin-bottom: 20px;
+        }
+        
+        .page-title {
+            font-size: 22px;
         }
         
         .month-year-form {
-            flex-wrap: wrap;
-            justify-content: center;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
             width: 100%;
         }
         
-        .monthly-total-info-enhanced {
+        .select-group {
             width: 100%;
+        }
+        
+        .year-select, .month-select {
+            flex-grow: 1;
+            width: 100%;
+        }
+        
+        .button {
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .monthly-total-info-enhanced {
+            flex-direction: column;
+            gap: 10px;
             text-align: center;
         }
     }

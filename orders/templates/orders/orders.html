@@ -46,7 +46,7 @@
             <a href="{% url 'orders:create_order' %}" class="button">+ Создать заказ</a>
             <a href="{% url 'orders:calculations' %}" class="button calculation-button">Расчеты</a>
             <a href="?show_completed={% if show_completed %}false{% else %}true{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" 
-               class="button order-filter-button {% if show_completed %}active{% endif %}">
+               class="button order-filter-button">
                 {% if show_completed %}
                     Активные заказы
                 {% else %}
@@ -87,35 +87,6 @@
                         <input type="hidden" name="month" value="{{ selected_month }}">
                     {% endif %}
                     <input type="hidden" name="show_completed" value="{{ show_completed|lower }}">
-                </form>
-            </div>
-            
-            <div class="filter-controls">
-                <form method="get" class="month-year-form">
-                    <div class="select-group">
-                        <label class="select-label">Год:</label>
-                        <select name="year" class="year-select">
-                            {% for y in years %}
-                                <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="select-group">
-                        <label class="select-label">Месяц:</label>
-                        <select name="month" class="month-select">
-                            {% for m, name in months %}
-                                <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    {% if search_query %}
-                        <input type="hidden" name="search" value="{{ search_query }}">
-                    {% endif %}
-                    {% if current_sort %}
-                        <input type="hidden" name="sort" value="{{ current_sort }}">
-                    {% endif %}
-                    <input type="hidden" name="show_completed" value="{{ show_completed|lower }}">
-                    <button type="submit" class="button">Показать</button>
                 </form>
             </div>
         </div>
@@ -407,7 +378,6 @@
 
     .orders-header {
         display: flex;
-        flex-wrap: wrap;
         align-items: center;
         gap: 20px;
         margin-bottom: 20px;
@@ -415,8 +385,11 @@
 
     .orders-header h2 {
         margin: 0;
-        min-width: 150px;
-        flex: 1 1 100%;
+        min-width: 220px;
+    }
+    
+    .sort-box {
+        margin-left: auto;
     }
 
     .filter-controls {
@@ -713,21 +686,21 @@
         .file-link i {
             font-size: 14px;
         }
-
-        .sort-select {
-            min-width: 100%;
-            margin-bottom: 10px;
-        }
         
         .orders-header {
             flex-direction: column;
-            align-items: stretch;
+            align-items: flex-start;
         }
         
-        .sort-box, .filter-controls {
+        .sort-box {
             width: 100%;
-            margin-right: 0;
-            margin-bottom: 10px;
+            margin-left: 0;
+            margin-top: 10px;
+        }
+
+        .sort-select {
+            width: 100%;
+            min-width: 100%;
         }
         
         .create-order {
@@ -810,21 +783,16 @@
         font-size: 13px;  /* Уменьшаем размер шрифта */
     }
 
+    /* Удаляем специальные стили для кнопки фильтрации */
     .order-filter-button {
-        background-color: #6c757d;
-        color: white;
+        /* Стили теперь наследуются от стандартного класса .button */
     }
     
-    .order-filter-button:hover {
-        background-color: #5a6268;
-    }
+    /* Стандартный стиль для кнопки при наведении уже определен в .button:hover */
     
+    /* Слегка выделяем активную кнопку */
     .order-filter-button.active {
-        background-color: #dc3545;
-    }
-    
-    .order-filter-button.active:hover {
-        background-color: #bd2130;
+        text-decoration: underline;
     }
 </style>
 

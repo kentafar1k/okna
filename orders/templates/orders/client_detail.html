@@ -32,27 +32,28 @@
     </div>
 
     <div class="client-orders">
-        <div class="search-box">
-            <form method="get" class="search-form">
-                <input type="text"
-                       name="search"
-                       placeholder="Поиск по номеру заказа"
-                       value="{{ search_query }}"
-                       class="search-input">
-                {% if current_sort %}
-                    <input type="hidden" name="sort" value="{{ current_sort }}">
-                {% endif %}
-                <div class="search-buttons">
-                    <button type="submit" class="button">Поиск</button>
-                    {% if search_query %}
-                        <a href="{% url 'orders:client_detail' client.id %}" class="button">Сбросить</a>
-                    {% endif %}
-                </div>
-            </form>
-        </div>
-
         <div class="orders-header">
             <h2>Заказы клиента</h2>
+            
+            <div class="search-box">
+                <form method="get" class="search-form">
+                    <input type="text" 
+                           name="search" 
+                           placeholder="Поиск по номеру заказа"
+                           value="{{ search_query }}"
+                           class="search-input">
+                    {% if current_sort %}
+                        <input type="hidden" name="sort" value="{{ current_sort }}">
+                    {% endif %}
+                    <div class="search-buttons">
+                        <button type="submit" class="button">Поиск</button>
+                        {% if search_query %}
+                            <a href="{% url 'orders:client_detail' client.id %}" class="button">Сбросить</a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+            
             <div class="sort-box">
                 <form method="get" id="sortForm">
                     <select name="sort" onchange="this.form.submit()" class="sort-select">
@@ -75,9 +76,9 @@
                 </form>
             </div>
         </div>
-
+        
         <div class="total-debt">
-            <strong>Общая задолженность клиента:</strong>
+            <strong>Общая задолженность клиента:</strong> 
             {{ client.get_total_debt }} ₽
         </div>
         <table>
@@ -129,7 +130,8 @@ tr.order-row.in-progress {
 
 /* Стили для поиска */
 .search-box {
-    margin: 20px 0;
+    flex: 1;
+    margin: 0 20px;
 }
 
 .search-form {
@@ -139,11 +141,12 @@ tr.order-row.in-progress {
 }
 
 .search-input {
-    padding: 8px;
+    padding: 6px 10px;
     border: 1px solid #dee2e6;
     border-radius: 4px;
     flex-grow: 1;
-    max-width: 500px;
+    min-width: 180px;
+    font-size: 14px;
 }
 
 .search-buttons {
@@ -151,17 +154,24 @@ tr.order-row.in-progress {
     gap: 10px;
 }
 
+.search-buttons .button {
+    padding: 6px 10px;
+    font-size: 14px;
+}
+
 /* Стили для заголовка с сортировкой */
 .orders-header {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 10px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 .orders-header h2 {
     margin: 0;
-    min-width: 150px;
+    min-width: auto;
+    white-space: nowrap;
 }
 
 .sort-box {
@@ -298,8 +308,14 @@ td {
     .orders-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 15px;
     }
-
+    
+    .search-box {
+        width: 100%;
+        margin: 10px 0;
+    }
+    
     .sort-box {
         width: 100%;
         margin-left: 0;
@@ -309,22 +325,23 @@ td {
     .sort-select {
         width: 100%;
     }
-
+    
     .search-form {
         flex-direction: column;
         align-items: flex-start;
     }
-
+    
     .search-input {
         width: 100%;
         max-width: none;
     }
-
+    
     .search-buttons {
         margin-top: 10px;
         width: 100%;
+        display: flex;
     }
-
+    
     .search-buttons .button {
         flex: 1;
     }

@@ -5,6 +5,7 @@ app_name = 'orders'
 
 urlpatterns = [
     path('', views.orders, name='orders'),  # для менеджера
+    path('calculations/', views.calculations, name='calculations'),
     path('worker-orders/', views.worker_orders, name='worker_orders'),  # для работника
     path('my-orders/', views.client_orders, name='client_orders'),  # для клиента
     path('create/', views.create_order, name='create_order'),

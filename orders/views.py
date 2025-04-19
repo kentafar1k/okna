@@ -70,21 +70,13 @@ def orders(request):
     # Вычисляем общую задолженность (убираем проверку на положительное значение)
     total_debt = sum(order.get_debt() for order in orders_queryset)
     
-    # Создаем словарь с русскими названиями месяцев
-    month_names = {
-        1: "Январь",
-        2: "Февраль",
-        3: "Март",
-        4: "Апрель",
-        5: "Май",
-        6: "Июнь",
-        7: "Июль",
-        8: "Август",
-        9: "Сентябрь",
-        10: "Октябрь",
-        11: "Ноябрь",
-        12: "Декабрь"
-    }
+    # Создаем список месяцев с их русскими названиями
+    months = [(1, 'Январь'), (2, 'Февраль'), (3, 'Март'), (4, 'Апрель'),
+              (5, 'Май'), (6, 'Июнь'), (7, 'Июль'), (8, 'Август'),
+              (9, 'Сентябрь'), (10, 'Октябрь'), (11, 'Ноябрь'), (12, 'Декабрь')]
+    
+    # Словарь для удобного доступа к названиям месяцев
+    month_names = dict(months)
     
     context = {
         'orders': orders_queryset,
@@ -95,7 +87,7 @@ def orders(request):
         'selected_year': year,
         'selected_month': month,
         'years': range(timezone.now().year - 5, timezone.now().year + 1),
-        'months': range(1, 13),
+        'months': months,
         'month_names': month_names,
     }
     return render(request, 'orders/orders.html', context)
@@ -586,3 +578,40 @@ def get_order_status_history(request, order_id):
             'success': False,
             'error': str(e)
         }, status=500)
+
+@manager_required
+def calculations(request):
+    current_year = timezone.now().year
+    years = range(current_year - 5, current_year + 1)
+    
+    selected_year = int(request.GET.get('year', current_year))
+    selected_month = int(request.GET.get('month', timezone.now().month))
+    
+    # Список месяцев с их русскими названиями
+    months = [(1, 'Январь'), (2, 'Февраль'), (3, 'Март'), (4, 'Апрель'),
+              (5, 'Май'), (6, 'Июнь'), (7, 'Июль'), (8, 'Август'),
+              (9, 'Сентябрь'), (10, 'Октябрь'), (11, 'Ноябрь'), (12, 'Декабрь')]
+    
+    # Словарь для удобного доступа к названиям месяцев
+    month_names = dict(months)
+    
+    # Получаем все заказы за выбранный месяц и год
+    orders = Order.objects.filter(
+        start_date__year=selected_year,
+        start_date__month=selected_month
+    ).order_by('-start_date')
+    
+    # Считаем общую сумму заказов
+    total_amount = sum(order.total_price for order in orders if order.total_price)
+    
+    context = {
+        'selected_year': selected_year,
+        'selected_month': selected_month,
+        'years': years,
+        'months': months,
+        'month_names': month_names,
+        'total_amount': total_amount,
+        'orders': orders,
+    }
+    
+    return render(request, 'orders/calculations.html', context)

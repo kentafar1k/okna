@@ -34,6 +34,15 @@ def orders(request):
     # Базовый QuerySet
     orders_queryset = Order.objects.all()
     
+    # Получаем параметр фильтрации по статусу (completed или активные)
+    show_completed = request.GET.get('show_completed', 'false').lower() == 'true'
+    
+    # Фильтруем заказы по статусу
+    if show_completed:
+        orders_queryset = orders_queryset.filter(status='completed')
+    else:
+        orders_queryset = orders_queryset.exclude(status='completed')
+    
     # Фильтруем заказы по году и месяцу
     monthly_orders = orders_queryset.filter(
         start_date__year=year,
@@ -89,6 +98,7 @@ def orders(request):
         'years': range(timezone.now().year - 5, timezone.now().year + 1),
         'months': months,
         'month_names': month_names,
+        'show_completed': show_completed,
     }
     return render(request, 'orders/orders.html', context)
 

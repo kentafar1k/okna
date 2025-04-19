@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load orders_extras %}
 
-{% block title %}Список заказов{% endblock %}
+{% block title %}{% if show_completed %}Завершённые заказы{% else %}Активные заказы{% endif %}{% endblock %}
 
 {% block content %}
 <!-- Добавляем CSRF токен в начало контента -->
@@ -22,26 +22,43 @@
                        placeholder="Поиск по номеру заказа"
                        value="{{ search_query }}"
                        class="search-input">
+                {% if selected_year %}
+                    <input type="hidden" name="year" value="{{ selected_year }}">
+                {% endif %}
+                {% if selected_month %}
+                    <input type="hidden" name="month" value="{{ selected_month }}">
+                {% endif %}
+                {% if current_sort %}
+                    <input type="hidden" name="sort" value="{{ current_sort }}">
+                {% endif %}
+                <input type="hidden" name="show_completed" value="{{ show_completed|lower }}">
                 <div class="search-buttons">
                     <button type="submit" class="button">Поиск</button>
                     {% if search_query %}
-                        <a href="{% url 'orders:orders' %}" class="button">Сбросить</a>
+                        <a href="{% url 'orders:orders' %}?show_completed={{ show_completed|lower }}" class="button">Сбросить</a>
                     {% endif %}
                 </div>
             </form>
         </div>
 
-
         <!-- Create Order button -->
         <div class="create-order">
             <a href="{% url 'orders:create_order' %}" class="button">+ Создать заказ</a>
             <a href="{% url 'orders:calculations' %}" class="button calculation-button">Расчеты</a>
+            <a href="?show_completed={% if show_completed %}false{% else %}true{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" 
+               class="button order-filter-button {% if show_completed %}active{% endif %}">
+                {% if show_completed %}
+                    Активные заказы
+                {% else %}
+                    Завершённые заказы
+                {% endif %}
+            </a>
         </div>
     </div>
     
     <div class="container" id="orders">
         <div class="orders-header">
-            <h2>Список заказов</h2>
+            <h2>{% if show_completed %}Завершённые заказы{% else %}Активные заказы{% endif %}</h2>
             <div class="sort-box">
                 <form method="get" id="sortForm">
                     <select name="sort" onchange="this.form.submit()" class="sort-select">
@@ -51,12 +68,14 @@
                         <option value="start_date" {% if current_sort == 'start_date' %}selected{% endif %}>
                             (по дате) сначала старые
                         </option>
+                        {% if not show_completed %}
                         <option value="uncompleted_first" {% if current_sort == 'uncompleted_first' %}selected{% endif %}>
                             (по статусу) сначала новые
                         </option>
                         <option value="completed_first" {% if current_sort == 'completed_first' %}selected{% endif %}>
                             (по статусу) сначала завершённые
                         </option>
+                        {% endif %}
                     </select>
                     {% if search_query %}
                         <input type="hidden" name="search" value="{{ search_query }}">
@@ -67,6 +86,36 @@
                     {% if selected_month %}
                         <input type="hidden" name="month" value="{{ selected_month }}">
                     {% endif %}
+                    <input type="hidden" name="show_completed" value="{{ show_completed|lower }}">
+                </form>
+            </div>
+            
+            <div class="filter-controls">
+                <form method="get" class="month-year-form">
+                    <div class="select-group">
+                        <label class="select-label">Год:</label>
+                        <select name="year" class="year-select">
+                            {% for y in years %}
+                                <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="select-group">
+                        <label class="select-label">Месяц:</label>
+                        <select name="month" class="month-select">
+                            {% for m, name in months %}
+                                <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% if search_query %}
+                        <input type="hidden" name="search" value="{{ search_query }}">
+                    {% endif %}
+                    {% if current_sort %}
+                        <input type="hidden" name="sort" value="{{ current_sort }}">
+                    {% endif %}
+                    <input type="hidden" name="show_completed" value="{{ show_completed|lower }}">
+                    <button type="submit" class="button">Показать</button>
                 </form>
             </div>
         </div>
@@ -352,11 +401,13 @@
     }
 
     .sort-box {
-        margin-right: auto;
+        flex: 1;
+        margin-right: 20px;
     }
 
     .orders-header {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         gap: 20px;
         margin-bottom: 20px;
@@ -365,9 +416,11 @@
     .orders-header h2 {
         margin: 0;
         min-width: 150px;
+        flex: 1 1 100%;
     }
 
     .filter-controls {
+        flex: 2;
         margin: 0;
         display: flex;
         align-items: center;
@@ -665,6 +718,27 @@
             min-width: 100%;
             margin-bottom: 10px;
         }
+        
+        .orders-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .sort-box, .filter-controls {
+            width: 100%;
+            margin-right: 0;
+            margin-bottom: 10px;
+        }
+        
+        .create-order {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .create-order .button {
+            flex: 1 1 auto;
+        }
     }
 
     .status-controls {
@@ -734,6 +808,23 @@
         max-width: 65%;  /* Ограничиваем максимальную ширину */
         padding: 4px 8px;  /* Уменьшаем отступы */
         font-size: 13px;  /* Уменьшаем размер шрифта */
+    }
+
+    .order-filter-button {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    .order-filter-button:hover {
+        background-color: #5a6268;
+    }
+    
+    .order-filter-button.active {
+        background-color: #dc3545;
+    }
+    
+    .order-filter-button.active:hover {
+        background-color: #bd2130;
     }
 </style>
 

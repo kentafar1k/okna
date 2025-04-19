@@ -188,6 +188,26 @@
                 {% endfor %}
             </tbody>
         </table>
+        
+        {% if show_completed %}
+        <div class="pagination">
+            <span class="step-links">
+                {% if orders.has_previous %}
+                    <a href="?show_completed=true&page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">« В начало</a>
+                    <a href="?show_completed=true&page={{ orders.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">‹ Предыдущая</a>
+                {% endif %}
+
+                <span class="current">
+                    Страница {{ orders.number }} из {{ orders.paginator.num_pages }}.
+                </span>
+
+                {% if orders.has_next %}
+                    <a href="?show_completed=true&page={{ orders.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">Следующая ›</a>
+                    <a href="?show_completed=true&page={{ orders.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">В конец »</a>
+                {% endif %}
+            </span>
+        </div>
+        {% endif %}
     </div>
 </div>
 
@@ -793,6 +813,48 @@
     /* Слегка выделяем активную кнопку */
     .order-filter-button.active {
         text-decoration: underline;
+    }
+
+    /* Стили для пагинации */
+    .pagination {
+        margin: 20px 0;
+        text-align: center;
+    }
+    
+    .pagination .step-links {
+        display: inline-block;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .pagination-link {
+        display: inline-block;
+        padding: 6px 12px;
+        margin: 0 3px;
+        color: #0073e6;
+        text-decoration: none;
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    
+    .pagination-link:hover {
+        background-color: #e9ecef;
+        color: #0056b3;
+        border-color: #dee2e6;
+    }
+    
+    .pagination .current {
+        display: inline-block;
+        padding: 6px 12px;
+        margin: 0 3px;
+        color: #495057;
+        background-color: #e9ecef;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
     }
 </style>
 

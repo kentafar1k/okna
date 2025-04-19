@@ -13,6 +13,7 @@ from .utils import send_order_ready_email, send_order_ready_sms
 from .models import OrderStatusHistory
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 @manager_required
@@ -87,6 +88,21 @@ def orders(request):
     # Словарь для удобного доступа к названиям месяцев
     month_names = dict(months)
     
+    # Добавляем пагинацию только для завершённых заказов
+    if show_completed:
+        paginator = Paginator(orders_queryset, 20)  # Показываем 20 заказов на страницу
+        page = request.GET.get('page')
+        try:
+            orders_paginated = paginator.page(page)
+        except PageNotAnInteger:
+            # Если страница не является целым числом, показываем первую страницу
+            orders_paginated = paginator.page(1)
+        except EmptyPage:
+            # Если страница больше максимальной, показываем последнюю страницу
+            orders_paginated = paginator.page(paginator.num_pages)
+        
+        orders_queryset = orders_paginated
+    
     context = {
         'orders': orders_queryset,
         'search_query': search_query,
@@ -99,6 +115,7 @@ def orders(request):
         'months': months,
         'month_names': month_names,
         'show_completed': show_completed,
+        'is_paginated': show_completed and hasattr(orders_queryset, 'paginator'),
     }
     return render(request, 'orders/orders.html', context)
 

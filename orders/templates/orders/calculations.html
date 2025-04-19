@@ -8,8 +8,9 @@
 <div class="container">
     <div class="header-section">
         <a href="{% url 'orders:orders' %}" class="back-button">← Назад к заказам</a>
-        <h2 class="page-title">Расчёт суммы заказов</h2>
     </div>
+    
+    <h2 class="page-title">Расчёт суммы заказов</h2>
     
     <div class="calculations-panel">
         <div class="filter-section">
@@ -54,8 +55,7 @@
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        gap: 15px;
-        margin-bottom: 25px;
+        margin-bottom: 40px;
     }
     
     .back-button {
@@ -79,10 +79,9 @@
     
     .page-title {
         color: #333;
-        margin: 0;
+        margin: 0 0 15px 0;
         font-size: 28px;
-        border-bottom: 2px solid #0073e6;
-        padding-bottom: 10px;
+        padding-bottom: 5px;
         width: 100%;
     }
     
@@ -173,11 +172,12 @@
     
     @media (max-width: 768px) {
         .header-section {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
         
         .page-title {
             font-size: 22px;
+            margin-bottom: 10px;
         }
         
         .month-year-form {

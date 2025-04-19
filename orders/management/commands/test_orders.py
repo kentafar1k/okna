@@ -69,6 +69,30 @@ class Command(BaseCommand):
             Order.objects.filter(order_number__startswith=test_prefix).delete()
             self.stdout.write(self.style.SUCCESS(f'Удалено {count} тестовых заказов!'))
     
+    def _get_next_available_number(self, prefix, year, month):
+        """Находит следующий доступный номер для заказа с учетом существующих номеров"""
+        # Получаем существующие номера заказов с нужным префиксом, годом и месяцем
+        year_month_pattern = f"{prefix}{year}-{month:02d}-"
+        existing_orders = Order.objects.filter(order_number__startswith=year_month_pattern)
+        
+        if not existing_orders.exists():
+            return f"{prefix}{year}-{month:02d}-001"
+        
+        # Находим максимальный номер
+        max_number = 0
+        for order in existing_orders:
+            # Извлекаем числовую часть номера
+            try:
+                number_part = order.order_number.split('-')[-1]
+                number = int(number_part)
+                max_number = max(max_number, number)
+            except (ValueError, IndexError):
+                continue
+        
+        # Возвращаем следующий номер
+        next_number = max_number + 1
+        return f"{prefix}{year}-{month:02d}-{next_number:03d}"
+    
     def _add_orders(self, count, status, statuses, year, month, test_prefix):
         # Получаем всех клиентов
         clients = list(Client.objects.all())
@@ -88,38 +112,41 @@ class Command(BaseCommand):
         month_range = (end_date - start_date).days + 1
         
         # Создаем указанное количество заказов
-        created_orders = []
+        created_count = 0
         for i in range(count):
-            # Выбираем случайного клиента
-            client = random.choice(clients)
-            
-            # Генерируем случайную дату в указанном месяце
-            random_day = random.randint(1, month_range)
-            order_date = start_date + datetime.timedelta(days=random_day - 1)
-            
-            # Выбираем случайный статус, если не указан
-            current_status = status if status else random.choice(statuses)
-            
-            # Генерируем случайную стоимость заказа (от 5000 до 50000)
-            total_price = random.randint(5000, 50000)
-            
-            # Генерируем случайную предоплату (от 0 до 50% стоимости)
-            prepayment = random.randint(0, int(total_price * 0.5))
-            
-            # Генерируем уникальный номер заказа с префиксом
-            order_number = f"{test_prefix}{current_year}-{current_month:02d}-{i+1:03d}"
-            
-            # Создаем заказ
-            order = Order.objects.create(
-                client=client,
-                order_number=order_number,
-                start_date=order_date,
-                status=current_status,
-                total_price=total_price,
-                prepayment=prepayment
-            )
-            created_orders.append(order)
-            
-            self.stdout.write(f"Создан заказ: {order_number}, Клиент: {client.full_name}, Статус: {current_status}, Сумма: {total_price} руб.")
+            try:
+                # Выбираем случайного клиента
+                client = random.choice(clients)
+                
+                # Генерируем случайную дату в указанном месяце
+                random_day = random.randint(1, month_range)
+                order_date = start_date + datetime.timedelta(days=random_day - 1)
+                
+                # Выбираем случайный статус, если не указан
+                current_status = status if status else random.choice(statuses)
+                
+                # Генерируем случайную стоимость заказа (от 5000 до 50000)
+                total_price = random.randint(5000, 50000)
+                
+                # Генерируем случайную предоплату (от 0 до 50% стоимости)
+                prepayment = random.randint(0, int(total_price * 0.5))
+                
+                # Генерируем уникальный номер заказа с префиксом
+                order_number = self._get_next_available_number(test_prefix, current_year, current_month)
+                
+                # Создаем заказ
+                order = Order.objects.create(
+                    client=client,
+                    order_number=order_number,
+                    start_date=order_date,
+                    status=current_status,
+                    total_price=total_price,
+                    prepayment=prepayment
+                )
+                
+                self.stdout.write(f"Создан заказ: {order_number}, Клиент: {client.full_name}, Статус: {current_status}, Сумма: {total_price} руб.")
+                created_count += 1
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f"Ошибка при создании заказа: {str(e)}"))
         
-        self.stdout.write(self.style.SUCCESS(f'Успешно добавлено {count} заказов!')) 
+        self.stdout.write(self.style.SUCCESS(f'Успешно добавлено {created_count} заказов!')) 

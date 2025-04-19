@@ -31,49 +31,11 @@
             </form>
         </div>
 
-        <!-- Month and Year Selection -->
-        <div class="month-year-selector">
-            <form method="get" class="month-year-form">
-                <div class="select-group">
-                    <label class="select-label">Год:</label>
-                    <select name="year" class="year-select">
-                        {% for y in years %}
-                            <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="select-group">
-                    <label class="select-label">Месяц:</label>
-                    <select name="month" class="month-select">
-                        {% for m, name in months %}
-                            <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                {% if search_query %}
-                    <input type="hidden" name="search" value="{{ search_query }}">
-                {% endif %}
-                {% if current_sort %}
-                    <input type="hidden" name="sort" value="{{ current_sort }}">
-                {% endif %}
-                <button type="submit" class="button">Показать</button>
-            </form>
-            <div class="monthly-total-info">
-                {% for m, name in months %}
-                    {% if m == selected_month %}
-                        <span>Сумма заказов за {{ name }}/{{ selected_year }}:</span>
-                    {% endif %}
-                {% endfor %}
-                <span class="total-amount">
-                    {{ monthly_total }} ₽
-                </span>
-            </div>
-        </div>
 
         <!-- Create Order button -->
         <div class="create-order">
             <a href="{% url 'orders:create_order' %}" class="button">+ Создать заказ</a>
-            <a href="{% url 'orders:calculations' %}" class="button">Дополнительно</a>
+            <a href="{% url 'orders:calculations' %}" class="button calculation-button">Расчеты</a>
         </div>
     </div>
     
@@ -106,12 +68,6 @@
                         <input type="hidden" name="month" value="{{ selected_month }}">
                     {% endif %}
                 </form>
-            </div>
-            <div class="total-debt-info">
-                <span>Общая задолженность:</span>
-                <span class="total-amount">
-                    {{ total_debt }} ₽
-                </span>
             </div>
         </div>
 
@@ -411,31 +367,10 @@
         min-width: 150px;
     }
 
-    .total-debt-info {
-        margin-left: auto;
-        font-size: 14px;
-        color: #666;
-        white-space: nowrap;
-    }
-
-    .total-debt-info .total-amount {
-        font-weight: bold;
-        color: #0073e6;
-        margin-left: 5px;
-    }
-
-    .monthly-info-container {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        margin-left: auto;
-    }
-
-    .month-year-selector {
+    .filter-controls {
         margin: 0;
         display: flex;
         align-items: center;
-        gap: 15px;
     }
 
     .month-year-form {
@@ -479,17 +414,12 @@
         border: none;
     }
 
-    .monthly-total-info {
-        font-size: 13px;
-        color: #666;
-        white-space: nowrap;
-        margin-left: 10px;
+    .calculation-button {
+        background-color: #0073e6;
     }
-
-    .monthly-total-info .total-amount {
-        font-weight: bold;
-        color: #0073e6;
-        margin-left: 5px;
+    
+    .calculation-button:hover {
+        background-color: #005bb5;
     }
 
     .modal {

@@ -10,7 +10,7 @@
         <a href="{% url 'orders:orders' %}" class="back-button">← Назад к заказам</a>
     </div>
     
-    <h2 class="page-title">Расчёт суммы заказов</h2>
+    <h2 class="page-title">Сумма заказов за месяц</h2>
     
     <div class="calculations-panel">
         <div class="filter-section">
@@ -48,6 +48,19 @@
             </div>
         </div>
     </div>
+
+    <h2 class="page-title">Общая задолженность</h2>
+
+    <div class="calculations-panel">
+        <div class="results-section">
+            <div class="debt-info-enhanced">
+                <span class="period-label">Общая задолженность:</span>
+                <span class="total-amount-enhanced">
+                    {{ total_debt|floatformat:2 }} ₽
+                </span>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -55,6 +68,7 @@
         display: flex;
         flex-direction: column;
         align-items: flex-start;
+        gap: 15px;
         margin-bottom: 40px;
     }
     
@@ -147,7 +161,7 @@
         background-color: #005bb5;
     }
     
-    .monthly-total-info-enhanced {
+    .monthly-total-info-enhanced, .debt-info-enhanced {
         font-size: 22px;
         color: #333;
         font-weight: 500;
@@ -158,6 +172,15 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+    }
+    
+    .debt-info-enhanced {
+        border-left: 4px solid #0073e6;
+        background-color: rgba(0, 115, 230, 0.1);
+    }
+    
+    .debt-info-enhanced .total-amount-enhanced {
+        color: #0073e6;
     }
     
     .period-label {
@@ -201,7 +224,7 @@
             margin-top: 10px;
         }
         
-        .monthly-total-info-enhanced {
+        .monthly-total-info-enhanced, .debt-info-enhanced {
             flex-direction: column;
             gap: 10px;
             text-align: center;

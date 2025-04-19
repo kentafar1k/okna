@@ -604,6 +604,10 @@ def calculations(request):
     # Считаем общую сумму заказов
     total_amount = sum(order.total_price for order in orders if order.total_price)
     
+    # Вычисляем общую задолженность по всем заказам
+    all_orders = Order.objects.all()
+    total_debt = sum(order.get_debt() for order in all_orders)
+    
     context = {
         'selected_year': selected_year,
         'selected_month': selected_month,
@@ -612,6 +616,7 @@ def calculations(request):
         'month_names': month_names,
         'total_amount': total_amount,
         'orders': orders,
+        'total_debt': total_debt,
     }
     
     return render(request, 'orders/calculations.html', context)

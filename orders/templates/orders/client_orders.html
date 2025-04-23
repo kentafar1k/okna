@@ -4,30 +4,10 @@
 
 {% block content %}
 <div class="container">
+    <h2 class="page-title">Мои заказы</h2>
+    
     <div class="toolbar">
-        <!-- Search box -->
-        <div class="search-box">
-            <form method="get" class="search-form">
-                <input type="text" 
-                       name="search" 
-                       placeholder="Поиск по номеру заказа"
-                       value="{{ search_query }}"
-                       class="search-input">
-                {% if current_sort %}
-                    <input type="hidden" name="sort" value="{{ current_sort }}">
-                {% endif %}
-                <div class="search-buttons">
-                    <button type="submit" class="button">Поиск</button>
-                    {% if search_query %}
-                        <a href="{% url 'orders:client_orders' %}" class="button">Сбросить</a>
-                    {% endif %}
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="orders-header">
-        <h2>Мои заказы</h2>
+        <!-- Sortbox moved to left -->
         <div class="sort-box">
             <form method="get" id="sortForm">
                 <select name="sort" onchange="this.form.submit()" class="sort-select">
@@ -49,11 +29,32 @@
                 {% endif %}
             </form>
         </div>
-    </div>
-
-    <div class="total-debt-info">
-        <span>Общая задолженность:</span>
-        <span class="total-debt {% if total_debt < 0 %}negative-debt{% endif %}">{{ total_debt }} ₽</span>
+        
+        <!-- Search box in middle -->
+        <div class="search-box">
+            <form method="get" class="search-form">
+                <input type="text" 
+                       name="search" 
+                       placeholder="Поиск по номеру заказа"
+                       value="{{ search_query }}"
+                       class="search-input">
+                {% if current_sort %}
+                    <input type="hidden" name="sort" value="{{ current_sort }}">
+                {% endif %}
+                <div class="search-buttons">
+                    <button type="submit" class="button">Поиск</button>
+                    {% if search_query %}
+                        <a href="{% url 'orders:client_orders' %}" class="button">Сбросить</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+        
+        <!-- Total debt moved to right and made smaller -->
+        <div class="total-debt-info">
+            <span>Задолженность:</span>
+            <span class="total-debt {% if total_debt < 0 %}negative-debt{% endif %}">{{ total_debt }} ₽</span>
+        </div>
     </div>
 
     <table>
@@ -93,14 +94,24 @@
     padding: 20px;
 }
 
+.page-title {
+    color: #333;
+    margin: 0 0 15px 0;
+    font-size: 28px;
+    padding-bottom: 5px;
+    width: 100%;
+}
+
 .toolbar {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
+    gap: 15px;
 }
 
 .search-box {
-    flex: 1;
+    flex: 2;
     max-width: 600px;
 }
 
@@ -123,24 +134,24 @@
     gap: 10px;
 }
 
-.orders-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+.sort-box {
+    flex: 1;
 }
 
 .total-debt-info {
+    flex: 1;
     background-color: #f8f9fa;
-    padding: 10px 20px;
+    padding: 8px 12px;
     border-radius: 4px;
-    margin-bottom: 20px;
     border-left: 4px solid #0073e6;
+    white-space: nowrap;
+    font-size: 0.9em;
+    text-align: right;
 }
 
 .total-debt {
     font-weight: bold;
-    margin-left: 10px;
+    margin-left: 5px;
     color: #6c757d;
 }
 
@@ -194,6 +205,7 @@ tr.order-row.in-progress {
     cursor: pointer;
     font-size: 14px;
     min-width: 200px;
+    width: 100%;
 }
 
 .sort-select:hover {
@@ -220,11 +232,24 @@ tr.order-row.in-progress {
 @media (max-width: 768px) {
     .toolbar {
         flex-direction: column;
+        align-items: stretch;
     }
     
     .search-box {
         max-width: 100%;
-        margin-bottom: 15px;
+        order: 2;
+    }
+    
+    .sort-box {
+        width: 100%;
+        order: 1;
+    }
+    
+    .total-debt-info {
+        width: 100%;
+        text-align: left;
+        order: 3;
+        margin-top: 10px;
     }
     
     .search-form {
@@ -249,20 +274,6 @@ tr.order-row.in-progress {
     
     .sort-select {
         min-width: 100%;
-    }
-    
-    .orders-header {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .sort-box {
-        width: 100%;
-        margin-top: 10px;
-    }
-    
-    .total-debt-info {
-        margin: 10px 0;
     }
     
     table {

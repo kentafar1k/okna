@@ -4,62 +4,82 @@
 
 {% block content %}
 <div class="container">
+    <div class="toolbar">
+        <!-- Search box -->
+        <div class="search-box">
+            <form method="get" class="search-form">
+                <input type="text" 
+                       name="search" 
+                       placeholder="Поиск по номеру заказа"
+                       value="{{ search_query }}"
+                       class="search-input">
+                {% if current_sort %}
+                    <input type="hidden" name="sort" value="{{ current_sort }}">
+                {% endif %}
+                <div class="search-buttons">
+                    <button type="submit" class="button">Поиск</button>
+                    {% if search_query %}
+                        <a href="{% url 'orders:client_orders' %}" class="button">Сбросить</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="orders-header">
-        <h2>Заказы</h2>
-        <div class="sort-box" style="margin-bottom: 20px;">
+        <h2>Мои заказы</h2>
+        <div class="sort-box">
             <form method="get" id="sortForm">
                 <select name="sort" onchange="this.form.submit()" class="sort-select">
                     <option value="-start_date" {% if current_sort == '-start_date' %}selected{% endif %}>
-                        Сначала новые
+                        (по дате) сначала новые
                     </option>
                     <option value="start_date" {% if current_sort == 'start_date' %}selected{% endif %}>
-                        Сначала старые
+                        (по дате) сначала старые
                     </option>
-                    <option value="uncompleted_first" {% if current_sort == 'uncompleted_first' %}selected{% endif %}>
-                        Сначала не завершённые
+                    <option value="uncompleted_first" {% if current_sort == 'uncompleted_first' or not current_sort %}selected{% endif %}>
+                        (по статусу) сначала новые
                     </option>
                     <option value="completed_first" {% if current_sort == 'completed_first' %}selected{% endif %}>
-                        Сначала завершённые
+                        (по статусу) сначала завершённые
                     </option>
                 </select>
+                {% if search_query %}
+                    <input type="hidden" name="search" value="{{ search_query }}">
+                {% endif %}
             </form>
         </div>
-        <div class="total-debt-info">
-            <span>Общая задолженность:</span>
-            <span class="total-debt {% if total_debt < 0 %}negative-debt{% endif %}">{{ total_debt }} ₽</span>
-        </div>
+    </div>
+
+    <div class="total-debt-info">
+        <span>Общая задолженность:</span>
+        <span class="total-debt {% if total_debt < 0 %}negative-debt{% endif %}">{{ total_debt }} ₽</span>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th style="width: 120px;">Номер заказа</th>
-                <th style="width: 100px;">Статус</th>
-                <th style="width: 100px;">Дата</th>
-                <th style="width: 120px;">Стоимость</th>
-                <th style="width: 120px;">Предоплата</th>
-                <th style="width: 120px;">Задолженность</th>
+                <th>Номер заказа</th>
+                <th>Статус</th>
+                <th>Дата</th>
+                <th>Стоимость</th>
+                <th>Предоплата</th>
+                <th>Задолженность</th>
             </tr>
         </thead>
         <tbody>
             {% for order in orders %}
-            <tr class="{% if order.status == 'completed' %}completed-order{% endif %}">
+            <tr class="order-row {% if order.status == 'completed' %}completed{% elif order.status == 'ready' %}ready{% elif order.status == 'in_progress' %}in-progress{% endif %}">
                 <td>{{ order.order_number }}</td>
-                <td>
-                    {% for value, label in order.STATUS_CHOICES %}
-                        {% if order.status == value %}{{ label }}{% endif %}
-                    {% endfor %}
-                </td>
+                <td>{{ order.get_status_display }}</td>
                 <td>{{ order.start_date|date:"Y-m-d" }}</td>
                 <td>{{ order.total_price }} ₽</td>
                 <td>{{ order.prepayment|default:0 }} ₽</td>
-                <td class="neutral-debt">
-                    {{ order.get_debt }} ₽
-                </td>
+                <td>{{ order.get_debt }} ₽</td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="8">У вас пока нет заказов</td>
+                <td colspan="6">У вас пока нет заказов</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -73,6 +93,36 @@
     padding: 20px;
 }
 
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.search-box {
+    flex: 1;
+    max-width: 600px;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-input {
+    padding: 8px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    flex-grow: 1;
+    max-width: 500px;
+}
+
+.search-buttons {
+    display: flex;
+    gap: 10px;
+}
+
 .orders-header {
     display: flex;
     justify-content: space-between;
@@ -84,7 +134,8 @@
     background-color: #f8f9fa;
     padding: 10px 20px;
     border-radius: 4px;
-    margin-left: 20px;
+    margin-bottom: 20px;
+    border-left: 4px solid #0073e6;
 }
 
 .total-debt {
@@ -119,12 +170,20 @@ th {
     white-space: nowrap;
 }
 
-.completed-order {
-    background-color: #f8f9fa;
+tr.order-row:hover {
+    background-color: rgba(0, 0, 0, 0.03);
 }
 
-.completed-order:hover {
-    background-color: #e9ecef;
+tr.order-row.completed {
+    background-color: rgba(211, 211, 211, 0.6);
+}
+
+tr.order-row.ready {
+    background-color: rgba(144, 238, 144, 0.5);
+}
+
+tr.order-row.in-progress {
+    background-color: rgba(135, 206, 250, 0.4);
 }
 
 .sort-select {
@@ -141,15 +200,6 @@ th {
     border-color: #0073e6;
 }
 
-.pdf-link {
-    color: #0073e6;
-    text-decoration: none;
-}
-
-.pdf-link:hover {
-    text-decoration: underline;
-}
-
 .button {
     padding: 6px 12px;
     background-color: #0073e6;
@@ -159,16 +209,46 @@ th {
     cursor: pointer;
     text-decoration: none;
     font-size: 14px;
+    display: inline-block;
 }
 
 .button:hover {
     background-color: #005bb5;
+    color: white;
 }
 
 @media (max-width: 768px) {
+    .toolbar {
+        flex-direction: column;
+    }
+    
+    .search-box {
+        max-width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    .search-form {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .search-input {
+        width: 100%;
+        max-width: none;
+    }
+    
+    .search-buttons {
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .search-buttons .button {
+        flex: 1;
+        text-align: center;
+    }
+    
     .sort-select {
         min-width: 100%;
-        margin-bottom: 10px;
     }
     
     .orders-header {
@@ -176,8 +256,19 @@ th {
         align-items: stretch;
     }
     
+    .sort-box {
+        width: 100%;
+        margin-top: 10px;
+    }
+    
     .total-debt-info {
         margin: 10px 0;
+    }
+    
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
     }
 }
 </style>

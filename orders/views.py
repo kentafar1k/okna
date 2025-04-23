@@ -197,36 +197,63 @@ def client_orders(request):
         sort_param = request.GET.get('sort', 'uncompleted_first')
         
         # Базовый QuerySet
-        orders = Order.objects.filter(client=client)
+        orders_queryset = Order.objects.filter(client=client)
         
         # Получаем параметр поиска
         search_query = request.GET.get('search', '').strip()
         
         # Применяем фильтры поиска до сортировки
         if search_query:
-            orders = orders.filter(
+            orders_queryset = orders_queryset.filter(
                 order_number__icontains=search_query
             )
         
-        # Применяем сортировку
-        if sort_param == 'completed_first':
-            # Кастомная сортировка: завершён -> готов -> в работе -> новый (и по дате)
-            status_order = {'completed': 1, 'ready': 2, 'in_progress': 3, 'new': 4}
-            orders = sorted(orders, key=lambda x: (status_order.get(x.status, 0), -x.start_date.timestamp()))
-        elif sort_param == 'uncompleted_first':
-            # Кастомная сортировка: новый -> в работе -> готов -> завершён (и по дате)
-            status_order = {'new': 1, 'in_progress': 2, 'ready': 3, 'completed': 4}
-            orders = sorted(orders, key=lambda x: (status_order.get(x.status, 0), -x.start_date.timestamp()))
-        elif sort_param == 'start_date':
-            orders = orders.order_by('start_date')
-        else:  # '-start_date' по умолчанию
-            orders = orders.order_by('-start_date')
+        # Применяем сортировку (для QuerySet объектов)
+        if sort_param == 'start_date':
+            orders_queryset = orders_queryset.order_by('start_date')
+        elif sort_param == '-start_date':
+            orders_queryset = orders_queryset.order_by('-start_date')
         
-        # Вычисляем общую задолженность
-        total_debt = sum(order.get_debt() for order in orders)
+        # Для кастомной сортировки сначала получаем список
+        if sort_param in ['completed_first', 'uncompleted_first']:
+            # Получаем список объектов
+            orders_list = list(orders_queryset)
+            
+            # Применяем кастомную сортировку
+            if sort_param == 'completed_first':
+                # Кастомная сортировка: завершён -> готов -> в работе -> новый (и по дате)
+                status_order = {'completed': 1, 'ready': 2, 'in_progress': 3, 'new': 4}
+                orders_list = sorted(orders_list, key=lambda x: (status_order.get(x.status, 0), -x.start_date.timestamp()))
+            else:  # 'uncompleted_first'
+                # Кастомная сортировка: новый -> в работе -> готов -> завершён (и по дате)
+                status_order = {'new': 1, 'in_progress': 2, 'ready': 3, 'completed': 4}
+                orders_list = sorted(orders_list, key=lambda x: (status_order.get(x.status, 0), -x.start_date.timestamp()))
+            
+            # Вычисляем общую задолженность до пагинации
+            total_debt = sum(order.get_debt() for order in orders_list)
+            
+            # Создаем пагинатор из отсортированного списка
+            paginator = Paginator(orders_list, 20)  # Показываем 20 заказов на страницу
+        else:
+            # Вычисляем общую задолженность до пагинации
+            total_debt = sum(order.get_debt() for order in orders_queryset)
+            
+            # Создаем пагинатор из QuerySet
+            paginator = Paginator(orders_queryset, 20)  # Показываем 20 заказов на страницу
+        
+        # Получаем запрошенную страницу
+        page = request.GET.get('page')
+        try:
+            orders = paginator.page(page)
+        except PageNotAnInteger:
+            # Если страница не является целым числом, показываем первую страницу
+            orders = paginator.page(1)
+        except EmptyPage:
+            # Если страница больше максимальной, показываем последнюю страницу
+            orders = paginator.page(paginator.num_pages)
         
     except Client.DoesNotExist:
-        orders = Order.objects.none()
+        orders = []
         total_debt = 0
         messages.warning(request, 'Профиль клиента не найден')
     
@@ -235,7 +262,8 @@ def client_orders(request):
         'is_client': True,
         'current_sort': sort_param,
         'total_debt': total_debt,
-        'search_query': search_query
+        'search_query': search_query,
+        'is_paginated': hasattr(orders, 'paginator')
     }
     return render(request, 'orders/client_orders.html', context)
 

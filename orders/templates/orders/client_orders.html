@@ -27,6 +27,9 @@
                 {% if search_query %}
                     <input type="hidden" name="search" value="{{ search_query }}">
                 {% endif %}
+                {% if page_obj.number > 1 %}
+                    <input type="hidden" name="page" value="{{ page_obj.number }}">
+                {% endif %}
             </form>
         </div>
         
@@ -57,6 +60,26 @@
         </div>
     </div>
 
+    {% if is_paginated %}
+    <div class="pagination">
+        <span class="step-links">
+            {% if orders.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">« В начало</a>
+                <a href="?page={{ orders.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">‹ Предыдущая</a>
+            {% endif %}
+
+            <span class="current">
+                Страница {{ orders.number }} из {{ orders.paginator.num_pages }}.
+            </span>
+
+            {% if orders.has_next %}
+                <a href="?page={{ orders.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">Следующая ›</a>
+                <a href="?page={{ orders.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">В конец »</a>
+            {% endif %}
+        </span>
+    </div>
+    {% endif %}
+
     <table>
         <thead>
             <tr>
@@ -85,6 +108,26 @@
             {% endfor %}
         </tbody>
     </table>
+
+    {% if is_paginated %}
+    <div class="pagination">
+        <span class="step-links">
+            {% if orders.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">« В начало</a>
+                <a href="?page={{ orders.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">‹ Предыдущая</a>
+            {% endif %}
+
+            <span class="current">
+                Страница {{ orders.number }} из {{ orders.paginator.num_pages }}.
+            </span>
+
+            {% if orders.has_next %}
+                <a href="?page={{ orders.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">Следующая ›</a>
+                <a href="?page={{ orders.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">В конец »</a>
+            {% endif %}
+        </span>
+    </div>
+    {% endif %}
 </div>
 
 <style>
@@ -143,7 +186,6 @@
     background-color: #f8f9fa;
     padding: 8px 12px;
     border-radius: 4px;
-    border-left: 4px solid #0073e6;
     white-space: nowrap;
     font-size: 0.9em;
     text-align: right;
@@ -229,6 +271,38 @@ tr.order-row.in-progress {
     color: white;
 }
 
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.step-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination-link {
+    padding: 6px 12px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    color: #0073e6;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.pagination-link:hover {
+    background-color: #e9ecef;
+    color: #005bb5;
+}
+
+.current {
+    padding: 6px 12px;
+    color: #495057;
+}
+
 @media (max-width: 768px) {
     .toolbar {
         flex-direction: column;
@@ -280,6 +354,11 @@ tr.order-row.in-progress {
         display: block;
         overflow-x: auto;
         white-space: nowrap;
+    }
+    
+    .step-links {
+        flex-wrap: wrap;
+        justify-content: center;
     }
 }
 </style>

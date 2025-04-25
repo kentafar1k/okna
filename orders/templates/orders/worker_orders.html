@@ -4,30 +4,32 @@
 
 {% block content %}
 <div class="container">
-    <div class="toolbar" style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0 30px 0;">
+    <div class="toolbar">
         <!-- Search box. -->
-        <div class="search-box" style="flex: 1;">
-            <form method="get" class="search-form" style="display: flex; gap: 10px;">
+        <div class="search-box">
+            <form method="get" class="search-form">
                 <input type="text" 
                        name="search" 
                        placeholder="Поиск по номеру заказа"
                        value="{{ search_query }}"
-                       style="width: 100%; max-width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                       class="search-input">
                 {% if current_sort %}
                     <input type="hidden" name="sort" value="{{ current_sort }}">
                 {% endif %}
                 <input type="hidden" name="show_completed" value="{{ show_completed|lower }}">
-                <button type="submit" class="button">Поиск</button>
-                {% if search_query %}
-                    <a href="{% url 'orders:worker_orders' %}?show_completed={{ show_completed|lower }}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="button">Сбросить</a>
-                {% endif %}
+                <div class="search-buttons">
+                    <button type="submit" class="button">Поиск</button>
+                    {% if search_query %}
+                        <a href="{% url 'orders:worker_orders' %}?show_completed={{ show_completed|lower }}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="button">Сбросить</a>
+                    {% endif %}
+                </div>
             </form>
         </div>
         
         <!-- Toggle button for completed/active orders -->
-        <div class="order-filter" style="margin-left: 15px;">
+        <div class="order-filter">
             <a href="?show_completed={% if show_completed %}false{% else %}true{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" 
-               class="button order-filter-button">
+               class="button filter-button">
                 {% if show_completed %}
                     Активные заказы
                 {% else %}
@@ -37,7 +39,7 @@
         </div>
     </div>
     
-    <div class="sort-box" style="margin-bottom: 20px;">
+    <div class="sort-box">
         <form method="get" id="sortForm">
             <select name="sort" onchange="this.form.submit()" class="sort-select">
                 <option value="-start_date" {% if current_sort == '-start_date' %}selected{% endif %}>
@@ -317,6 +319,62 @@
         .sort-select {
             min-width: 100%;
             margin-bottom: 10px;
+        }
+    }
+
+    /* Обновленные стили для панели инструментов */
+    .toolbar {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+
+    .search-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .search-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .order-filter {
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .filter-button {
+        padding: 6px 12px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .sort-box {
+        margin-bottom: 20px;
+    }
+
+    @media (min-width: 768px) {
+        .search-form {
+            flex-direction: row;
+            align-items: center;
+        }
+        
+        .search-input {
+            max-width: 300px;
         }
     }
 </style>

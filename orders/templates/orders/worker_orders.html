@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Список заказов{% endblock %}
+{% block title %}{% if show_completed %}Завершённые заказы{% else %}Активные заказы{% endif %}{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -13,11 +13,27 @@
                        placeholder="Поиск по номеру заказа"
                        value="{{ search_query }}"
                        style="width: 100%; max-width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                {% if current_sort %}
+                    <input type="hidden" name="sort" value="{{ current_sort }}">
+                {% endif %}
+                <input type="hidden" name="show_completed" value="{{ show_completed|lower }}">
                 <button type="submit" class="button">Поиск</button>
                 {% if search_query %}
-                    <a href="{% url 'orders:worker_orders' %}" class="button">Сбросить</a>
+                    <a href="{% url 'orders:worker_orders' %}?show_completed={{ show_completed|lower }}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="button">Сбросить</a>
                 {% endif %}
             </form>
+        </div>
+        
+        <!-- Toggle button for completed/active orders -->
+        <div class="order-filter" style="margin-left: 15px;">
+            <a href="?show_completed={% if show_completed %}false{% else %}true{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" 
+               class="button order-filter-button">
+                {% if show_completed %}
+                    Активные заказы
+                {% else %}
+                    Завершённые заказы
+                {% endif %}
+            </a>
         </div>
     </div>
     
@@ -40,11 +56,33 @@
             {% if search_query %}
                 <input type="hidden" name="search" value="{{ search_query }}">
             {% endif %}
+            <input type="hidden" name="show_completed" value="{{ show_completed|lower }}">
         </form>
     </div>
     
     <div class="container" id="orders">
-        <h2>Список заказов</h2>
+        <h2>{% if show_completed %}Завершённые заказы{% else %}Активные заказы{% endif %}</h2>
+        
+        {% if show_completed and is_paginated %}
+        <div class="pagination">
+            <span class="step-links">
+                {% if orders.has_previous %}
+                    <a href="?show_completed=true&page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">« В начало</a>
+                    <a href="?show_completed=true&page={{ orders.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">‹ Предыдущая</a>
+                {% endif %}
+
+                <span class="current">
+                    Страница {{ orders.number }} из {{ orders.paginator.num_pages }}.
+                </span>
+
+                {% if orders.has_next %}
+                    <a href="?show_completed=true&page={{ orders.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">Следующая ›</a>
+                    <a href="?show_completed=true&page={{ orders.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">В конец »</a>
+                {% endif %}
+            </span>
+        </div>
+        {% endif %}
+        
         <table>
             <thead>
                 <tr>
@@ -75,11 +113,31 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="2">Нет активных заказов</td>
+                    <td colspan="2">Нет {% if show_completed %}завершённых{% else %}активных{% endif %} заказов</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        
+        {% if show_completed and is_paginated %}
+        <div class="pagination">
+            <span class="step-links">
+                {% if orders.has_previous %}
+                    <a href="?show_completed=true&page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">« В начало</a>
+                    <a href="?show_completed=true&page={{ orders.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">‹ Предыдущая</a>
+                {% endif %}
+
+                <span class="current">
+                    Страница {{ orders.number }} из {{ orders.paginator.num_pages }}.
+                </span>
+
+                {% if orders.has_next %}
+                    <a href="?show_completed=true&page={{ orders.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">Следующая ›</a>
+                    <a href="?show_completed=true&page={{ orders.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">В конец »</a>
+                {% endif %}
+            </span>
+        </div>
+        {% endif %}
     </div>
 </div>
 
@@ -179,6 +237,27 @@
 
     .sort-select:hover {
         border-color: #0073e6;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .pagination-link {
+        color: #0073e6;
+        margin: 0 5px;
+        text-decoration: none;
+    }
+
+    .pagination-link:hover {
+        text-decoration: underline;
+    }
+
+    .current {
+        font-weight: bold;
+        margin: 0 10px;
     }
 
     .modal {

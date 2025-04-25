@@ -275,6 +275,15 @@ def worker_orders(request):
     # Базовый QuerySet
     orders_queryset = Order.objects.all()
     
+    # Получаем параметр фильтрации по статусу (completed или активные)
+    show_completed = request.GET.get('show_completed', 'false').lower() == 'true'
+    
+    # Фильтруем заказы по статусу
+    if show_completed:
+        orders_queryset = orders_queryset.filter(status='completed')
+    else:
+        orders_queryset = orders_queryset.exclude(status='completed')
+    
     # Получаем параметр поиска
     search_query = request.GET.get('search', '').strip()
     
@@ -298,11 +307,28 @@ def worker_orders(request):
     else:  # '-start_date' по умолчанию
         orders_queryset = orders_queryset.order_by('-start_date')
 
+    # Добавляем пагинацию только для завершённых заказов
+    if show_completed:
+        paginator = Paginator(orders_queryset, 20)  # Показываем 20 заказов на страницу
+        page = request.GET.get('page')
+        try:
+            orders_paginated = paginator.page(page)
+        except PageNotAnInteger:
+            # Если страница не является целым числом, показываем первую страницу
+            orders_paginated = paginator.page(1)
+        except EmptyPage:
+            # Если страница больше максимальной, показываем последнюю страницу
+            orders_paginated = paginator.page(paginator.num_pages)
+        
+        orders_queryset = orders_paginated
+
     context = {
         'orders': orders_queryset,
         'search_query': search_query,
         'current_sort': sort_param,
-        'is_worker': True
+        'is_worker': True,
+        'show_completed': show_completed,
+        'is_paginated': show_completed and hasattr(orders_queryset, 'paginator'),
     }
     return render(request, 'orders/worker_orders.html', context)
 

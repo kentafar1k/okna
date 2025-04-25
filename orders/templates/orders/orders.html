@@ -95,17 +95,21 @@
         <div class="pagination">
             <span class="step-links">
                 {% if orders.has_previous %}
-                    <a href="?show_completed=true&page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">« В начало</a>
-                    <a href="?show_completed=true&page={{ orders.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">‹ Предыдущая</a>
+                    <a href="?show_completed=true&page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">&laquo;</a>
+                    <a href="?show_completed=true&page={{ orders.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">&lsaquo;</a>
                 {% endif %}
 
-                <span class="current">
-                    Страница {{ orders.number }} из {{ orders.paginator.num_pages }}.
-                </span>
+                {% for num in orders.paginator.page_range %}
+                    {% if num == orders.number %}
+                        <span class="current-page">{{ num }}</span>
+                    {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                        <a href="?show_completed=true&page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
 
                 {% if orders.has_next %}
-                    <a href="?show_completed=true&page={{ orders.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">Следующая ›</a>
-                    <a href="?show_completed=true&page={{ orders.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">В конец »</a>
+                    <a href="?show_completed=true&page={{ orders.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">&rsaquo;</a>
+                    <a href="?show_completed=true&page={{ orders.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">&raquo;</a>
                 {% endif %}
             </span>
         </div>
@@ -213,17 +217,21 @@
         <div class="pagination">
             <span class="step-links">
                 {% if orders.has_previous %}
-                    <a href="?show_completed=true&page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">« В начало</a>
-                    <a href="?show_completed=true&page={{ orders.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">‹ Предыдущая</a>
+                    <a href="?show_completed=true&page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">&laquo;</a>
+                    <a href="?show_completed=true&page={{ orders.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">&lsaquo;</a>
                 {% endif %}
 
-                <span class="current">
-                    Страница {{ orders.number }} из {{ orders.paginator.num_pages }}.
-                </span>
+                {% for num in orders.paginator.page_range %}
+                    {% if num == orders.number %}
+                        <span class="current-page">{{ num }}</span>
+                    {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                        <a href="?show_completed=true&page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
 
                 {% if orders.has_next %}
-                    <a href="?show_completed=true&page={{ orders.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">Следующая ›</a>
-                    <a href="?show_completed=true&page={{ orders.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">В конец »</a>
+                    <a href="?show_completed=true&page={{ orders.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">&rsaquo;</a>
+                    <a href="?show_completed=true&page={{ orders.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" class="pagination-link">&raquo;</a>
                 {% endif %}
             </span>
         </div>
@@ -837,44 +845,43 @@
 
     /* Стили для пагинации */
     .pagination {
+        display: flex;
+        justify-content: center;
         margin: 20px 0;
-        text-align: center;
     }
-    
-    .pagination .step-links {
-        display: inline-block;
-        padding: 10px;
-        background-color: #f8f9fa;
-        border-radius: 4px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-    
+
     .pagination-link {
-        display: inline-block;
-        padding: 6px 12px;
-        margin: 0 3px;
         color: #0073e6;
+        margin: 0 5px;
         text-decoration: none;
-        background-color: white;
+        padding: 3px 8px;
         border: 1px solid #dee2e6;
         border-radius: 4px;
-        transition: all 0.3s ease;
     }
-    
+
     .pagination-link:hover {
         background-color: #e9ecef;
-        color: #0056b3;
-        border-color: #dee2e6;
+        border-color: #0073e6;
+    }
+
+    .current-page {
+        background-color: #0073e6;
+        color: white;
+        font-weight: bold;
+        margin: 0 5px;
+        padding: 3px 8px;
+        border: 1px solid #0073e6;
+        border-radius: 4px;
+    }
+    
+    /* Убираем старые стили для пагинации, чтобы не конфликтовали */
+    .pagination .step-links {
+        display: flex;
+        align-items: center;
     }
     
     .pagination .current {
-        display: inline-block;
-        padding: 6px 12px;
-        margin: 0 3px;
-        color: #495057;
-        background-color: #e9ecef;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
+        display: none; /* Скрываем старый current */
     }
 </style>
 

@@ -43,10 +43,10 @@
 
         <!-- Create Order button -->
         <div class="create-order">
-            <a href="{% url 'orders:create_order' %}" class="button">+ Создать заказ</a>
-            <a href="{% url 'orders:calculations' %}" class="button calculation-button">Расчеты</a>
+            <a href="{% url 'orders:create_order' %}" class="button action-button">+ Создать заказ</a>
+            <a href="{% url 'orders:calculations' %}" class="button action-button calculation-button">Расчеты</a>
             <a href="?show_completed={% if show_completed %}false{% else %}true{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" 
-               class="button order-filter-button">
+               class="button action-button order-filter-button">
                 {% if show_completed %}
                     Активные заказы
                 {% else %}
@@ -755,11 +755,22 @@
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
+            justify-content: center;
         }
         
-        .create-order .button {
-            flex: 1 1 auto;
+        .create-order .action-button {
+            flex: 0 1 auto;
+            min-width: fit-content;
+            white-space: nowrap;
+            text-align: center;
         }
+    }
+
+    /* Добавляем класс для кнопок действий в toolbar */
+    .action-button {
+        white-space: nowrap;
+        text-align: center;
+        display: inline-block;
     }
 
     .status-controls {

@@ -67,17 +67,21 @@
         <div class="pagination">
             <span class="step-links">
                 {% if orders.has_previous %}
-                    <a href="?show_completed=true&page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">« В начало</a>
-                    <a href="?show_completed=true&page={{ orders.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">‹ Предыдущая</a>
+                    <a href="?show_completed=true&page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">&laquo;</a>
+                    <a href="?show_completed=true&page={{ orders.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">&lsaquo;</a>
                 {% endif %}
 
-                <span class="current">
-                    Страница {{ orders.number }} из {{ orders.paginator.num_pages }}.
-                </span>
+                {% for num in orders.paginator.page_range %}
+                    {% if num == orders.number %}
+                        <span class="current-page">{{ num }}</span>
+                    {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                        <a href="?show_completed=true&page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
 
                 {% if orders.has_next %}
-                    <a href="?show_completed=true&page={{ orders.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">Следующая ›</a>
-                    <a href="?show_completed=true&page={{ orders.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">В конец »</a>
+                    <a href="?show_completed=true&page={{ orders.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">&rsaquo;</a>
+                    <a href="?show_completed=true&page={{ orders.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">&raquo;</a>
                 {% endif %}
             </span>
         </div>
@@ -123,17 +127,21 @@
         <div class="pagination">
             <span class="step-links">
                 {% if orders.has_previous %}
-                    <a href="?show_completed=true&page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">« В начало</a>
-                    <a href="?show_completed=true&page={{ orders.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">‹ Предыдущая</a>
+                    <a href="?show_completed=true&page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">&laquo;</a>
+                    <a href="?show_completed=true&page={{ orders.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">&lsaquo;</a>
                 {% endif %}
 
-                <span class="current">
-                    Страница {{ orders.number }} из {{ orders.paginator.num_pages }}.
-                </span>
+                {% for num in orders.paginator.page_range %}
+                    {% if num == orders.number %}
+                        <span class="current-page">{{ num }}</span>
+                    {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                        <a href="?show_completed=true&page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
 
                 {% if orders.has_next %}
-                    <a href="?show_completed=true&page={{ orders.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">Следующая ›</a>
-                    <a href="?show_completed=true&page={{ orders.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">В конец »</a>
+                    <a href="?show_completed=true&page={{ orders.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">&rsaquo;</a>
+                    <a href="?show_completed=true&page={{ orders.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="pagination-link">&raquo;</a>
                 {% endif %}
             </span>
         </div>
@@ -249,15 +257,24 @@
         color: #0073e6;
         margin: 0 5px;
         text-decoration: none;
+        padding: 3px 8px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
     }
 
     .pagination-link:hover {
-        text-decoration: underline;
+        background-color: #e9ecef;
+        border-color: #0073e6;
     }
 
-    .current {
+    .current-page {
+        background-color: #0073e6;
+        color: white;
         font-weight: bold;
-        margin: 0 10px;
+        margin: 0 5px;
+        padding: 3px 8px;
+        border: 1px solid #0073e6;
+        border-radius: 4px;
     }
 
     .modal {

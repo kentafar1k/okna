@@ -191,6 +191,7 @@
         width: 100%;
         border-collapse: collapse;
         margin-top: 20px;
+        table-layout: fixed;
     }
 
     th, td {
@@ -376,6 +377,28 @@
         .search-input {
             max-width: 300px;
         }
+    }
+
+    /* Задаем ширину для столбцов */
+    th:nth-child(1), td:nth-child(1) { width: 40%; } /* Номер заказа */
+    th:nth-child(2), td:nth-child(2) { width: 60%; } /* Стадия */
+
+    /* Стили для ячейки с номером заказа */
+    td:nth-child(1) {
+        max-width: 130px; /* Устанавливаем чуть меньшую ширину, чем в orders.html */
+        white-space: normal; /* Разрешаем перенос строк */
+        word-wrap: break-word; /* Разрешаем перенос длинных слов */
+        overflow-wrap: break-word; /* Современное свойство для переноса слов */
+        hyphens: auto; /* Добавляем автоматические переносы для слов */
+    }
+
+    /* Стили для ссылок в ячейке с номером заказа */
+    td:nth-child(1) .order-link {
+        display: inline-block;
+        max-width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
     }
 </style>
 

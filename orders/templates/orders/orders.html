@@ -342,10 +342,20 @@
 
     /* Стили для ячейки с номером заказа */
     td:nth-child(1) {
-        max-width: 400px;  /* Увеличиваем максимальную ширину */
+        max-width: 150px;  /* Ограничиваем максимальную ширину, примерно как у "Пакет Леха сосед 4-16-" */
         white-space: normal;  /* Разрешаем перенос строк */
         word-wrap: break-word;  /* Разрешаем перенос длинных слов */
         overflow-wrap: break-word;  /* Современное свойство для переноса слов */
+        hyphens: auto;  /* Добавляем автоматические переносы для слов */
+    }
+
+    /* Стили для ссылок в ячейке с номером заказа */
+    td:nth-child(1) .order-link {
+        display: inline-block;
+        max-width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
     }
 
     /* Стили для ячейки с клиентом */

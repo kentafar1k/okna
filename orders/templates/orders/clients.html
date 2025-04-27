@@ -252,6 +252,7 @@ function deleteClient(clientId, clientName) {
 
 table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     margin-top: 20px;
     background-color: white;
@@ -338,34 +339,46 @@ th {
 /* Настраиваем ширину столбцов */
 .phone-col {
     width: 14%;
+    max-width: 14%;
+    word-wrap: break-word;
 }
 
 .name-col {
     width: 20%;
+    max-width: 20%;
+    word-wrap: break-word;
 }
 
 .email-col {
     width: 15%;
+    max-width: 15%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .order-count-col {
     width: 10%;
+    max-width: 10%;
     white-space: nowrap;
     text-align: center;
 }
 
 .last-order-col {
     width: 12%;
+    max-width: 12%;
     text-align: center;
 }
 
 .debt-col {
     width: 12%;
+    max-width: 12%;
     text-align: center;
 }
 
 .actions-col {
     width: 17%;
+    max-width: 17%;
 }
 
 /* Медиа-запросы для адаптивности */

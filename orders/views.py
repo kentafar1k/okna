@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Sum, Q
+import json
 
 
 @manager_required
@@ -622,15 +623,37 @@ def update_prepayment(request, order_id):
     return redirect('orders:order_detail', order_id=order.id)
 
 @manager_required
+@require_POST
 def delete_order(request, order_id):
-    if request.method == 'POST':
-        try:
-            order = Order.objects.get(id=order_id)
-            order.delete()
-            return JsonResponse({'success': True})
-        except Order.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Заказ не найден'})
-    return JsonResponse({'success': False, 'error': 'Неверный метод запроса'})
+    order = get_object_or_404(Order, id=order_id)
+    order.delete()
+    return JsonResponse({'success': True})
+
+@manager_required
+@require_POST
+def delete_multiple_orders(request):
+    try:
+        data = json.loads(request.body)
+        order_ids = data.get('order_ids', [])
+        
+        if not order_ids:
+            return JsonResponse({'success': False, 'error': 'Не указаны ID заказов для удаления'})
+        
+        # Получаем все заказы одним запросом
+        orders = Order.objects.filter(id__in=order_ids)
+        
+        # Проверяем, что все заказы существуют
+        if len(orders) != len(order_ids):
+            return JsonResponse({'success': False, 'error': 'Некоторые заказы не найдены'})
+        
+        # Удаляем все заказы
+        orders.delete()
+        
+        return JsonResponse({'success': True})
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Неверный формат данных'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 @manager_required
 def delete_client(request, client_id):

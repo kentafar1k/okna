@@ -45,6 +45,9 @@
         <div class="create-order">
             <a href="{% url 'orders:create_order' %}" class="button action-button">+ Создать заказ</a>
             <a href="{% url 'orders:calculations' %}" class="button action-button calculation-button">Расчеты</a>
+            {% if show_completed %}
+            <button onclick="deleteAllOrdersOnPage()" class="button action-button delete-all-button">Удалить все</button>
+            {% endif %}
             <a href="?show_completed={% if show_completed %}false{% else %}true{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" 
                class="button action-button order-filter-button">
                 {% if show_completed %}
@@ -904,6 +907,37 @@
     .pagination .current {
         display: none; /* Скрываем старый current */
     }
+
+    .delete-all-button {
+        background-color: #0073e6;
+        color: white;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+
+    .delete-all-button:hover {
+        background-color: #005bb5;
+        color: white;
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        .create-order {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .create-order .action-button {
+            flex: 0 1 auto;
+            min-width: fit-content;
+            white-space: nowrap;
+            text-align: center;
+        }
+    }
 </style>
 
 <script>
@@ -1089,6 +1123,51 @@ function showStatusHistory(orderId, orderNumber) {
 
 function closeStatusHistory() {
     document.getElementById('statusHistoryModal').style.display = 'none';
+}
+
+function deleteAllOrdersOnPage() {
+    if (!confirm('Вы уверены, что хотите удалить все заказы на этой странице? Это действие нельзя отменить.')) {
+        return;
+    }
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const orderRows = document.querySelectorAll('tr.order-row');
+    const orderIds = Array.from(orderRows).map(row => row.getAttribute('data-order-id'));
+    
+    if (orderIds.length === 0) {
+        alert('Нет заказов для удаления');
+        return;
+    }
+
+    fetch('/orders/delete-multiple/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ order_ids: orderIds })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Удаляем все строки заказов
+            orderRows.forEach(row => row.remove());
+            alert('Все заказы на странице успешно удалены');
+            // Перезагружаем страницу
+            window.location.reload();
+        } else {
+            alert('Ошибка при удалении заказов: ' + (data.error || 'Неизвестная ошибка'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ошибка при удалении заказов: ' + error.message);
+    });
 }
 </script>
 {% endblock %}

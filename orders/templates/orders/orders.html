@@ -46,7 +46,7 @@
             <a href="{% url 'orders:create_order' %}" class="button action-button">+ Создать заказ</a>
             <a href="{% url 'orders:calculations' %}" class="button action-button calculation-button">Расчеты</a>
             {% if show_completed %}
-            <button onclick="deleteAllOrdersOnPage()" class="button action-button delete-all-button">Удалить все</button>
+            <button onclick="deleteAllOrdersOnPage()" class="button action-button delete-all-button">Удалить страницу</button>
             {% endif %}
             <a href="?show_completed={% if show_completed %}false{% else %}true{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_month %}&month={{ selected_month }}{% endif %}" 
                class="button action-button order-filter-button">
@@ -912,31 +912,22 @@
         background-color: #0073e6;
         color: white;
         text-decoration: none;
-        padding: 8px 16px;
+        padding: 4px 8px;
         border-radius: 4px;
-        transition: background-color 0.3s;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 80px;
+        max-width: 65%;
     }
 
     .delete-all-button:hover {
         background-color: #005bb5;
         color: white;
         text-decoration: none;
-    }
-
-    @media (max-width: 768px) {
-        .create-order {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-        
-        .create-order .action-button {
-            flex: 0 1 auto;
-            min-width: fit-content;
-            white-space: nowrap;
-            text-align: center;
-        }
     }
 </style>
 

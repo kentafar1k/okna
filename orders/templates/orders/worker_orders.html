@@ -94,6 +94,7 @@
                 <tr>
                     <th>Номер заказа</th>
                     <th>Стадия</th>
+                    <th style="width: 40px;">Файл</th>
                 </tr>
             </thead>
             <tbody>
@@ -115,6 +116,36 @@
                                 {% endfor %}
                             </select>
                         </form>
+                    </td>
+                    <td class="file-cell">
+                        {% if order.order_file %}
+                        <a href="{{ order.order_file.url }}" 
+                           class="file-link" 
+                           target="_blank" 
+                           {% with filename=order.order_file.name|lower %}
+                               {% if '.pdf' in filename %}
+                                   title="Открыть PDF файл"
+                               {% elif '.xlsx' in filename or '.xls' in filename %}
+                                   title="Открыть Excel файл"
+                               {% elif '.doc' in filename or '.docx' in filename %}
+                                   title="Открыть Word файл"
+                               {% else %}
+                                   title="Открыть файл"
+                               {% endif %}
+                           {% endwith %}>
+                            {% with filename=order.order_file.name|lower %}
+                                {% if '.pdf' in filename %}
+                                    <i class="fas fa-file-pdf"></i>
+                                {% elif '.xlsx' in filename or '.xls' in filename %}
+                                    <i class="fas fa-file-excel"></i>
+                                {% elif '.doc' in filename or '.docx' in filename %}
+                                    <i class="fas fa-file-word"></i>
+                                {% else %}
+                                    <i class="fas fa-file"></i>
+                                {% endif %}
+                            {% endwith %}
+                        </a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}
@@ -399,6 +430,60 @@
         word-wrap: break-word;
         overflow-wrap: break-word;
         hyphens: auto;
+    }
+
+    .file-cell {
+        text-align: center;
+    }
+    
+    .file-link {
+        color: #0073e6;
+        text-decoration: none;
+        padding: 8px 10px;
+        border-radius: 4px;
+        background-color: rgba(0, 115, 230, 0.1);
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+    
+    .file-link:hover {
+        background-color: rgba(0, 115, 230, 0.2);
+        color: #0073e6;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .file-link:hover i {
+        animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.2);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    
+    .file-link i {
+        font-size: 16px;
+    }
+    
+    /* Добавляем цвета для разных типов файлов */
+    .file-link i.fa-file-pdf {
+        color: #f40f02;
+    }
+    
+    .file-link i.fa-file-excel {
+        color: #1d6f42;
+    }
+    
+    .file-link i.fa-file-word {
+        color: #2b579a;
     }
 </style>
 
